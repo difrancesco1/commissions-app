@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # rosieuna
 
 An Electron application with React
@@ -32,3 +33,6 @@ $ yarn build:mac
 # For Linux
 $ yarn build:linux
 ```
+=======
+# commissions-app
+>>>>>>> 9f680e6bdf4bac402c885635f704a5bcf70aa116
