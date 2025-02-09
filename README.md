@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# rosieuna
+# Commisions Application
 
 An Electron application with React
 
