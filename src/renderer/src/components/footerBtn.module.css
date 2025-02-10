@@ -4,7 +4,7 @@
     position: fixed;
     bottom: 0;
     height: 25px; /* Half of the total height to make it look like a half circle */
-    background-color: #FFC7CC; /* Background color of the half circle */
+    background-color: #ffc7cc94; /* Background color of the half circle */
     border-top-left-radius: 100px; /* Curve the top left */
     border-top-right-radius: 100px; /* Curve the top right */
     cursor: pointer; /* Make the button clickable */
@@ -16,10 +16,9 @@
     text-align: center;
     transition: background-color 0.3s ease; /* For smooth hover effect */
     border-bottom: none;
-
   }
   
   .button:hover {
-    background-color: #ff78a177; /* Change color on hover */
+    background-color: #FDDDA7; /* Change color on hover */
   }
   

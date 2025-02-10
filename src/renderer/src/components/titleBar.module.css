@@ -11,16 +11,24 @@
     justify-content: space-between;
     user-select: none;  /* Prevents text selection */
 }
+
 .btns {
     display: flex;
 
 }
+
 .icon {
     width: 50px;
     padding: 5px;
 }
 
 .exit {
-    width: 40px;
+    width: 30px;
     padding: 5px;
+
+    filter: 
+    brightness(0) invert(1);
+    
+    -webkit-filter: 
+    brightness(0) invert(1);
 }

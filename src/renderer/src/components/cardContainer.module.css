@@ -1,8 +1,8 @@
 .container {
-    margin-top: 30px;
+    margin-top: 15px;
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 columns */
-    gap: 20px; /* Space between cards */
+    gap: 10px; /* Space between cards */
     padding-bottom: 40px;
     padding-top: 20px;
     user-select: none;  /* Prevents text selection */
