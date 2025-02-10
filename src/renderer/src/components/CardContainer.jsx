@@ -5,11 +5,13 @@ import content from '../../../content.js'
 
 const CardContainer = () => {
     return (
-        <div className={styles.container}>
-            {content.map((item) => (
-                <Card key={item.key} item={item} />
-            ))}
-        </div>
+        <>
+            <div className={styles.container}>
+                {content.map((item) => (
+                    <Card key={item.key} item={item} />
+                ))}
+            </div>
+        </>
     )
 }
 

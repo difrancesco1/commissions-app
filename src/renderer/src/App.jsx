@@ -1,16 +1,17 @@
 import Home from "./components/Home.jsx"
 import "../src/assets/base.css"
-import { useEffect } from "react";
+import FooterBtn from './components/FooterBtn.jsx'
+import TitleBar from "./components/TitleBar.jsx"
 
 function App() {
-  useEffect(() => {
-    console.log("App is rendering");  // Confirm that the app is rendering
-  }, []);
+
 
   return (
-    <>
+    <div className="app-container">
+      <TitleBar />
       <Home />
-    </>
+      <FooterBtn />
+    </div>
   )
 }
 

@@ -2,15 +2,18 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import './styles.css'
 
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 300,
+    width: 320,
     height: 450,
     show: false,
-    // remove the default titlebar
+    frame: false, // Remove the window frame
+    transparent: true, // Allow transparency for rounded corners
     titleBarStyle: 'hidden',
+    resizable: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
