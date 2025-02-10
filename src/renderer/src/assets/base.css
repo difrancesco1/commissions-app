@@ -1,3 +1,10 @@
+:root {
+  --bg: #e2cbca;
+  --bordertop: #d09090;
+  --borderbtm: #715858;
+  --accent: #e78384;
+}
+
 *,
 *::before,
 *::after {
@@ -7,15 +14,15 @@
 }
 
 ::-webkit-scrollbar {
-  width: 15px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f100;
+  background: var(--accent);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffc7cc94;
+  background: var(--borderbtm);
   border-radius: 5px;
 }
 
@@ -25,13 +32,18 @@ ul {
 
 .app-container {
   position: relative;
-  min-height: 100vh; 
-  background-image: url("../../../assets/appbg1.png");
-  background-position: center;
-  background-attachment: fixed; 
-  background-size: cover; 
+  min-height: 97vh; 
+  background-color: var(--bg); 
   overflow: hidden; 
   display: flex;
-  align-items: center;
+  align-items: left;
   flex-direction: column;
+
+  border: 3px solid;
+
+  border-top-color: var(--bordertop);
+  border-left-color: var(--bordertop);
+
+  border-bottom-color: var(--borderbtm);
+  border-right-color: var(--borderbtm);
 }

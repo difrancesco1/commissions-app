@@ -8,7 +8,7 @@ function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 320,
-    height: 450,
+    height: 520,
     show: false,
     frame: false, // Remove the window frame
     transparent: true, // Allow transparency for rounded corners
