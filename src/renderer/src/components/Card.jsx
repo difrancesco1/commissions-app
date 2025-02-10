@@ -1,10 +1,9 @@
 import React from 'react'
-import content from '../../../content.js'
 import styles from './card.module.css'
 
-const Card = () => {
+const Card = ({content}) => {
     return (
-        <div>
+        <div className={styles.card}>
             {content.map((item) => {
                 return (
                     <div key={item.key}>

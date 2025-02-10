@@ -12,5 +12,6 @@ ul {
 
 
 body {
-  background-color: aqua;
+  background-image: url("../../../assets/appbg1.png");
+  background-size: cover;
 }
