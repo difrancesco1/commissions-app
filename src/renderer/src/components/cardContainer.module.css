@@ -1,7 +1,7 @@
 .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 columns */
-    gap: 20px; /* Space between cards */
+    gap: 40px; /* Space between cards */
 }
 .container > div {
     flex: 0 0 calc(50% - 10px); /* Make each Card take up 50% of the width, minus the gap */
