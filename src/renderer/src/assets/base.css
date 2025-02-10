@@ -7,22 +7,21 @@
 }
 
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 15px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f1f1f100;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FF78A0;
+  background: #ffc7ccbb;
   border-radius: 5px;
 }
 
 ul {
   list-style: none;
 }
-
 
 .app-container {
   position: relative;

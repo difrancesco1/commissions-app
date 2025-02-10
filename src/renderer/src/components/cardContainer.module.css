@@ -2,8 +2,8 @@
     margin-top: 30px;
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 columns */
-    gap: 40px; /* Space between cards */
-    padding-bottom: 60px;
+    gap: 20px; /* Space between cards */
+    padding-bottom: 40px;
     padding-top: 20px;
     user-select: none;  /* Prevents text selection */
 }
