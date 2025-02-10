@@ -1,12 +1,11 @@
+/* eslint-disable prettier/prettier */
 import React from 'react'
 import styles from './footerBtn.module.css'
 
 const FooterBtn = () => {
     const handleClick = () => {
         console.log("archive btn clicked");
-    
     };
-
 
   return (
     <div className={styles.button} onClick={handleClick}>

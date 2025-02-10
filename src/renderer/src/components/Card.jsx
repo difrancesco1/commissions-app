@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React from 'react'
 import styles from './card.module.css'
 
@@ -7,7 +8,7 @@ const Card = ({item}) => {
             <img 
                 className={styles.image}
                 src={item.image} 
-                alt={item.name} 
+                alt={item.name}
             />
         </div>
     )
