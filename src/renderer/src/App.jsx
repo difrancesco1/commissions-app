@@ -1,8 +1,11 @@
+import Home from "./components/Home.jsx"
+import "../src/assets/base.css"
+
 function App() {
 
   return (
     <>
-      <Versions></Versions>
+      <Home />
     </>
   )
 }
