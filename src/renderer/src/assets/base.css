@@ -5,12 +5,19 @@
   --accent: #e78384;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
   font-weight: normal;
+}
+
+body{
+  
+  font-family: "Tiny5", serif;
 }
 
 ::-webkit-scrollbar {

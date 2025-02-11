@@ -9,6 +9,13 @@ function App() {
   return (
     <div className="app-container">
       <TitleBar />
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <h1>TEST</h1>
+
       <Home />
       <FooterBtn />
     </div>
