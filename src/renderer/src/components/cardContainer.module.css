@@ -4,6 +4,8 @@
     user-select: none;
     overflow-y: auto;
     /* margin-top: 10px; */
+    margin-left: 5px;
+    margin-right: 15px;
 }
 .container > div {
     flex: 0 0 calc(50% - 10px); /* Make each Card take up 50% of the width, minus the gap */

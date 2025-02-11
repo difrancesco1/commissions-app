@@ -1,8 +1,8 @@
 .card {
-    width:35px;
-    height:35px;
+    width: 38px;
+    height: 35px;
 
-    border: 3px solid;
+    border: 3.5px solid;
 
     border-top-color: var(--bordertop);
     border-left-color: var(--bordertop);
@@ -13,7 +13,7 @@
     overflow: hidden;
     position: relative;
 
-    margin: 5px; 
+    margin: 4px;
 }
 
 .card:hover .image{
@@ -24,4 +24,12 @@
     width:35px;
     height:35px;
     transition: .5s ease;
+}
+
+.card:active {
+    border-top-color: var(--borderbtm);
+    border-left-color: var(--borderbtm);
+
+    border-bottom-color: var(--bordertop);
+    border-right-color: var(--bordertop);
 }
