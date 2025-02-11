@@ -6,8 +6,8 @@
   }
 
 .titlebarContainer {
-    width: 98%;
-    height: 30px;
+    width: 97.5%;
+    height: 36px;
     position: fixed;
     z-index: 999;
     -webkit-app-region: drag;
@@ -40,11 +40,11 @@
 }
 
 .exit {
-    width: 20px;
+    width: 22px;
 
     background-color: var(--bordertop);
 
-    border: 3px solid;
+    border: 4px solid;
 
     border-top-color: var(--bg);
     border-left-color: var(--bg);
@@ -56,4 +56,10 @@
     filter: grayscale();
 
     margin-right: 4px;
+}
+
+.text{
+    FONT-SIZE: 27px;
+    padding-left: 4px;
+    padding-bottom: 3px;
 }

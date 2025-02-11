@@ -7,8 +7,8 @@ import './styles.css'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 320,
-    height: 520,
+    width: 322,
+    height: 533,
     show: false,
     frame: false, // Remove the window frame
     transparent: true, // Allow transparency for rounded corners
