@@ -26,7 +26,7 @@ body{
 
   border: 3px solid;
   border-right: 5px solid;
-  border-bottom: 5px solid;
+  border-bottom: 5px solid; 
 
   border-top-color: var(--bg);
   border-left-color: var(--bg);

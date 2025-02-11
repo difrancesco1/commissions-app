@@ -1,16 +1,18 @@
-:root {
-    --bg: #e2cbca;
-    --bordertop: #d09090;
-    --borderbtm: #715858;
-    --accent: #e78384;
-  }
+/* .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    overflow-y: auto;
+    margin-left: 3px;
+} */
 
 .container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; 
+    overflow: hidden;
+    /* justify-content: flex-start;
     position: relative;
-    max-height: 100vh;
     overflow-y: auto;
+    margin-left: 3px; */
 }

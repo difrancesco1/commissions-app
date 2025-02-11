@@ -1,10 +1,3 @@
-:root {
-    --bg: #e2cbca;
-    --bordertop: #d09090;
-    --borderbtm: #715858;
-    --accent: #e78384;
-  }
-
 .card {
     width:35px;
     height:35px;

@@ -1,17 +1,9 @@
-:root {
-    --bg: #e2cbca;
-    --bordertop: #d09090;
-    --borderbtm: #715858;
-    --accent: #e78384;
-  }
-
 .container {
-    max-height: 100vh;
-    margin-top: 15px;
+    max-height: 280px;
     display: grid;
-    padding-bottom: 40px;
-    padding-top: 20px;
-    user-select: none;  /* Prevents text selection */
+    user-select: none;
+    overflow-y: auto;
+    margin-top: 10px;
 }
 .container > div {
     flex: 0 0 calc(50% - 10px); /* Make each Card take up 50% of the width, minus the gap */
