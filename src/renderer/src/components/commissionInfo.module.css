@@ -11,6 +11,7 @@
     font-weight: bold;
     margin-bottom: -3px;
     margin-top: -7px;
+    user-select: none;
 }
 
 .noteText{
@@ -91,8 +92,8 @@
 }
 
 .emailBtn:hover{
-    -webkit-filter: grayscale();
-    filter: grayscale();
+    -webkit-filter: hue-rotate(35deg);
+    filter: hue-rotate(35deg);
 }
 
 .todoCountText{
