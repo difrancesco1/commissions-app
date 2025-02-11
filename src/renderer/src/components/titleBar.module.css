@@ -19,8 +19,8 @@
     user-select: none;
 
     background-color: var(--accent);
-    border-bottom-width: 3px solid;
     border-bottom-color: var(--borderbtm);
+    border-bottom: solid;
 
     top: 0;
     left: 0;
