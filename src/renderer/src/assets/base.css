@@ -3,6 +3,13 @@
   --bordertop: #ff78a181;
   --borderbtm: #45314a81;
   --accent: #FF78A0;
+
+  --red: #FFBDB9;
+  --orange: #F6DBBE;
+  --yellow: #FFFEDA;
+  --green: #D4F2A8;
+  --blue: #A2F5F9;
+  --purple: #DBC5F6;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');

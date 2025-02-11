@@ -1,6 +1,6 @@
 .commissionInfo {
     width: 100%;
-    height: 190px;
+    height: 180px;
     /* padding-top: 150px; */
     padding-left: 11px;
     padding-right: 15px;
@@ -63,12 +63,13 @@
 }
 
 .emailBtn{
-    width: 38px;
+    width: 53px;
     height: 35px;
 
-    margin-top: 6px;
+    margin-top: 7px;
 
     background-color: var(--bordertop);
+    color: rgba(255, 255, 255, 0.719);
 
     border: 3.5px solid;
 
@@ -84,8 +85,20 @@
     vertical-align: middle;
     line-height: 28px;
 
-    font-size: larger;
-    font-weight: bold;
+    font-size: 20px;
 
     opacity: 0.8;
+}
+
+.emailBtn:hover{
+    -webkit-filter: grayscale();
+    filter: grayscale();
+}
+
+.todoCountText{
+    margin-top: 6px;
+    font-size: 23px;
+    margin-left: -5px;
+    letter-spacing: 1px;
+    user-select: none;
 }
