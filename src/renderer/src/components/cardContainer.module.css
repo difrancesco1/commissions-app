@@ -6,6 +6,7 @@
   }
 
 .container {
+    max-height: 100vh;
     margin-top: 15px;
     display: grid;
     padding-bottom: 40px;

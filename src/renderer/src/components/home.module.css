@@ -11,6 +11,6 @@
     align-items: center;
     justify-content: flex-start; 
     position: relative;
-    min-height: 100vh;
+    max-height: 100vh;
     overflow-y: auto;
 }

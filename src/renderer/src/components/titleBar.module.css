@@ -6,7 +6,7 @@
   }
 
 .titlebarContainer {
-    width:100%;
+    width: 98%;
     height: 30px;
     position: fixed;
     z-index: 999;
@@ -16,10 +16,17 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    user-select: none;  /* Prevents text selection */
-    background-color: var(--accent);
+    user-select: none;
 
+    background-color: var(--accent);
     border-bottom-width: 3px solid;
+    border-bottom-color: var(--borderbtm);
+
+    top: 0;
+    left: 0;
+
+    margin-left: 3px;
+    margin-top: 3px;
 }
 
 .btns {
@@ -39,12 +46,14 @@
 
     border: 3px solid;
 
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    border-top-color: var(--bg);
+    border-left-color: var(--bg);
 
     border-bottom-color: var(--borderbtm);
     border-right-color: var(--borderbtm);
 
     -webkit-filter: grayscale();
     filter: grayscale();
+
+    margin-right: 4px;
 }
