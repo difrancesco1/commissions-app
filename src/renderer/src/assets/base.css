@@ -1,8 +1,8 @@
 :root {
-  --bg: #e2cbca;
-  --bordertop: #d09090;
-  --borderbtm: #715858;
-  --accent: #e78384;
+  --bg: #FEE8EB;
+  --bordertop: #ff78a181;
+  --borderbtm: #45314a81;
+  --accent: #FF78A0;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
@@ -26,7 +26,7 @@ body{
 
   border: 3px solid;
   border-right: 5px solid;
-  border-bottom: 5px solid; 
+  border-bottom: 5px solid !important; 
 
   border-top-color: var(--bg);
   border-left-color: var(--bg);

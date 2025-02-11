@@ -32,6 +32,9 @@
 .exit {
     width: 22px;
 
+    -webkit-filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1);
+
     background-color: var(--bordertop);
 
     border: 4px solid;
@@ -41,9 +44,6 @@
 
     border-bottom-color: var(--borderbtm);
     border-right-color: var(--borderbtm);
-
-    -webkit-filter: grayscale();
-    filter: grayscale();
 
     margin-right: 4px;
 }
