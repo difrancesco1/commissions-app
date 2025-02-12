@@ -196,11 +196,6 @@ async function fetchEmails(auth) {
             const mpaypal = msgBody[13];
             const mcomplex = msgBody[15];
 
-            // get attachments
-            var attachId = msg.data.payload.parts[0].body.attachmentId;
-
-            console.log(attachId);
-
             // Print the strings, eventually send to Datebase
             console.log(`Date: ${mdate}`);
             console.log(`${msgBody}`);
