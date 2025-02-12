@@ -36,6 +36,8 @@
     border-right-color: var(--borderbtm);
 
     user-select: none;
+
+    margin-right: 8px;
 }
 
 .imgStyle:active, .emailBtn:active{

@@ -99,7 +99,7 @@
 
   margin-left: 4px;
   margin-right: -5px;
-  margin-top: 2.5px;
+  margin-top: 4px;
 
   opacity: .7;
 }
@@ -116,4 +116,11 @@
 .boxButton:hover , .rectangleButton:hover {
   filter: brightness(0) invert(1) var(--bg);
   -webkit-filter: brightness(0) invert(1) var(--bg);
+}
+
+.buttonText {
+  height: 15px;
+    width: 15px;
+    margin-top: 5.5px;
+    opacity: 75%;
 }
