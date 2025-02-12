@@ -265,9 +265,7 @@ async function fetchEmails(auth) {
 
 
 // checking if user has iamge saved in their directory, if not, pull from gmail and save
-export async function checkAndSaveEmailAttachment(id, messageId, attachmentId) {
-    console.log("hello world");
-    return true;
+export function checkAndSaveEmailAttachment(id, messageId, attachmentId) {
     const gmail = google.gmail({ version: 'v1', auth });
     try {
         // if attachment doesn't exist
