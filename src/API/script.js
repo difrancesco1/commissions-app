@@ -85,7 +85,7 @@ let emailId = 0;  // Initialize ID counter
 // store in DB
 async function storeEmailInFirebase(emailData) {
     try {
-        const docRef = db.collection('commissions').doc(emailId.toString());
+        const docRef = db.collection('commissions').doc(emailData["mcomm_type"] + emailData["mtwitter"]);
 
         // // calculate due date - date on form + 7 + emailid
         // var dueDate = new Date(emailData["mdate"]);
@@ -153,21 +153,22 @@ async function fetchEmails(auth) {
     // prevent duplicates -> sent side by side usually 
     const commsInDatabase = [];
     const failedEmailNames = [];
+    const emailReq = 'is:unread (subject:"- new commission - DO NOT OPEN - app will not update if read -")'
 
     try {
         // List the latest 10 emails fetched
         const res = await gmail.users.messages.list({
             userId: 'me',
             labelIds: ['INBOX'],                          // Only fetch emails from indox
-            // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
-            q: 'is:unread (subject:"new commission")'
+            // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' - new commission - DO NOT OPEN - app will not update if read -
+            q: emailReq
 
         });
 
         // If there are no new emails exit loop
         const messages = res.data.messages;
         if (!messages || messages.length === 0) {
-            console.log("no new emails");
+            console.log("no new emails" + emailReq);
             return;
         }
 
