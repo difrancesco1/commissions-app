@@ -2,17 +2,17 @@
 import React from 'react'
 import styles from './card.module.css'
 
-const Card = ({item}) => {
+const Card = ({user}) => {
     return (
         <div className={styles.cardContainer}>
             <div className={styles.card}>
-                <img 
+                {/* <img 
                     className={styles.image}
-                    src={item.image} 
-                    alt={item.name}
-                />
+                    src={user.image} 
+                    alt={user.name}
+                /> */}
             </div>
-            <h1 className={styles.cardText}>{item.twitter}</h1>
+            <h1 className={styles.cardText}>{user.NAME}</h1>
         </div>
     )
 }

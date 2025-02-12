@@ -1,21 +1,39 @@
-import React from 'react'
-import Card from './Card.jsx'
-import styles from './cardContainer.module.css'
-import content from '../../../content.js'
+import React, { useState, useEffect } from 'react';
+import Card from './Card.jsx';
+import styles from './cardContainer.module.css';
 
 import { db } from "../firebaseConfig"; // Import Firestore
 import { collection, getDocs } from "firebase/firestore";
 
-const CardContainer = () => {
-  return (
-    <>
-      <div className={styles.container}>
-        {content.map((item) => (
-          <Card key={item.key} item={item} />
-        ))}
-      </div>
-    </>
-  )
-}
+async function fetchDataFromFirestore() {
+  const querySnapshot = await getDocs(collection(db, "commissions"))
 
-export default CardContainer
+  const data = [];
+  querySnapshot.forEach((doc) => {
+    data.push({ id: doc.id, ...doc.data()})
+  });
+  return data;
+}
+const CardContainer = () => {
+
+  const [userData, setUserData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const data = await fetchDataFromFirestore();
+      setUserData(data);
+      
+    }
+    fetchData();
+  }, []);
+  return (
+    <div className={styles.container}>
+      {userData.map((user) => (
+        <Card key={user.id} user={user} />
+      ))}
+
+    </div>
+  );
+};
+
+export default CardContainer;

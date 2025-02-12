@@ -148,10 +148,10 @@ async function fetchEmails(auth) {
         // List the latest 10 emails fetched
         const res = await gmail.users.messages.list({
             userId: 'me',
-            maxResults: 20,                               //Limit 10 emails
+            maxResults: 10,                               //Limit 10 emails
             labelIds: ['INBOX'],                          // Only fetch emails from indox
             // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
-            q: 'is:unread (subject:"twitch alerts" OR subject:"VALENTINES COMMISSION" OR subject:"new commission")'
+            q: 'is:read (subject:"twitch alerts" OR subject:"VALENTINES COMMISSION" OR subject:"new commission")'
 
         });
 
@@ -180,7 +180,8 @@ async function fetchEmails(auth) {
             const subjectHeader = msg.data.payload.headers.find(header => header.name === 'Subject');
             const fromHeader = msg.data.payload.headers.find(header => header.name === 'From');
             const dateHeader = msg.data.payload.headers.find(header => header.name === 'Date');
-
+            const body = JSON.stringify(msg.data.payload.headers.find(header => header.name === 'Body'));
+            console.log(body.value);
             // Convert into Strings with .value to retrieve the value from the object
             const subject = subjectHeader ? subjectHeader.value : "(No subject)";
             const from = fromHeader ? fromHeader.value : '(No Sender)';
@@ -194,7 +195,7 @@ async function fetchEmails(auth) {
             console.log("--------------------------");
 
             // Store in Firebase
-            await storeEmailInFirebase({ from, subject });
+            // await storeEmailInFirebase({ from, subject });
         }
         // Catch err if any
     } catch (err) {
