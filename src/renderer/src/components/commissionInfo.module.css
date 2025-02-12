@@ -23,8 +23,10 @@
 }
 
 .imgStyle{
-    width: 94px;
-    height: 94px;
+    min-width: 94px;
+    min-height: 94px;
+    max-width: 94px;
+    max-height: 94px;
     background-color: white;
 
     border: 4px solid;

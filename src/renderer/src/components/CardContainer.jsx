@@ -6,7 +6,11 @@ import content from '../../../content.js'
 import { db } from "../firebaseConfig"; // Import Firestore
 import { collection, getDocs } from "firebase/firestore";
 
+
+
 async function fetchDataFromFirestore() {
+
+  
   const querySnapshot = await getDocs(collection(db, "commissions"))
 
   const data = [];
@@ -19,6 +23,9 @@ const CardContainer = ( { commissionIndex, setCommissionIndex } ) => {
 
   const [userData, setUserData] = useState([]);
 
+  const handleClick = () => {
+    console.log(`ID is saved as: ${commissionIndex}`)
+  }
   useEffect(() => {
     async function fetchData() {
       const data = await fetchDataFromFirestore();
