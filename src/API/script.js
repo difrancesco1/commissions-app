@@ -198,7 +198,7 @@ async function fetchEmails(auth) {
 
             // Print the strings, eventually send to Datebase
             console.log(`Date: ${mdate}`);
-            console.log(`${msgBody}`);
+            console.log(`${mtwitter}`);
             console.log("--------------------------");
 
             // Store in Firebase
