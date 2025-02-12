@@ -184,19 +184,10 @@ async function fetchEmails(auth) {
                 id: message.id,
             });
 
-            // Get Objects from email 
-            const subjectHeader = msg.data.payload.headers.find(header => header.name === 'Subject');
-            const fromHeader = msg.data.payload.headers.find(header => header.name === 'From');
-            const dateHeader = msg.data.payload.headers.find(header => header.name === 'Date');
-
-            // Convert into Strings with .value to retrieve the value from the object
-            const subject = subjectHeader ? subjectHeader.value : "(No subject)";
-            const from = fromHeader ? fromHeader.value : '(No Sender)';
-
-            
+            var parts = msg.data.payload.parts;
 
             // sort through message body
-            const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+            const msgBody = atob(parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
             const msgDate = msgBody[1].split("/");
             const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
             const mcomm_type = msgBody[3];
@@ -207,6 +198,8 @@ async function fetchEmails(auth) {
             const mpaypal = msgBody[13];
             const mcomplex = msgBody[15];
 
+
+
             // Print the strings, eventually send to Datebase
             console.log(`From ${from}`);
             console.log(`Subject: ${subject}`);
@@ -215,7 +208,7 @@ async function fetchEmails(auth) {
             console.log("--------------------------");
 
             // Store in Firebase
-            await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
+            await storeEmailInFirebase({ mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
         }
         // Catch err if any
     } catch (err) {
