@@ -6,13 +6,13 @@ const Card = ({user, commissionIndex, setCommissionIndex }) => {
     return (
         <div className={styles.cardContainer}>
             <div className={styles.card}>
-                {/* <img 
+                <img 
                     className={styles.image}
                     src={user.image} 
                     alt={user.name}
-                /> */}
+                />
             </div>
-            <h1 className={styles.cardText}>{user.NAME}</h1>
+            <h1 className={styles.cardText}>{user.TWITTER}</h1>
         </div>
     )
 }

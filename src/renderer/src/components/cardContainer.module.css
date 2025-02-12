@@ -10,7 +10,6 @@
 .container > div {
     flex: 0 0 calc(50% - 10px); /* Make each Card take up 50% of the width, minus the gap */
     box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
-    max-height: 43px;
   }
 
 ::-webkit-scrollbar {

@@ -87,9 +87,6 @@ async function storeEmailInFirebase(emailData) {
     try {
         const docRef = db.collection('commissions').doc(emailId.toString());
 
-        // Log document reference to ensure it's correct
-        console.log("Document Reference: ", docRef.path);
-
         // // calculate due date - date on form + 7 + emailid
         // var dueDate = new Date(emailData["mdate"]);
         // dueDate.setDate(dueDate.getDate() + emailId + 7);
@@ -100,7 +97,7 @@ async function storeEmailInFirebase(emailData) {
 
         // Try setting the data
         await docRef.set({
-            ID: emailId,
+            ID: emailData["mcomm_type"]+emailData["mtwitter"],
             NAME: emailData["mname"],
             COMM_START_DATE: emailData["mdate"], // when the first commission is to start
             PAYDUE: payDue, // when the payment is due -> move to archive after 30 days
@@ -110,8 +107,8 @@ async function storeEmailInFirebase(emailData) {
             COMM_NAME: emailData["mcomm_name"], // full name of commission
             EMAIL: emailData["memail"],  // email to send commission
             PAYPAL: emailData["mpaypal"], // paypal email
-            IMG1: "",  // Add file handling if needed later
-            IMG2: "",
+            MSG_ID: emailData["messageId"],
+            IMG1: emailData["attachmentId"],  // Add file handling if needed later
             NOTES: "click to add short note :3", // empty for now
             COMPLETE: false,
             ARCHIVE: false, // if true, is archived
@@ -123,7 +120,7 @@ async function storeEmailInFirebase(emailData) {
             EMAIL_WIP: false
         });
 
-        console.log(`Email with ID ${emailId} stored in Firebase.`);
+        console.log(`Email for ${emailData["mcomm_type"]}${emailData["mtwitter"]} stored in Firebase.`);
         emailId++;  // Increment ID for the next email
     } catch (error) {
         console.error("Error storing email in Firebase:", error);
@@ -153,14 +150,17 @@ async function markEmailAsRead(auth, messageId) {
 async function fetchEmails(auth) {
     const gmail = google.gmail({ version: 'v1', auth });
 
+    // prevent duplicates -> sent side by side usually 
+    const commsInDatabase = [];
+    const failedEmailNames = [];
+
     try {
         // List the latest 10 emails fetched
         const res = await gmail.users.messages.list({
             userId: 'me',
-            maxResults: 10,                             //Limit 10 emails
             labelIds: ['INBOX'],                          // Only fetch emails from indox
             // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
-            q: 'is:unread (subject:"twitch alerts" OR subject:"new commission")'
+            q: 'is:unread (subject:"twitch alerts")'
 
         });
 
@@ -171,43 +171,71 @@ async function fetchEmails(auth) {
             return;
         }
 
-        console.log("Fetching the latest 10 emails...\n");
+        console.log("Fetching emails...\n");
 
         // Fetch details of each email
         for (const message of messages) {
 
             const messageId = message.id;
-            // await markEmailAsRead(auth, messageId);
+            
 
             const msg = await gmail.users.messages.get({
                 userId: 'me',
                 id: message.id,
+                format: 'full',
             });
-
-            // Get Objects from email 
-            const subjectHeader = msg.data.payload.headers.find(header => header.name === 'Subject');
-            const fromHeader = msg.data.payload.headers.find(header => header.name === 'From');
-            const dateHeader = msg.data.payload.headers.find(header => header.name === 'Date');
-            const body = JSON.stringify(msg.data.payload.headers.find(header => header.name === 'Body'));
-            console.log(body.value);
-            // Convert into Strings with .value to retrieve the value from the object
-            const subject = subjectHeader ? subjectHeader.value : "(No subject)";
-            const from = fromHeader ? fromHeader.value : '(No Sender)';
-
             
+            try{
+                // sort through message body -----------------------------------------------------------------------------------
+                const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+                const memail = msgBody[11];
+                if(commsInDatabase.includes(memail)){
+                    continue;
+                }
+                commsInDatabase.push(memail.toLowerCase());
+                const mname = msgBody[7];
+                const msgDate = msgBody[1].split("/");
+                const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
+                const mcomm_type = msgBody[3];
+                const mcomm_name = msgBody[5];
+                const mtwitter = msgBody[9];
+                const mpaypal = msgBody[13];
+                const mcomplex = msgBody[15];
+                // -----------------------------------------------------------------------------------
 
-            // sort through message body
-            const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
-            const msgDate = msgBody[1].split("/");
-            const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
-            const mcomm_type = msgBody[3];
-            const mcomm_name = msgBody[5];
-            const mname = msgBody[7];
-            const mtwitter = msgBody[9];
-            const memail = msgBody[11];
-            const mpaypal = msgBody[13];
-            const mcomplex = msgBody[15];
+                // // OLD EMAIL PULL -----------------------------------------------------------------------------------
+                // const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+                // const memail = msgBody[5];
+                // // check for duplicates
+                // if(commsInDatabase.includes(memail)){
+                //     continue;
+                // }
+                // commsInDatabase.push(memail.toLowerCase());
+                // const mdate = new Date(2025,2,1); // -1 because months begin with 0 
+                // const mcomm_type = "A03";
+                // const mcomm_name = "animated alerts bundle";
+                // const mname = msgBody[0].split(" ")[1];
+                // const mtwitter = msgBody[1].split(" ")[1];
+                // const mpaypal = "N/A";
+                // const mcomplex = msgBody[2].split(" ")[1];
+                // // -----------------------------------------------------------------------------------
+    
+                // get attachment
+                const fs = require('fs');
+                var attachmentId = getAttachmentIds(msg.data.payload.parts);
+                const attachmentData = await gmail.users.messages.attachments.get({
+                    userId: 'me',
+                    messageId: message.id,
+                    id: attachmentId,
+                });
+                const attachmentBytes = decodeBase64(attachmentData.data["data"]);
+                fs.writeFileSync("./images/"+mcomm_type+mtwitter+".png", attachmentBytes);
+    
+                // Store in Firebase
+                await storeEmailInFirebase({ messageId, attachmentId, mdate, mcomm_type, 
+                    mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
 
+<<<<<<< HEAD
             // Print the strings, eventually send to Datebase
             console.log(`From ${from}`);
             console.log(`Subject: ${subject}`);
@@ -217,11 +245,55 @@ async function fetchEmails(auth) {
 
             // Store in Firebase
             await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
+=======
+                // mark as read when all is successful
+                await markEmailAsRead(auth, messageId);
+            }
+            catch{
+                const subjectHeader = msg.data.payload.headers.find(header => header.name === 'Subject');
+                const dateHeader = msg.data.payload.headers.find(header => header.name === 'Date');
+                failedEmailNames.push(dateHeader["value"] + ": " + subjectHeader["value"] + "(" + messageId + "\)");
+                failedEmailNames.push();
+            }
+>>>>>>> 2936d13f85d5ba458eaed8299760f2fd9fd3350a
         }
+        console.log(failedEmailNames);
         // Catch err if any
     } catch (err) {
         console.error("The API returned an error: " + err);
     }
+}
+
+function decodeBase64(data) {
+    const base64 = data.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    const bytes = new Uint8Array(decoded.length);
+    for (let i = 0; i < decoded.length; i++) {
+      bytes[i] = decoded.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+function getAttachmentIds(parts) {
+    const attachmentIds = [];
+
+    function processParts(partsArray) {
+        partsArray.forEach(part => {
+            if (part.body && part.body.attachmentId) {
+                attachmentIds.push({
+                    filename: part.filename,
+                    attachmentId: part.body.attachmentId
+                });
+            } else if (part.parts) {
+                processParts(part.parts);
+            }
+        });
+    }
+
+    if (parts) {
+        processParts(parts);
+    }
+    return attachmentIds[0]["attachmentId"];
 }
 
 // Run fetchEmails function AFTER autherization
