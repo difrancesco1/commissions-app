@@ -97,7 +97,7 @@ async function storeEmailInFirebase(emailData) {
 
         // Try setting the data
         await docRef.set({
-            ID: emailData["mcomm_type"]+emailData["mtwitter"],
+            ID: emailData["mcomm_type"] + emailData["mtwitter"],
             NAME: emailData["mname"],
             COMM_START_DATE: emailData["mdate"], // when the first commission is to start
             PAYDUE: payDue, // when the payment is due -> move to archive after 30 days
@@ -112,7 +112,7 @@ async function storeEmailInFirebase(emailData) {
             NOTES: "click to add short note :3", // empty for now
             COMPLETE: false,
             ARCHIVE: false, // if true, is archived
-            PAID: false, 
+            PAID: false,
             COMPLEX: (emailData["mcomplex"] === 'true'), // set true depending on email data
             EMAIL_PAY: false,
             EMAIL_COMP: false,
@@ -120,7 +120,7 @@ async function storeEmailInFirebase(emailData) {
             EMAIL_WIP: false
         });
 
-        console.log(`Email for ${emailData["mcomm_type"]}${emailData["mtwitter"]} stored in Firebase.`);
+        console.log(`Email for ${emailId} ${emailData["mcomm_type"]}${emailData["mtwitter"]} stored in Firebase.`);
         emailId++;  // Increment ID for the next email
     } catch (error) {
         console.error("Error storing email in Firebase:", error);
@@ -160,7 +160,7 @@ async function fetchEmails(auth) {
             userId: 'me',
             labelIds: ['INBOX'],                          // Only fetch emails from indox
             // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
-            q: 'is:unread (subject:"twitch alerts")'
+            q: 'is:unread (subject:"new commission")'
 
         });
 
@@ -177,28 +177,35 @@ async function fetchEmails(auth) {
         for (const message of messages) {
 
             const messageId = message.id;
-            
 
             const msg = await gmail.users.messages.get({
                 userId: 'me',
                 id: message.id,
                 format: 'full',
             });
-            
-            try{
+
+            // try parsing and saving to database
+            try {
                 // sort through message body -----------------------------------------------------------------------------------
                 const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
                 const memail = msgBody[11];
-                if(commsInDatabase.includes(memail)){
+                if (commsInDatabase.includes(memail)) {
                     continue;
                 }
                 commsInDatabase.push(memail.toLowerCase());
                 const mname = msgBody[7];
                 const msgDate = msgBody[1].split("/");
-                const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
+                const mdate = new Date(msgDate[2], msgDate[0] - 1, msgDate[1]); // -1 because months begin with 0 
                 const mcomm_type = msgBody[3];
                 const mcomm_name = msgBody[5];
-                const mtwitter = msgBody[9];
+                var mtwitter = msgBody[9];
+                // scrape data to only include username
+                if (mtwitter.includes("/")) {
+                    mtwitter = mtwitter.split("/").pop();
+                }
+                else if (mtwitter.includes("@")) {
+                    mtwitter = mtwitter.split("@").pop();
+                }
                 const mpaypal = msgBody[13];
                 const mcomplex = msgBody[15];
                 // -----------------------------------------------------------------------------------
@@ -207,55 +214,46 @@ async function fetchEmails(auth) {
                 // const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
                 // const memail = msgBody[5];
                 // // check for duplicates
-                // if(commsInDatabase.includes(memail)){
+                // if (commsInDatabase.includes(memail)) {
                 //     continue;
                 // }
                 // commsInDatabase.push(memail.toLowerCase());
-                // const mdate = new Date(2025,2,1); // -1 because months begin with 0 
+                // const mdate = new Date(2025, 2, 1); // -1 because months begin with 0 
                 // const mcomm_type = "A03";
                 // const mcomm_name = "animated alerts bundle";
                 // const mname = msgBody[0].split(" ")[1];
-                // const mtwitter = msgBody[1].split(" ")[1];
+                // var mtwitter = msgBody[1].split(" ")[1];
+                // // scrape data to only include username
+                // if (mtwitter.includes("/")) {
+                //     mtwitter = mtwitter.split("/").pop();
+                // }
+                // else if (mtwitter.includes("@")) {
+                //     mtwitter = mtwitter.split("@").pop();
+                // }
                 // const mpaypal = "N/A";
                 // const mcomplex = msgBody[2].split(" ")[1];
                 // // -----------------------------------------------------------------------------------
-    
+
                 // get attachment
-                const fs = require('fs');
-                var attachmentId = getAttachmentIds(msg.data.payload.parts);
-                const attachmentData = await gmail.users.messages.attachments.get({
-                    userId: 'me',
-                    messageId: message.id,
-                    id: attachmentId,
-                });
-                const attachmentBytes = decodeBase64(attachmentData.data["data"]);
-                fs.writeFileSync("./images/"+mcomm_type+mtwitter+".png", attachmentBytes);
-    
+                const attachmentId = getAttachmentIds(msg.data.payload.parts)
+                saveEmailAttachment(gmail, messageId, attachmentId,
+                    mcomm_type, mtwitter);
+
                 // Store in Firebase
-                await storeEmailInFirebase({ messageId, attachmentId, mdate, mcomm_type, 
-                    mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
+                await storeEmailInFirebase({
+                    messageId, attachmentId, mdate, mcomm_type,
+                    mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex
+                });
 
-<<<<<<< HEAD
-            // Print the strings, eventually send to Datebase
-            console.log(`From ${from}`);
-            console.log(`Subject: ${subject}`);
-            console.log(`Date: ${mdate}`);
-            console.log(`${msgBody}`);
-            console.log("--------------------------");
-
-            // Store in Firebase
-            await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
-=======
                 // mark as read when all is successful
                 await markEmailAsRead(auth, messageId);
             }
-            catch{
+            catch (err) {
                 const subjectHeader = msg.data.payload.headers.find(header => header.name === 'Subject');
                 const dateHeader = msg.data.payload.headers.find(header => header.name === 'Date');
-                failedEmailNames.push(dateHeader["value"] + ": " + subjectHeader["value"] + "(" + messageId + "\)");
+                failedEmailNames.push(dateHeader["value"] + ": " + subjectHeader["value"] + "(" + messageId + "\)" + " " + err);
                 failedEmailNames.push();
             }
->>>>>>> 2936d13f85d5ba458eaed8299760f2fd9fd3350a
         }
         console.log(failedEmailNames);
         // Catch err if any
@@ -264,15 +262,47 @@ async function fetchEmails(auth) {
     }
 }
 
+async function saveEmailAttachment(gmail, messageId, attachmentId, mcomm_type, mtwitter) {
+    const fs = require('fs');
+    try {
+        // if attachment doesn't exist
+        if (!checkIfFileExists("./images/" + mcomm_type + mtwitter + ".png")) {
+            // get attachment and save attachment
+            const attachmentData = await gmail.users.messages.attachments.get({
+                userId: 'me',
+                messageId: messageId,
+                id: attachmentId,
+            });
+            const attachmentBytes = decodeBase64(attachmentData.data["data"]);
+            fs.writeFileSync("./images/" + mcomm_type + mtwitter + ".png", attachmentBytes);
+        }
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+
+function checkIfFileExists(directoryPath) {
+    const fs = require('fs');
+
+    try {
+        fs.accessSync(directoryPath, fs.constants.F_OK);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function decodeBase64(data) {
     const base64 = data.replace(/-/g, '+').replace(/_/g, '/');
     const decoded = atob(base64);
     const bytes = new Uint8Array(decoded.length);
     for (let i = 0; i < decoded.length; i++) {
-      bytes[i] = decoded.charCodeAt(i);
+        bytes[i] = decoded.charCodeAt(i);
     }
     return bytes;
-  }
+}
 
 function getAttachmentIds(parts) {
     const attachmentIds = [];
