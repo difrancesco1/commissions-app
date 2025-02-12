@@ -235,17 +235,6 @@ async function fetchEmails(auth) {
                 await storeEmailInFirebase({ messageId, attachmentId, mdate, mcomm_type, 
                     mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
 
-<<<<<<< HEAD
-            // Print the strings, eventually send to Datebase
-            console.log(`From ${from}`);
-            console.log(`Subject: ${subject}`);
-            console.log(`Date: ${mdate}`);
-            console.log(`${msgBody}`);
-            console.log("--------------------------");
-
-            // Store in Firebase
-            await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
-=======
                 // mark as read when all is successful
                 await markEmailAsRead(auth, messageId);
             }
@@ -255,7 +244,6 @@ async function fetchEmails(auth) {
                 failedEmailNames.push(dateHeader["value"] + ": " + subjectHeader["value"] + "(" + messageId + "\)");
                 failedEmailNames.push();
             }
->>>>>>> 2936d13f85d5ba458eaed8299760f2fd9fd3350a
         }
         console.log(failedEmailNames);
         // Catch err if any
