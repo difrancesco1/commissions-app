@@ -90,28 +90,37 @@ async function storeEmailInFirebase(emailData) {
         // Log document reference to ensure it's correct
         console.log("Document Reference: ", docRef.path);
 
+        // // calculate due date - date on form + 7 + emailid
+        // var dueDate = new Date(emailData["mdate"]);
+        // dueDate.setDate(dueDate.getDate() + emailId + 7);
+
+        // calculate paydue (msgdate + 30 days)
+        var payDue = new Date(); // Now
+        payDue.setDate(payDue.getDate() + 30);
+
         // Try setting the data
         await docRef.set({
             ID: emailId,
-            NAME: "",
-            Date_Commission_Type_Start: "",
-            Paydue_Day_Commission_Payment_Due: "",
-            Due_Date_Commission: "",
-            Twitter: "",
-            Commission_Type: "",
-            Email: emailData.from,  // Sender's email
-            Paypal_Email: "",
-            Img1: "",  // Add file handling if needed later
-            Img2: "",
-            Notes: "",
-            Complete: false,
-            In_Archive: false,
-            Paid: false,
-            Complex: false,
-            Email_Pay: false,
-            Email_Comp: false,
-            Email_Commpay: false,
-            Email_Wip: false
+            NAME: emailData["mname"],
+            COMM_START_DATE: emailData["mdate"], // when the first commission is to start
+            PAYDUE: payDue, // when the payment is due -> move to archive after 30 days
+            DUE: "", // set after someone pays - logic is +1 whoever is in queue , first person is +7 of comm_start_date
+            TWITTER: emailData["mtwitter"],
+            COMM_TYPE: emailData["mcomm_type"], // commission type (A02) -> alerts from febuary
+            COMM_NAME: emailData["mcomm_name"], // full name of commission
+            EMAIL: emailData["memail"],  // email to send commission
+            PAYPAL: emailData["mpaypal"], // paypal email
+            IMG1: "",  // Add file handling if needed later
+            IMG2: "",
+            NOTES: "click to add short note :3", // empty for now
+            COMPLETE: false,
+            ARCHIVE: false, // if true, is archived
+            PAID: false, 
+            COMPLEX: (emailData["mcomplex"] === 'true'), // set true depending on email data
+            EMAIL_PAY: false,
+            EMAIL_COMP: false,
+            EMAIL_COMPPAY: false,
+            EMAIL_WIP: false
         });
 
         console.log(`Email with ID ${emailId} stored in Firebase.`);
@@ -148,10 +157,17 @@ async function fetchEmails(auth) {
         // List the latest 10 emails fetched
         const res = await gmail.users.messages.list({
             userId: 'me',
+<<<<<<< HEAD
             maxResults: 10,                               //Limit 10 emails
             labelIds: ['INBOX'],                          // Only fetch emails from indox
             // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
             q: 'is:read (subject:"twitch alerts" OR subject:"VALENTINES COMMISSION" OR subject:"new commission")'
+=======
+            maxResults: 10,                             //Limit 10 emails
+            labelIds: ['INBOX'],                          // Only fetch emails from indox
+            // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
+            q: 'is:unread (subject:"twitch alerts" OR subject:"new commission")'
+>>>>>>> be69a46b242d1f5796150ccf8ee7b2c78529731b
 
         });
 
@@ -168,12 +184,11 @@ async function fetchEmails(auth) {
         for (const message of messages) {
 
             const messageId = message.id;
-            await markEmailAsRead(auth, messageId);
+            // await markEmailAsRead(auth, messageId);
 
             const msg = await gmail.users.messages.get({
                 userId: 'me',
                 id: message.id,
-
             });
 
             // Get Objects from email 
@@ -185,17 +200,34 @@ async function fetchEmails(auth) {
             // Convert into Strings with .value to retrieve the value from the object
             const subject = subjectHeader ? subjectHeader.value : "(No subject)";
             const from = fromHeader ? fromHeader.value : '(No Sender)';
-            const date = dateHeader ? dateHeader.value : '(No Date)';
+
+            
+
+            // sort through message body
+            const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+            const msgDate = msgBody[1].split("/");
+            const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
+            const mcomm_type = msgBody[3];
+            const mcomm_name = msgBody[5];
+            const mname = msgBody[7];
+            const mtwitter = msgBody[9];
+            const memail = msgBody[11];
+            const mpaypal = msgBody[13];
+            const mcomplex = msgBody[15];
 
             // Print the strings, eventually send to Datebase
             console.log(`From ${from}`);
             console.log(`Subject: ${subject}`);
-            console.log(`Date: ${date}`);
-
+            console.log(`Date: ${mdate}`);
+            console.log(`${msgBody}`);
             console.log("--------------------------");
 
             // Store in Firebase
+<<<<<<< HEAD
             // await storeEmailInFirebase({ from, subject });
+=======
+            await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
+>>>>>>> be69a46b242d1f5796150ccf8ee7b2c78529731b
         }
         // Catch err if any
     } catch (err) {
