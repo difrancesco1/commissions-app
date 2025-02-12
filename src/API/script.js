@@ -168,11 +168,11 @@ async function fetchEmails(auth) {
         // If there are no new emails exit loop
         const messages = res.data.messages;
         if (!messages || messages.length === 0) {
-            console.log("no new emails" + emailReq);
+            console.log("no new emails " + emailReq);
             return;
         }
 
-        console.log("Fetching emails...\n");
+        console.log("fetching emails...\n");
 
         // Fetch details of each email
         for (const message of messages) {
