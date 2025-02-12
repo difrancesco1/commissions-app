@@ -36,7 +36,6 @@ const CardContainer = ( { commissionIndex, setCommissionIndex } ) => {
   }, []);
   return (
     <div className={styles.container}>
-      <h1 onClick={handleClick}>TEST ID</h1>
       {userData.map((user) => (
         <Card 
         commissionIndex={commissionIndex}
