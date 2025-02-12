@@ -157,17 +157,10 @@ async function fetchEmails(auth) {
         // List the latest 10 emails fetched
         const res = await gmail.users.messages.list({
             userId: 'me',
-<<<<<<< HEAD
-            maxResults: 10,                               //Limit 10 emails
-            labelIds: ['INBOX'],                          // Only fetch emails from indox
-            // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
-            q: 'is:read (subject:"twitch alerts" OR subject:"VALENTINES COMMISSION" OR subject:"new commission")'
-=======
             maxResults: 10,                             //Limit 10 emails
             labelIds: ['INBOX'],                          // Only fetch emails from indox
             // Add Queries like 'is:unread' 'subject:TWITCH ALERTS' 'from:specific_email@example.com' 
             q: 'is:unread (subject:"twitch alerts" OR subject:"new commission")'
->>>>>>> be69a46b242d1f5796150ccf8ee7b2c78529731b
 
         });
 
@@ -223,11 +216,7 @@ async function fetchEmails(auth) {
             console.log("--------------------------");
 
             // Store in Firebase
-<<<<<<< HEAD
-            // await storeEmailInFirebase({ from, subject });
-=======
             await storeEmailInFirebase({ subject, from, mdate, mcomm_type, mcomm_name, mname, mtwitter, memail, mpaypal, mcomplex });
->>>>>>> be69a46b242d1f5796150ccf8ee7b2c78529731b
         }
         // Catch err if any
     } catch (err) {

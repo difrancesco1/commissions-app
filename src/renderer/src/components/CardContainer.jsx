@@ -14,7 +14,7 @@ async function fetchDataFromFirestore() {
   });
   return data;
 }
-const CardContainer = () => {
+const CardContainer = ( { commissionIndex, setCommissionIndex } ) => {
 
   const [userData, setUserData] = useState([]);
 
@@ -29,7 +29,11 @@ const CardContainer = () => {
   return (
     <div className={styles.container}>
       {userData.map((user) => (
-        <Card key={user.id} user={user} />
+        <Card 
+        commissionIndex={commissionIndex}
+        setCommissionIndex={setCommissionIndex}
+        key={user.id} 
+        user={user} />
       ))}
 
     </div>

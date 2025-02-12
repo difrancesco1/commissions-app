@@ -2,7 +2,7 @@
 import React from 'react'
 import styles from './card.module.css'
 
-const Card = ({user}) => {
+const Card = ({user, commissionIndex, setCommissionIndex }) => {
     return (
         <div className={styles.cardContainer}>
             <div className={styles.card}>

@@ -1,6 +1,5 @@
 .container {
     max-height: 255px;
-    min-height: 255px;
     display: grid;
     user-select: none;
     overflow-y: auto;
