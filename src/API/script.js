@@ -109,7 +109,7 @@ async function storeEmailInFirebase(emailData) {
             PAYPAL: emailData["mpaypal"], // paypal email
             MSG_ID: emailData["messageId"],
             IMG1: emailData["attachmentId"],  // Add file handling if needed later
-            NOTES: "click to add short note :3", // empty for now
+            NOTES: "add note :3", // empty for now
             COMPLETE: false,
             ARCHIVE: false, // if true, is archived
             PAID: false,

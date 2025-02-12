@@ -6,6 +6,12 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 
+import btn1 from '../../../assets/btn1.png'
+import btn2 from '../../../assets/btn2.png'
+import btn3 from '../../../assets/btn3.png'
+import btn4 from '../../../assets/btn4.png'
+import btn5 from '../../../assets/btn5.png'
+
 async function fetchDataFromFirestore() {
   const querySnapshot = await getDocs(collection(db, "commissions"));
   const data = [];
@@ -50,11 +56,21 @@ const CommissionInfo = ({ commissionIndex }) => {
       </div>
 
       <div className={styles.clientInfo}>
-        <div className={styles.emailBtn}>$</div>
-        <div className={styles.emailBtn}>+</div>
-        <div className={styles.emailBtn}>$+</div>
-        <div className={styles.emailBtn}>✎</div>
-        <div className={styles.emailBtn}>✿</div>
+        <div className={styles.emailBtn}>
+          <img className={styles.buttonText} src={btn1} alt="didntpayemailbutton"/>
+        </div>
+        <div className={styles.emailBtn}>
+          <img className={styles.buttonText} src={btn2} alt="iscomplexemailbutton"/>
+        </div>
+        <div className={styles.emailBtn}>
+          <img className={styles.buttonText} src={btn3} alt="bothemailbutton"/>
+        </div>
+        <div className={styles.emailBtn}>
+          <img className={styles.buttonText} src={btn4} alt="wipemailbutton"/>
+        </div>
+        <div className={styles.emailBtn}>
+          <img className={styles.buttonText} src={btn5} alt="finishedemailbutton"/>
+        </div>
       </div>
 
       <div>
