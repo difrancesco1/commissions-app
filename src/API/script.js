@@ -184,10 +184,8 @@ async function fetchEmails(auth) {
                 id: message.id,
             });
 
-            var parts = msg.data.payload.parts;
-
             // sort through message body
-            const msgBody = atob(parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+            const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
             const msgDate = msgBody[1].split("/");
             const mdate = new Date(msgDate[2],msgDate[0]-1,msgDate[1]); // -1 because months begin with 0 
             const mcomm_type = msgBody[3];
@@ -198,11 +196,12 @@ async function fetchEmails(auth) {
             const mpaypal = msgBody[13];
             const mcomplex = msgBody[15];
 
+            // get attachments
+            var attachId = msg.data.payload.parts[0].body.attachmentId;
 
+            console.log(attachId);
 
             // Print the strings, eventually send to Datebase
-            console.log(`From ${from}`);
-            console.log(`Subject: ${subject}`);
             console.log(`Date: ${mdate}`);
             console.log(`${msgBody}`);
             console.log("--------------------------");
