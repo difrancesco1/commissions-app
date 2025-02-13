@@ -147,8 +147,7 @@
   .loadingStyle{
     height: 100%;
     width: 100%;
-    opacity: 50%;
-    filter: grayscale();
+    opacity: 70%;
   }
 
   .loadingCardStyle{
@@ -166,5 +165,33 @@
     border-right-color: var(--borderbtm);
 
     margin-right: 4px;
-    cursor: pointer;
   }
+
+  .wrapper{
+    z-index: 1;
+    width: 0px;
+    display: none;
+}
+
+.item{
+    color: var(--accent);
+    display: flex;
+    vertical-align: auto;
+    align-items: center;
+    background: var(--bg);
+    height: 16px;
+    width: 38px;
+    justify-content: center;
+    margin-left: -42px;
+    transition: 0.2s ease;
+
+    border: 1px solid;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+
+    border-top-color: var(--bordertop);
+    border-left-color: var(--bordertop);
+
+    border-bottom-color: var(--borderbtm);
+    border-right-color: var(--borderbtm);
+}

@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import styles from "./card.module.css";
 
 import { db } from "../firebaseConfig";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 
 import loading from "../../../assets/loading.gif";
 
@@ -40,14 +47,51 @@ const Card = ({ user, setCommissionIndex }) => {
 
   const handleClick = (id) => {
     setCommissionIndex(id);
-    contextMenu.style.display = "none";
+    handleCloseMenu;
     console.log(id);
   };
 
-  const handleRightClick = (event) => {
+  const togglePaid = async () => {
+    try {
+      const documentRef = doc(db, "commissions", user.id);
+      await updateDoc(documentRef, {
+        ["PAID"]: `${!user.PAID}`,
+      });
+      console.log("paid toggled!");
+    } catch (error) {
+      console.error("Error toggling paid:", error);
+    }
+  };
+
+  const toggleArchive = async () => {
+    try {
+      const documentRef = doc(db, "commissions", user.id);
+      await updateDoc(documentRef, {
+        ["ARCHIVE"]: `${!user.ARCHIVE}`,
+      });
+      console.log("archive toggled!");
+    } catch (error) {
+      console.error("Error toggling archive:", error);
+    }
+  };
+
+  // right click handling
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
+
+  const handleContextMenu = (event) => {
+    // event.preventDefault();
+    // console.log("Right click event triggered");
+    // contextMenu.style.display = "flex";
     event.preventDefault();
-    console.log("Right click event triggered");
-    contextMenu.style.display = "flex";
+    setMouseX(event.clientX);
+    setMouseY(event.clientY);
+    setMenuVisible(true);
+  };
+
+  const handleCloseMenu = () => {
+    setMenuVisible(false);
   };
 
   // TODO: CHANGE THIS TO ACTUALLY BE LOGICAL ^_^
@@ -65,7 +109,7 @@ const Card = ({ user, setCommissionIndex }) => {
           ${user.ARCHIVE === true ? styles.cardArchive : null}
           ${imageExists === true ? styles.card : styles.loadingCardStyle}`}
         onClick={() => handleClick(user.id)}
-        onContextMenu={handleRightClick}
+        onContextMenu={handleContextMenu}
       >
         <img
           className={`${imageExists === true ? styles.image : styles.loadingStyle}`}
@@ -73,11 +117,25 @@ const Card = ({ user, setCommissionIndex }) => {
           alt={user.NAME}
         />
       </div>
-      <div id="contextMenu" className={styles.wrapper}>
-        <ul className={styles.menu}>
+      {/* <div id="contextMenu" className={styles.wrapper}>
+        <ul>
           <li className={styles.item}>$</li>
           <li className={styles.item}>▾</li>
         </ul>
+      </div> */}
+      <div onContextMenu={handleContextMenu} className={styles.wrapper}>
+        {menuVisible && (
+          <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
+            <ul>
+              <li className={styles.item} onClick={togglePaid}>
+                $
+              </li>
+              <li className={styles.item} onClick={toggleArchive}>
+                ▾
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
       <h1
         className={`${styles.cardText} 
