@@ -1,13 +1,21 @@
-const express = require('express');
-const imageSave = require('./imageSave');
-
+const express = require("express");
+const checkAndSaveImages = require("./imageSave");
 const app = express();
+const port = 5000; //  backend port
+const cors = require("cors");
 
-// Use your API route
-app.use('./images', imageSave);
+app.use(cors()); // Enable CORS for all routes bc frontend and backend on diff ports
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.post("/api/save-images", async (req, res) => {
+  try {
+    await checkAndSaveImages();
+    res.status(200).send("Images refreshed successfully");
+  } catch (error) {
+    console.error("Error during image refresh:", error);
+    res.status(500).send("Failed to refresh images");
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
