@@ -15,10 +15,14 @@ function createWindow() {
     titleBarStyle: 'hidden',
     resizable: false,
     autoHideMenuBar: true,
+    fullscreenable: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
     }
   })
 
@@ -74,6 +78,11 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+ipcMain.on('app-close', () => {
+  app.quit();
+});
+
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
