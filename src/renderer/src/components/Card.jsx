@@ -10,6 +10,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+// const contextMenu = document.getElementById("contextMenu");
 
 // fetches data from Firestore
 const fetchDataFromFirestore = async () => {
@@ -66,11 +67,12 @@ const Card = ({ user, setCommissionIndex }) => {
   //When user clicks on card
   const handleClick = (id) => {
     setCommissionIndex(id); // sets commission index
-    handleCloseMenu(); // closes context menu
+    // handleCloseMenu();
   };
 
   // Toggles the PAID status of a commission in DB
   const togglePaid = async () => {
+    console.log(user.id + "paid");
     try {
       const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
@@ -84,6 +86,7 @@ const Card = ({ user, setCommissionIndex }) => {
 
   // Toggles Archive Status
   const toggleArchive = async () => {
+    console.log(user.id + "archive");
     try {
       const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
@@ -95,25 +98,29 @@ const Card = ({ user, setCommissionIndex }) => {
     }
   };
 
-  // right click handling
-  // menuVisible hides and shows context menu
-  const [menuVisible, setMenuVisible] = useState(false);
-  // Stores the mouse coords when right-clicking
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
-  //Prevents default rightclick menu
-  const handleContextMenu = (event) => {
-    event.preventDefault();
-    let menu = document.getElementById("contextMenuCard");
-    menu.style.display = "block";
-    menu.style.left = event.clientX + "px";
-    menu.style.top = event.clientY + "px";
-    setMenuVisible(true);
-  };
+  // // right click handling
+  // // menuVisible hides and shows context menu
+  // const [menuVisible, setMenuVisible] = useState(true);
+
+  // //Prevents default rightclick menu
+  // const handleContextMenu = (event) => {
+  //   event.preventDefault();
+  //   let menu = document.getElementById("contextMenuCard");
+  //   menu.style.display = "block";
+  //   menu.style.left = event.clientX + "px";
+  //   menu.style.top = event.clientY + "px";
+  //   setMenuVisible(true);
+  // };
   // Hides context menu when triggered
-  const handleCloseMenu = () => {
-    setMenuVisible(false);
-  };
+
+  // const handleContextMenu = (event) => {
+  //   event.preventDefault();
+  //   contextMenu.style.display = "flex";
+  // };
+
+  // const handleCloseMenu = () => {
+  //   contextMenu.style.display = "none";
+  // };
 
   return (
     <div key={user.id} className={styles.cardContainer}>
@@ -122,46 +129,52 @@ const Card = ({ user, setCommissionIndex }) => {
         className={`${
           user.ARCHIVE === true ? styles.cardArchive : null
         } ${imageExists ? styles.card : styles.loadingCardStyle}`}
+        // onContextMenu={handleContextMenu}
         onClick={() => handleClick(user.id)}
       >
         <img
           className={`${imageExists ? styles.image : styles.loadingStyle}`}
           src={imageExists ? imagePath : loading}
           alt={user.NAME}
-          onContextMenu={handleContextMenu}
         />
       </div>
-      <div
-        id="contextMenuCard"
-        onContextMenu={handleContextMenu}
+      {/* <div
+        id="contextMenu"
         className={styles.wrapper}
+        onClick={handleCloseMenu}
+        onMouseLeave={handleCloseMenu}
       >
-        {menuVisible && (
-          <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
-            <ul>
-              <li
-                className={styles.item}
-                onClick={() => {
-                  console.log("Toggling Paid");
-                  togglePaid();
-                }}
-              >
-                $
-              </li>
-              <li
-                className={styles.item}
-                onClick={() => {
-                  console.log("Toggling Archive");
-                  toggleArchive();
-                }}
-              >
-                ▾
-              </li>
-            </ul>
-          </div>
-        )}
+        <ul>
+          <li
+            className={styles.item}
+            onClick={() => {
+              console.log("Toggling Paid");
+              togglePaid();
+            }}
+          >
+            $
+          </li>
+          <li
+            className={styles.item}
+            onClick={() => {
+              console.log("Toggling Archive");
+              toggleArchive();
+            }}
+          >
+            ▾
+          </li>
+        </ul>
+      </div> */}
+      <div id="contextMenu" className={styles.wrapper}>
+        <ul className={styles.menu}>
+          <li className={styles.item} onClick={togglePaid}>
+            ▴
+          </li>
+          <li className={styles.item} onClick={toggleArchive}>
+            ▾
+          </li>
+        </ul>
       </div>
-
       <h1
         className={`${styles.cardText} 
           ${user.PAID === true ? null : styles.textNotPaid} 
