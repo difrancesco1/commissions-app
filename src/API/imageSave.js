@@ -3,6 +3,7 @@ const path = require("path");
 const admin = require("firebase-admin");
 const { google } = require("googleapis");
 const serviceAccount = require("./commissions-app-c6e2c-firebase-adminsdk-fbsvc-473cacb7d7.json");
+const creds = require("./credentials.json");
 
 // Initialize Firebase Admin
 admin.initializeApp({
