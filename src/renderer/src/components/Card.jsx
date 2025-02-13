@@ -81,9 +81,6 @@ const Card = ({ user, setCommissionIndex }) => {
   const [mouseY, setMouseY] = useState(0);
 
   const handleContextMenu = (event) => {
-    // event.preventDefault();
-    // console.log("Right click event triggered");
-    // contextMenu.style.display = "flex";
     event.preventDefault();
     setMouseX(event.clientX);
     setMouseY(event.clientY);
@@ -117,12 +114,6 @@ const Card = ({ user, setCommissionIndex }) => {
           alt={user.NAME}
         />
       </div>
-      {/* <div id="contextMenu" className={styles.wrapper}>
-        <ul>
-          <li className={styles.item}>$</li>
-          <li className={styles.item}>▾</li>
-        </ul>
-      </div> */}
       <div onContextMenu={handleContextMenu} className={styles.wrapper}>
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
