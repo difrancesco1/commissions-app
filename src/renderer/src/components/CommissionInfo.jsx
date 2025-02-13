@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "./commissionInfo.module.css";
 import CommissionInfoImg from "./CommissionInfoImg";
 
 import { db } from "../firebaseConfig";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, orderBy, query, onSnapshot } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 
 import btn1 from "../../../assets/btn1.png";
@@ -12,40 +12,35 @@ import btn3 from "../../../assets/btn3.png";
 import btn4 from "../../../assets/btn4.png";
 import btn5 from "../../../assets/btn5.png";
 
-async function fetchDataFromFirestore() {
-  // const querySnapshot = await getDocs(collection(db, "commissions"));
-  const sectionsCollectionRef = collection(db, "commissions");
-  const q = query(
-    sectionsCollectionRef,
-    orderBy("ARCHIVE"),
-    orderBy("PAID", "desc"),
-    orderBy("DUE"),
-  );
-  const querySnapshot = await getDocs(q);
-
-  const data = [];
-  querySnapshot.forEach((doc) => {
-    data.push({ id: doc.id, ...doc.data() });
-  });
-  return data;
-}
-
 const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await fetchDataFromFirestore();
-      setUserData(data);
-    }
-    fetchData();
+    const q = query(
+      collection(db, "commissions"),
+      orderBy("ARCHIVE"),
+      orderBy("PAID", "desc"),
+      orderBy("DUE")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log("Updated Firestore Data:", newData); // Debugging log
+      setUserData(newData);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Default to first item if commissionIndex is not set
-  const selectedCommission = userData.find(
-    (user, index) =>
-      commissionIndex ? user.id === commissionIndex : index === 0, // on load starts at the first item on the list where index = 0
-  );
+  // Use useMemo to ensure selectedCommission updates correctly
+  const selectedCommission = useMemo(() => {
+    return userData.find((user, index) =>
+      commissionIndex ? user.id === commissionIndex : index === 0
+    );
+  }, [userData, commissionIndex]);
 
   return (
     <div className={styles.commissionInfo}>
@@ -59,7 +54,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
 
         {selectedCommission && (
           <CommissionInfoText
-            commissionIndex={commissionIndex} // filters by the passed commissionindex
+            commissionIndex={commissionIndex}
             user={selectedCommission}
           />
         )}
@@ -67,18 +62,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
 
       <div className={styles.emailButtonContainer}>
         <div className={styles.emailBtn}>
-          <img
-            className={styles.buttonText}
-            src={btn1}
-            alt="didntpayemailbutton"
-          />
+          <img className={styles.buttonText} src={btn1} alt="didntpayemailbutton" />
         </div>
         <div className={styles.emailBtn}>
-          <img
-            className={styles.buttonText}
-            src={btn2}
-            alt="iscomplexemailbutton"
-          />
+          <img className={styles.buttonText} src={btn2} alt="iscomplexemailbutton" />
         </div>
         <div className={styles.emailBtn}>
           <img className={styles.buttonText} src={btn3} alt="bothemailbutton" />
@@ -87,16 +74,11 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           <img className={styles.buttonText} src={btn4} alt="wipemailbutton" />
         </div>
         <div className={styles.emailBtn}>
-          <img
-            className={styles.buttonText}
-            src={btn5}
-            alt="finishedemailbutton"
-          />
+          <img className={styles.buttonText} src={btn5} alt="finishedemailbutton" />
         </div>
       </div>
 
       <div>
-        {/* <div className={styles.todoCountText}>▾todo(5/20)</div> */}
         <div className={styles.todoCountText}>
           ▾todo({listCount}/{userData.length})
         </div>
