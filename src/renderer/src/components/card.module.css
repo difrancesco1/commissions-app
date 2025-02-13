@@ -77,3 +77,18 @@
     border-bottom-color: var(--borderbtm);
     border-right-color: var(--borderbtm);
 }
+
+  .textNotPaid{
+    color: var(--bordertop);
+  }
+
+  .textArchive{
+    opacity: 50%;
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }
+
+  .cardArchive{
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }

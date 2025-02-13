@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CommissionInfo.module.css'
+import "../assets/base.css";
 
 function CommissionInfoText( {user, commissionIndex, setCommissionIndex } ) {
   return (
     <>
         <div className={styles.clientText}>
-          <p className={styles.nameText}>{user.NAME}</p>
+          <p className={`
+            ${styles.nameText} 
+            ${user.PAID === true ? null : styles.textNotPaid }`}>{user.NAME}</p>
           <p className={styles.noteText}>{user.NOTES}</p>
           <p className={styles.subText}>{user.TWITTER}</p>
           <p className={styles.subText}>{user.EMAIL}</p>

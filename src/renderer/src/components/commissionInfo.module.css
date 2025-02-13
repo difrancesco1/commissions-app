@@ -123,3 +123,8 @@
     height: 90%;
     opacity: 80%;
   }
+
+
+  .textNotPaid{
+    color: var(--accent);
+  }

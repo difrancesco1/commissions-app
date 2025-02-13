@@ -42,7 +42,7 @@ const Card = ({ user, setCommissionIndex }) => {
   return (
     <div key={user.id} className={styles.cardContainer} 
       onClick={() => handleClick(user.id)}>
-        <div key={user.id} className={styles.card} 
+        <div key={user.id} className={`${styles.card} ${user.ARCHIVE === true ? styles.cardArchive : null}`} 
           onClick={() => handleClick(user.id)} onContextMenu={handleRightClick}>
           <img
             className={styles.image}
@@ -60,7 +60,10 @@ const Card = ({ user, setCommissionIndex }) => {
             </li>
           </ul>
         </div>
-        <h1 className={styles.cardText}>{user.TWITTER}</h1>
+        <h1 className={`${styles.cardText} 
+          ${user.PAID === true ? null : styles.textNotPaid} 
+          ${user.ARCHIVE === true ? styles.textArchive : null}`}
+        >{user.TWITTER}</h1>
     </div>
   );
 };
