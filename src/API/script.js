@@ -153,7 +153,7 @@ async function fetchEmails(auth) {
     // prevent duplicates -> sent side by side usually 
     const commsInDatabase = [];
     const failedEmailNames = [];
-    const emailReq = 'is:unread (subject:"- new commission - DO NOT OPEN - app will not update if read -")'
+    const emailReq = 'is:unread (subject:"new commission")'
 
     try {
         // List the latest 10 emails fetched
@@ -190,10 +190,15 @@ async function fetchEmails(auth) {
                 // sort through message body -----------------------------------------------------------------------------------
                 const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
                 const memail = msgBody[11];
-                if (commsInDatabase.includes(memail)) {
+                if (!memail || typeof memail !== 'string') {
+                    console.error("Invalid email address:", memail);
+                    continue; // Skip this iteration if the email is invalid
+                }
+                if (commsInDatabase.includes(memail.toLowerCase())) {
                     continue;
                 }
                 commsInDatabase.push(memail.toLowerCase());
+
                 const mname = msgBody[7];
                 const msgDate = msgBody[1].split("/");
                 const mdate = new Date(msgDate[2], msgDate[0] - 1, msgDate[1]); // -1 because months begin with 0 
@@ -265,7 +270,7 @@ async function fetchEmails(auth) {
 
 
 // checking if user has iamge saved in their directory, if not, pull from gmail and save
-export async function checkAndSaveEmailAttachment(auth, id, messageId, attachmentId) {
+async function checkAndSaveEmailAttachment(auth, id, messageId, attachmentId) {
     const gmail = google.gmail({ version: 'v1', auth });
     const filePath = `./images/${id}.png`; // created filepath for reusability
 
@@ -291,23 +296,32 @@ export async function checkAndSaveEmailAttachment(auth, id, messageId, attachmen
 
 async function saveEmailAttachment(gmail, messageId, attachmentId, mcomm_type, mtwitter) {
     try {
-        // if attachment doesn't exist
-        if (!checkIfFileExists("./images/" + mcomm_type + mtwitter + ".png")) {
-            // get attachment and save attachment
+        // Define the image path with a proper file extension
+        const imagePath = `./images/${mcomm_type}_${mtwitter}.png`;
+
+        // Check if the file exists
+        if (!checkIfFileExists(imagePath)) {
+            // Fetch attachment data from Gmail
             const attachmentData = await gmail.users.messages.attachments.get({
                 userId: 'me',
                 messageId: messageId,
                 id: attachmentId,
             });
+
+            // Decode the Base64 string
             const attachmentBytes = decodeBase64(attachmentData.data["data"]);
-            fs.writeFileSync("./images/" + mcomm_type + mtwitter + ".png", attachmentBytes);
+            
+            // Write to disk
+            await fs.writeFile(imagePath, attachmentBytes);
+            console.log(`Image saved at: ${imagePath}`);
         }
-        return true;
-    }
-    catch {
-        return false;
+        return imagePath; // Return the path to the saved image
+    } catch (error) {
+        console.error("Error saving email attachment:", error);
+        return null;
     }
 }
+
 
 function checkIfFileExists(directoryPath) {
     try {
