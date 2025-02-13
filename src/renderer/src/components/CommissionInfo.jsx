@@ -96,7 +96,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   // update database on email info and disable button
   const updateEmailDatabase = async (fieldName) => {
     try {
-      const documentRef = doc(db, "commissions", user.ID);
+      const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
         [fieldName]: true,
       });
