@@ -21,10 +21,8 @@ async function fetchDataFromFirestore() {
   return data;
 }
 
-const CommissionInfo = ({ commissionIndex, searchQuery }) => {
+const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   const [userData, setUserData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-
 
   useEffect(() => {
     async function fetchData() {
@@ -79,7 +77,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery }) => {
       <div>
         {/* <div className={styles.todoCountText}>▾todo(5/20)</div> */}
         <div className={styles.todoCountText}>
-          ▾todo(5/{userData.length})
+          ▾todo({listCount}/{userData.length})
         </div>
 
       </div>

@@ -265,24 +265,27 @@ async function fetchEmails(auth) {
 
 
 // checking if user has iamge saved in their directory, if not, pull from gmail and save
-export function checkAndSaveEmailAttachment(id, messageId, attachmentId) {
+export async function checkAndSaveEmailAttachment(auth, id, messageId, attachmentId) {
     const gmail = google.gmail({ version: 'v1', auth });
+    const filePath = `./images/${id}.png`; // created filepath for reusability
+
     try {
-        // if attachment doesn't exist
-        if (!checkIfFileExists("./images/" + id + ".png")) {
-            // get attachment and save attachment
-            const attachmentData = await gmail.users.messages.attachments.get({
-                userId: 'me',
-                messageId: messageId,
-                id: attachmentId,
-            });
-            const attachmentBytes = decodeBase64(attachmentData.data["data"]);
-            fs.writeFileSync("./images/" + id + ".png", attachmentBytes);
+        // If the file exists, return true
+        if (checkIfFileExists(filePath)){
+            return filePath;
         }
-        return true;
-    }
-    catch {
-        return false;
+        // get and save attachment
+        const attachmentData = await gmail.users.messages.attachments.get({
+            userId: 'me',
+            messageId: messageId,
+            id: attachmentId,
+        });
+        const attachmentBytes = decodeBase64(attachmentData.data["data"]);
+        fs.writeFileSync(filePath, attachmentBytes);
+        return filePath; // Return the saved file path
+    } catch (error) {
+        console.error("Error saving email attachment: ", error)
+        return null
     }
 }
 

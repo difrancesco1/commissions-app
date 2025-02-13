@@ -14,7 +14,7 @@ async function fetchDataFromFirestore() {
   return data;
 }
 
-const CardContainer = ({ commissionIndex, setCommissionIndex, searchQuery }) => {
+const CardContainer = ({ commissionIndex, setCommissionIndex, searchQuery, setListCount }) => {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
@@ -44,8 +44,14 @@ const CardContainer = ({ commissionIndex, setCommissionIndex, searchQuery }) => 
 
   });
 
-  // Log the number of results
+
+  // Update thr parent with the length of cards
+  useEffect(() => {
+    setListCount(filteredData.length);
+  }, [filteredData, setListCount]); //Runs when filteredData changes
+
   console.log(`Number of matching results: ${filteredData.length}`);
+
 
   return (
     <div className={styles.container}>
