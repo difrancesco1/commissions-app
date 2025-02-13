@@ -1,82 +1,49 @@
-import React, { useState, useEffect } from "react";
-import styles from "./card.module.css";
+import React, { useState } from "react";
 
-import { db } from "../firebaseConfig";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+function ContextMenu() {
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
 
-const fetchDataFromFirestore = async () => {
-  const querySnapshot = await getDocs(collection(db, "commissions"));
-  const data = [];
-  querySnapshot.forEach((doc) => {
-    data.push({ id: doc.id, ...doc.data() });
-  });
-  return data;
-};
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    setMouseX(event.clientX);
+    setMouseY(event.clientY);
+    setMenuVisible(true);
+  };
 
-const Card = ({ user, setCommissionIndex }) => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const newData = await fetchDataFromFirestore();
-      setData(newData);
-    };
-
-    fetchData();
-  }, []);
-
-  const handleClick = (id) => {
-    setCommissionIndex(id);
-    console.log(id);
+  const handleCloseMenu = () => {
+    setMenuVisible(false);
   };
 
   return (
-    <div className={styles.cardContainer}>
-        <div key={user.id} className={styles.card} onClick={() => handleClick(user.id)}>
-          <img className={styles.image} src={user.image} alt={user.NAME} />
-          <h1 className={styles.cardText}>{user.TWITTER}</h1>
+    <div
+      onContextMenu={handleContextMenu}
+      style={{ border: "1px solid black", padding: "20px" }}
+    >
+      Right-click here to show context menu
+      {menuVisible && (
+        <div
+          style={{
+            position: "absolute",
+            left: mouseX,
+            top: mouseY,
+            border: "1px solid gray",
+            padding: "5px",
+            backgroundColor: "white",
+          }}
+          onClick={handleCloseMenu}
+          onMouseLeave={handleCloseMenu}
+        >
+          <ul>
+            <li>Option 1</li>
+            <li>Option 2</li>
+            <li>Option 3</li>
+          </ul>
         </div>
+      )}
     </div>
   );
-};
-
-export default Card;
-
-
-import React, { useState, useEffect } from 'react'
-import styles from './card.module.css'
-
-import { db } from "../firebaseConfig"; // Import Firestore
-import { collection, getDocs } from "firebase/firestore";
-
-async function fetchDataFromFirestore() {
-    const querySnapshot = await getDocs(collection(db, "commissions"))
-  
-    const data = [];
-    querySnapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data()})
-    });
-    return data;
-  }
-
-const Card = ({user, commissionIndex, setCommissionIndex }) => {
-    const fetchData = async () => {
-        const response = await fetch(data)
-        const key = await response
-        setData(newData)
-    }
-    return (
-        <div className={styles.cardContainer}>
-            <div className={styles.card}>
-                <img 
-                    className={styles.image}
-                    src={user.image} 
-                    alt={user.name}
-                />
-            </div>
-            <h1 className={styles.cardText}>{user.TWITTER}</h1>
-        </div>
-    )
 }
 
-export default Card
+export default ContextMenu;

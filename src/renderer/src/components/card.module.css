@@ -55,28 +55,22 @@
 .wrapper{
     z-index: 1;
     width: 0px;
-    display: none;
 }
 
 .item{
-    list-style: none;
+    color: var(--accent);
     display: flex;
+    vertical-align: auto;
     align-items: center;
     background: var(--bg);
     height: 15px;
-    width: 15px;
-    margin: 1px;
+    width: 34px;
     justify-content: center;
-    margin-left: -2px;
+    margin-left: -40px;
     transition: 0.2s ease;
 
     border: 2px solid;
-
-    border-top-color: var(--bg);
-    border-left-color: var(--bg);
-
-    border-bottom-color: var(--borderbtm);
-    border-right-color: var(--borderbtm);
+    border-color: var(--bordertop);
 }
 
   .textNotPaid{
@@ -97,8 +91,7 @@
   .loadingStyle{
     height: 100%;
     width: 100%;
-    opacity: 50%;
-    filter: grayscale();
+    opacity: 70%;
   }
 
   .loadingCardStyle{
