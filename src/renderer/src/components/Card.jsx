@@ -132,7 +132,6 @@ const Card = ({ user, setCommissionIndex }) => {
           alt={user.NAME}
         />
       </div>
-
       <div onContextMenu={handleContextMenu} className={styles.wrapper}>
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
