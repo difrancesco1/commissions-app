@@ -20,7 +20,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       collection(db, "commissions"),
       orderBy("ARCHIVE"),
       orderBy("PAID", "desc"),
-      orderBy("DUE")
+      orderBy("DUE"),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -38,7 +38,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   // Use useMemo to ensure selectedCommission updates correctly
   const selectedCommission = useMemo(() => {
     return userData.find((user, index) =>
-      commissionIndex ? user.id === commissionIndex : index === 0
+      commissionIndex ? user.id === commissionIndex : index === 0,
     );
   }, [userData, commissionIndex]);
 
@@ -68,12 +68,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       updateEmailDatabase("email_comppay");
       disableEmailButton("btn3");
       // 190 - 242
-      if (window.x >= 190 && window.x <= 242) {
-        updateEmailDatabase("email_wip");
-        disableEmailButton("btn4");
-      }
+      updateEmailDatabase("email_wip");
+      disableEmailButton("btn4");
       // 249 - 301
-      else if (window.x >= 249 && window.x <= 301) {
+      if (window.x >= 249 && window.x <= 301) {
         updateEmailDatabase("complete");
         updateEmailDatabase("archive");
         disableEmailButton("btn5");
