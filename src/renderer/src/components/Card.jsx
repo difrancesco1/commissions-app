@@ -77,7 +77,7 @@ const Card = ({ user, setCommissionIndex }) => {
       const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
         PAID: Boolean(!user.PAID),
-      });      
+      });
       console.log("paid status toggled :PP " + user.PAID);
     } catch (error) {
       console.error("Error toggling de paid status:", error);
@@ -98,30 +98,6 @@ const Card = ({ user, setCommissionIndex }) => {
     }
   };
 
-  // // right click handling
-  // // menuVisible hides and shows context menu
-  // const [menuVisible, setMenuVisible] = useState(true);
-
-  // //Prevents default rightclick menu
-  // const handleContextMenu = (event) => {
-  //   event.preventDefault();
-  //   let menu = document.getElementById("contextMenuCard");
-  //   menu.style.display = "block";
-  //   menu.style.left = event.clientX + "px";
-  //   menu.style.top = event.clientY + "px";
-  //   setMenuVisible(true);
-  // };
-  // Hides context menu when triggered
-
-  // const handleContextMenu = (event) => {
-  //   event.preventDefault();
-  //   contextMenu.style.display = "flex";
-  // };
-
-  // const handleCloseMenu = () => {
-  //   contextMenu.style.display = "none";
-  // };
-
   return (
     <div key={user.id} className={styles.cardContainer}>
       <div
@@ -138,33 +114,6 @@ const Card = ({ user, setCommissionIndex }) => {
           alt={user.NAME}
         />
       </div>
-      {/* <div
-        id="contextMenu"
-        className={styles.wrapper}
-        onClick={handleCloseMenu}
-        onMouseLeave={handleCloseMenu}
-      >
-        <ul>
-          <li
-            className={styles.item}
-            onClick={() => {
-              console.log("Toggling Paid");
-              togglePaid();
-            }}
-          >
-            $
-          </li>
-          <li
-            className={styles.item}
-            onClick={() => {
-              console.log("Toggling Archive");
-              toggleArchive();
-            }}
-          >
-            ▾
-          </li>
-        </ul>
-      </div> */}
       <div id="contextMenu" className={styles.wrapper}>
         <ul className={styles.menu}>
           <li className={styles.item} onClick={togglePaid}>

@@ -25,9 +25,9 @@
 
 .card:hover .image{
   object-fit:cover;
-    width:100px;
-    height:150px;
-    margin-left: -30px;
+    width: 100px;
+    height: 100px;
+    margin-left: -25px;
     transform: translate3d(0,0,1px); 
     backface-visibility: hidden;
 }
@@ -35,8 +35,8 @@
 .image {
   transition: .25s ease;
   object-fit:cover;
-  width: 50px;
-  height: 100px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
   transform: translate3d(0,0,1px); 
   backface-visibility: hidden;
@@ -52,6 +52,7 @@
 
 .cardText{
     font-size: 29px;
+    cursor: pointer;
 }
 
 .wrapper{
@@ -62,20 +63,22 @@
 
 .item{
   list-style: none;
-    color: var(--accent);
+    color: var(--bordertop);
     display: flex;
     align-items: center;
     background: var(--bg);
-    height: 15px;
+    height: 17px;
     width: 15px;
     justify-content: center;
     margin-left: -2px;
     font-size: small;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .item:hover{
-  filter: grayscale();
+  color: var(--accent);
+  background: white;
 }
 
   .textNotPaid{

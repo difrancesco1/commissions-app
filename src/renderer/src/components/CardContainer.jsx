@@ -18,7 +18,7 @@ const CardContainer = ({
       sectionsCollectionRef,
       orderBy("ARCHIVE"),
       orderBy("PAID", "desc"),
-      orderBy("DUE")
+      orderBy("DUE"),
     );
 
     // Listen for real-time updates
@@ -36,8 +36,6 @@ const CardContainer = ({
   // Normalize to lowercase and remove spaces
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
-
-  
   // Filter the user data based on the search query (matches TWITTER or PAYPAL)
   const filteredData = userData.filter((user) => {
     const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : "";

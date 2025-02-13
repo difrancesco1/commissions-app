@@ -3,7 +3,14 @@ import styles from "./commissionInfo.module.css";
 import CommissionInfoImg from "./CommissionInfoImg";
 
 import { db } from "../firebaseConfig";
-import { collection, orderBy, query, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  orderBy,
+  query,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 
 import btn1 from "../../../assets/btn1.png";
