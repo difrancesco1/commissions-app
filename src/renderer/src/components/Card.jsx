@@ -2,10 +2,17 @@ import React, { useState, useEffect } from "react";
 import styles from "./card.module.css";
 
 import { db } from "../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 
 const fetchDataFromFirestore = async () => {
-  const querySnapshot = await getDocs(collection(db, "commissions"));
+  // const querySnapshot = await getDocs(collection(db, "commissions"));
+  const sectionsCollectionRef = collection(db, "commissions")
+  const q = query(sectionsCollectionRef, 
+    orderBy("ARCHIVE"),
+    orderBy("PAID", "desc"),
+    orderBy("DUE"))
+  const querySnapshot = await getDocs(q);
+
   const data = [];
   querySnapshot.forEach((doc) => {
     data.push({ id: doc.id, ...doc.data() });
@@ -63,7 +70,7 @@ const Card = ({ user, setCommissionIndex }) => {
         <h1 className={`${styles.cardText} 
           ${user.PAID === true ? null : styles.textNotPaid} 
           ${user.ARCHIVE === true ? styles.textArchive : null}`}
-        >{user.TWITTER}</h1>
+        >{user.TWITTER}{user.COMPLEX === true ? '⋆' : null}</h1>
     </div>
   );
 };

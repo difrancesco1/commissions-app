@@ -20,6 +20,13 @@
     overflow: hidden;
 }
 
+.formatTextSize{
+    font-size: 16px;
+    line-height: 14px;
+    opacity: 60%;
+    user-select: none;
+}
+
 .subText{
     font-size: 13px;
 }
@@ -41,7 +48,7 @@
 
     user-select: none;
 
-    margin-right: 8px;
+    margin-right: 4px;
 }
 
 .imgStyle:active, .emailBtn:active{
@@ -76,6 +83,12 @@
     margin-left: 3px;
     margin-top: 3px;
 }
+
+.textArchive{
+    opacity: 50%;
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }
 
 .emailBtn{
     width: 53px;
