@@ -52,27 +52,26 @@
 
 .cardText{
     font-size: 29px;
-    margin-left: 5px;
 }
 
-  .wrapper{
-    z-index: 9999;
-    position: absolute;
-    text-align: center;
+.wrapper{
+    z-index: 1;
+    width: 15px;
+    /* display: none; */
 }
 
 .item{
+  list-style: none;
     color: var(--accent);
     display: flex;
-    vertical-align: auto;
     align-items: center;
     background: var(--bg);
     height: 15px;
-    width: 34px;
+    width: 15px;
     justify-content: center;
-    transition: 0.2s ease;
-    border: 2px solid;
-    border-color: var(--bordertop);
+    margin-left: -2px;
+    font-size: small;
+    border-radius: 5px;
 }
 
 .item:hover{
