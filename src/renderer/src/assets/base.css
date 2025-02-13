@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+
 :root {
   --bg: #FEE8EB;
   --bordertop: #ff78a181;
@@ -11,8 +13,6 @@
   --blue: #A2F5F9;
   --purple: #DBC5F6;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
 
 * {
   margin: 0;

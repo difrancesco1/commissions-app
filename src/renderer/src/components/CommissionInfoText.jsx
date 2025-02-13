@@ -7,7 +7,8 @@ function CommissionInfoText( {user, commissionIndex, setCommissionIndex } ) {
     <>
         <div className={styles.clientText}>
           <p className={`
-            ${styles.nameText} 
+            ${styles.nameText}
+            ${user.ARCHIVE === true ? styles.textArchive : null} 
             ${user.PAID === true ? null : styles.textNotPaid }`}>
               {user.NAME}{user.COMPLEX === true ? '⋆' : null}</p>
           <p className={styles.noteText}>{user.NOTES}</p>

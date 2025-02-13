@@ -84,6 +84,12 @@
     margin-top: 3px;
 }
 
+.textArchive{
+    opacity: 50%;
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }
+
 .emailBtn{
     width: 53px;
     height: 35px;
