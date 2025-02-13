@@ -1,22 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./CommissionInfo.module.css";
-import loading from "../../../assets/loading.gif";
+import loading from "../../../assets/loading.gif";  
 
 const CommissionInfoImg = ({ user }) => {
-  // props
-  // TODO: CHANGE THIS TO ACTUALLY BE LOGICAL ^_^
-  const imageExists = false;
+  const [imageExists, setImageExists] = useState(false);
+  // Full URL to the image from the backend API
+  const imagePath = `http://localhost:5000/API/images/${user.ID}.png`;  
+
+  const loadImage = async () => {
+    try {
+      const imageCheck = await fetch(imagePath);
+      if (imageCheck.ok) {
+        setImageExists(true);
+      } else {
+        setImageExists(false);
+      }
+    } catch (error) {
+      setImageExists(false);
+    }
+  };
+
+  useEffect(() => {
+    loadImage();
+  }, [user.ID]);
+
   return (
     <div
-      className={`${imageExists === true ? styles.imgStyle : styles.loadingCardStyle}
-            ${user.ARCHIVE === true ? styles.textArchive : null}
-        `}
+      className={`${imageExists ? styles.imgStyle : styles.loadingCardStyle} 
+        ${user.ARCHIVE ? styles.textArchive : ""}`}
     >
       <img
-        className={`${imageExists === true ? null : styles.loadingStyle}`}
-        src={`${imageExists === true ? user.IMG1 : loading}`} // TODO: CHANGE USER.IMG1
+        className={imageExists ? styles.commissionImageStyle : styles.loadingStyle}
+        src={imageExists ? imagePath : loading}
         alt="Commission Preview"
-        // className={styles.imgStyle}
       />
     </div>
   );

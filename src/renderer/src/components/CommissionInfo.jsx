@@ -11,7 +11,7 @@ import btn2 from "../../../assets/btn2.png";
 import btn3 from "../../../assets/btn3.png";
 import btn4 from "../../../assets/btn4.png";
 import btn5 from "../../../assets/btn5.png";
-<img src={`../../AP/images/${ID}.png`} />
+
 async function fetchDataFromFirestore() {
   // const querySnapshot = await getDocs(collection(db, "commissions"));
   const sectionsCollectionRef = collection(db, "commissions");
