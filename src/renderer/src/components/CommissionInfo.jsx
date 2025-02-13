@@ -15,8 +15,10 @@ async function fetchDataFromFirestore() {
   return data;
 }
 
-const CommissionInfo = ({ commissionIndex }) => {
+const CommissionInfo = ({ commissionIndex, searchQuery }) => {
   const [userData, setUserData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+
 
   useEffect(() => {
     async function fetchData() {
@@ -25,6 +27,7 @@ const CommissionInfo = ({ commissionIndex }) => {
     }
     fetchData();
   }, []);
+  
 
   // Default to first item if commissionIndex is not set
   const selectedCommission = userData.find((user, index) =>
