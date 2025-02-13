@@ -23,7 +23,8 @@
 .formatTextSize{
     font-size: 16px;
     line-height: 14px;
-
+    opacity: 60%;
+    user-select: none;
 }
 
 .subText{
