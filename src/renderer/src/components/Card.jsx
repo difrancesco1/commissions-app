@@ -43,11 +43,8 @@ const Card = ({ user, setCommissionIndex }) => {
     fetchData();
   }, []);
 
-  const contextMenu = document.getElementById("contextMenu");
-
   const handleClick = (id) => {
     setCommissionIndex(id);
-    handleCloseMenu;
     console.log(id);
   };
 
@@ -77,13 +74,13 @@ const Card = ({ user, setCommissionIndex }) => {
 
   // right click handling
   const [menuVisible, setMenuVisible] = useState(false);
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
 
   const handleContextMenu = (event) => {
     event.preventDefault();
-    setMouseX(event.clientX);
-    setMouseY(event.clientY);
+    let menu = document.getElementById("contextMenuCard");
+    menu.style.display = "block";
+    menu.style.left = event.clientX + "px";
+    menu.style.top = event.clientY + "px";
     setMenuVisible(true);
   };
 
@@ -95,26 +92,25 @@ const Card = ({ user, setCommissionIndex }) => {
   const imageExists = false;
 
   return (
-    <div
-      key={user.id}
-      className={styles.cardContainer}
-      onClick={() => handleClick(user.id)}
-    >
+    <div key={user.id} className={styles.cardContainer}>
       <div
         key={user.id}
         className={`
           ${user.ARCHIVE === true ? styles.cardArchive : null}
           ${imageExists === true ? styles.card : styles.loadingCardStyle}`}
-        onClick={() => handleClick(user.id)}
-        onContextMenu={handleContextMenu}
       >
         <img
           className={`${imageExists === true ? styles.image : styles.loadingStyle}`}
           src={`${imageExists === true ? user.IMG1 : loading}`} // TODO: CHANGE USER.IMG1
           alt={user.NAME}
+          onContextMenu={handleContextMenu}
         />
       </div>
-      <div onContextMenu={handleContextMenu} className={styles.wrapper}>
+      <div
+        id="contextMenuCard"
+        onContextMenu={handleContextMenu}
+        className={styles.wrapper}
+      >
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
             <ul>
@@ -132,6 +128,7 @@ const Card = ({ user, setCommissionIndex }) => {
         className={`${styles.cardText} 
           ${user.PAID === true ? null : styles.textNotPaid} 
           ${user.ARCHIVE === true ? styles.textArchive : null}`}
+        onClick={() => handleClick(user.id)}
       >
         {user.TWITTER}
         {user.COMPLEX === true ? "⋆" : null}

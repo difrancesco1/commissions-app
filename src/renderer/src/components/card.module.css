@@ -52,9 +52,10 @@
     margin-left: 5px;
 }
 
-.wrapper{
-    z-index: 1;
-    width: 0px;
+  .wrapper{
+    z-index: 9999;
+    position: absolute;
+    text-align: center;
 }
 
 .item{
@@ -66,11 +67,13 @@
     height: 15px;
     width: 34px;
     justify-content: center;
-    margin-left: -40px;
     transition: 0.2s ease;
-
     border: 2px solid;
     border-color: var(--bordertop);
+}
+
+.item:hover{
+  filter: grayscale();
 }
 
   .textNotPaid{
