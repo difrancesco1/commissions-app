@@ -25,19 +25,40 @@ const Card = ({ user, setCommissionIndex }) => {
     fetchData();
   }, []);
 
+  const contextMenu = document.getElementById('contextMenu');
+
   const handleClick = (id) => {
     setCommissionIndex(id);
+    contextMenu.style.display = "none";
     console.log(id);
   };
 
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    console.log('Right click event triggered');
+    contextMenu.style.display = "flex";
+  };
+
   return (
-    <div key={user.id} className={styles.cardContainer} onClick={() => handleClick(user.id)}>
-        <div key={user.id} className={styles.card} onClick={() => handleClick(user.id)}>
-          <img 
-            className={styles.image} 
-            src={user.IMG1} 
-            alt={user.NAME} 
+    <div key={user.id} className={styles.cardContainer} 
+      onClick={() => handleClick(user.id)}>
+        <div key={user.id} className={styles.card} 
+          onClick={() => handleClick(user.id)} onContextMenu={handleRightClick}>
+          <img
+            className={styles.image}
+            src={user.IMG1}
+            alt={user.NAME}
         />
+        </div>
+        <div id="contextMenu" className={styles.wrapper}>
+          <ul className = {styles.menu}>
+            <li className = {styles.item}>
+              $
+            </li>
+            <li className = {styles.item}>
+              ▾
+            </li>
+          </ul>
         </div>
         <h1 className={styles.cardText}>{user.TWITTER}</h1>
     </div>
