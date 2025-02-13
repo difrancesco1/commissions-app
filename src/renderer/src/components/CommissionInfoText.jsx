@@ -14,6 +14,7 @@ function CommissionInfoText( {user, commissionIndex, setCommissionIndex } ) {
           <p className={styles.subText}>{user.TWITTER}</p>
           <p className={styles.subText}>{user.EMAIL}</p>
           <p className={styles.subText}>{user.PAYPAL}</p>
+          <p className={`${styles.noteText} ${styles.formatTextSize}`}>⨯˚ʚᗢ ₍^.ˬ.^₎ ₍ᐢ.ˬ.ᐢ₎ ♡.°₊ˎˊ˗</p>
         </div>
         <div className={styles.dueInfo}>
           <p className={styles.subText}>2/10</p>

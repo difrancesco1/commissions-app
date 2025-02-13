@@ -5,7 +5,9 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 
 const fetchDataFromFirestore = async () => {
-  const querySnapshot = await getDocs(collection(db, "commissions"));
+  const querySnapshot = await getDocs(collection(db, "commissions"), 
+    orderBy("PAYDUE", "asc")
+  );
   const data = [];
   querySnapshot.forEach((doc) => {
     data.push({ id: doc.id, ...doc.data() });

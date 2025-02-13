@@ -20,6 +20,12 @@
     overflow: hidden;
 }
 
+.formatTextSize{
+    font-size: 16px;
+    line-height: 14px;
+
+}
+
 .subText{
     font-size: 13px;
 }
