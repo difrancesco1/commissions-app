@@ -108,7 +108,6 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
 
   const disableEmailButton = (buttonId) => {
     let btn = document.getElementById(buttonId);
-    console.log(buttonId);
     btn.style.opacity = ".3";
   };
 
