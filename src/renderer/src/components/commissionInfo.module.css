@@ -211,3 +211,13 @@
 .item:hover{
     filter: grayscale();
   }
+
+.placeholderText {
+    background: none;
+    border: none;
+    color: var(--bordertop);
+}
+
+input::placeholder {
+    color: var(--bordertop);
+  }

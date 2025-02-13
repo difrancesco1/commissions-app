@@ -2,26 +2,7 @@ import React, { useState, useEffect } from "react";
 import Card from "./Card.jsx";
 import styles from "./cardContainer.module.css";
 import { db } from "../firebaseConfig"; // Import Firestore
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-
-// Fetch data from Firestore
-async function fetchDataFromFirestore() {
-  // const querySnapshot = await getDocs(collection(db, "commissions"));
-  const sectionsCollectionRef = collection(db, "commissions");
-  const q = query(
-    sectionsCollectionRef,
-    orderBy("ARCHIVE"),
-    orderBy("PAID", "desc"),
-    orderBy("DUE"),
-  );
-  const querySnapshot = await getDocs(q);
-
-  const data = [];
-  querySnapshot.forEach((doc) => {
-    data.push({ id: doc.id, ...doc.data() });
-  });
-  return data;
-}
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 const CardContainer = ({
   commissionIndex,
@@ -32,28 +13,36 @@ const CardContainer = ({
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await fetchDataFromFirestore();
+    const sectionsCollectionRef = collection(db, "commissions");
+    const q = query(
+      sectionsCollectionRef,
+      orderBy("ARCHIVE"),
+      orderBy("PAID", "desc"),
+      orderBy("DUE")
+    );
+
+    // Listen for real-time updates
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setUserData(data);
-    }
-    fetchData();
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Normalize to lowercase and remove (trim) spaces
+  // Normalize to lowercase and remove spaces
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-  console.log("Search Query: ", normalizedSearchQuery); // check normalized search query as we type
 
-  // Filter the user data based on the normalized search query, comparing to TWITTER field in db
+
+  
+  // Filter the user data based on the search query (matches TWITTER or PAYPAL)
   const filteredData = userData.filter((user) => {
-    // check full object
-    console.log("Full user object:", user);
+    const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : "";
+    const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : "";
 
-    const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : ""; // make sure user.TWITTER is not undefined
-    const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : ""; // make sure user.paypal is not undefined
-
-    console.log("Comparing:", userTwitter, "to", normalizedSearchQuery); // debug compare the userTwitter to the search
-
-    // Check if searchQuery is part of the userTwitter
     return (
       userTwitter.includes(normalizedSearchQuery) ||
       userPaypal.includes(normalizedSearchQuery)
@@ -64,8 +53,6 @@ const CardContainer = ({
   useEffect(() => {
     setListCount(filteredData.length);
   }, [filteredData, setListCount]); //Runs when filteredData changes
-
-  console.log(`Number of matching results: ${filteredData.length}`);
 
   return (
     <div className={styles.container}>
