@@ -14,11 +14,12 @@ import {
 // fetches data from Firestore
 const fetchDataFromFirestore = async () => {
   const sectionsCollectionRef = collection(db, "commissions"); // gets "commissions" collection from DB
-  const q = query(               // Creates query that orders the docs by: ARCHIVE, PAID, and DUE
+  const q = query(
+    // Creates query that orders the docs by: ARCHIVE, PAID, and DUE
     sectionsCollectionRef,
     orderBy("ARCHIVE"),
-    orderBy("PAID", "desc"),     // Descending Order
-    orderBy("DUE")
+    orderBy("PAID", "desc"), // Descending Order
+    orderBy("DUE"),
   );
   // snapshot iterates through the fetched docs and extracts their data
   const querySnapshot = await getDocs(q); // Fetches the docs based on our query
@@ -30,10 +31,9 @@ const fetchDataFromFirestore = async () => {
   return data;
 };
 
-
 const Card = ({ user, setCommissionIndex }) => {
-  const [data, setData] = useState([]); //data store the fetched data 
-  const [imageExists, setImageExists] = useState(false); // imageExists stores whether an image exists or not 
+  const [data, setData] = useState([]); //data store the fetched data
+  const [imageExists, setImageExists] = useState(false); // imageExists stores whether an image exists or not
 
   const imagePath = `http://localhost:5000/API/images/${user.ID}.png`; // URL pointing towards server API endpoint
 
@@ -53,24 +53,25 @@ const Card = ({ user, setCommissionIndex }) => {
 
   // when user.ID changes
   useEffect(() => {
-    const fetchData = async () => {                   // Calls db to set new data
+    const fetchData = async () => {
+      // Calls db to set new data
       const newData = await fetchDataFromFirestore();
       setData(newData);
     };
 
-    fetchData(); 
+    fetchData();
     loadImage(); // Checks if the image exists by calling the loadImage function
   }, [user.ID]); // [user.ID] ensures that the effect will ONLY run when user.ID changes ^_^
 
   //When user clicks on card
-  const handleClick = (id) => { 
+  const handleClick = (id) => {
     setCommissionIndex(id); // sets commission index
     handleCloseMenu(); // closes context menu
   };
 
   // Toggles the PAID status of a commission in DB
   const togglePaid = async () => {
-    try { 
+    try {
       const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
         ["PAID"]: `${!user.PAID}`,
@@ -103,8 +104,10 @@ const Card = ({ user, setCommissionIndex }) => {
   //Prevents default rightclick menu
   const handleContextMenu = (event) => {
     event.preventDefault();
-    setMouseX(event.clientX);
-    setMouseY(event.clientY);
+    let menu = document.getElementById("contextMenuCard");
+    menu.style.display = "block";
+    menu.style.left = event.clientX + "px";
+    menu.style.top = event.clientY + "px";
     setMenuVisible(true);
   };
   // Hides context menu when triggered
@@ -113,41 +116,47 @@ const Card = ({ user, setCommissionIndex }) => {
   };
 
   return (
-    <div
-      key={user.id}
-      className={styles.cardContainer}
-      onClick={() => handleClick(user.id)}
-    >
+    <div key={user.id} className={styles.cardContainer}>
       <div
         key={user.id}
         className={`${
           user.ARCHIVE === true ? styles.cardArchive : null
         } ${imageExists ? styles.card : styles.loadingCardStyle}`}
         onClick={() => handleClick(user.id)}
-        onContextMenu={handleContextMenu}
       >
         <img
           className={`${imageExists ? styles.image : styles.loadingStyle}`}
           src={imageExists ? imagePath : loading}
           alt={user.NAME}
+          onContextMenu={handleContextMenu}
         />
       </div>
-      <div onContextMenu={handleContextMenu} className={styles.wrapper}>
+      <div
+        id="contextMenuCard"
+        onContextMenu={handleContextMenu}
+        className={styles.wrapper}
+      >
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
             <ul>
-            <li className={styles.item} onClick={() => {
-              console.log("Toggling Paid");
-              togglePaid();
-            }}>
-              $
-            </li>
-            <li className={styles.item} onClick={() => {
-              console.log("Toggling Archive");
-              toggleArchive();
-            }}>
-              ▾
-            </li>
+              <li
+                className={styles.item}
+                onClick={() => {
+                  console.log("Toggling Paid");
+                  togglePaid();
+                }}
+              >
+                $
+              </li>
+              <li
+                className={styles.item}
+                onClick={() => {
+                  console.log("Toggling Archive");
+                  toggleArchive();
+                }}
+              >
+                ▾
+              </li>
             </ul>
           </div>
         )}
@@ -157,6 +166,7 @@ const Card = ({ user, setCommissionIndex }) => {
         className={`${styles.cardText} 
           ${user.PAID === true ? null : styles.textNotPaid} 
           ${user.ARCHIVE === true ? styles.textArchive : null}`}
+        onClick={() => handleClick(user.id)}
       >
         {user.TWITTER}
         {user.COMPLEX === true ? "⋆" : null}

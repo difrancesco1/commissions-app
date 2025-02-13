@@ -42,6 +42,21 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     );
   }, [userData, commissionIndex]);
 
+  // right click handling
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    let menu = document.getElementById("contextMenuEmailButton");
+    menu.style.left = event.clientX + "px";
+    menu.style.top = event.clientY + "px";
+    setMenuVisible(true);
+  };
+
+  const handleCloseMenu = () => {
+    setMenuVisible(false);
+  };
+
   return (
     <div className={styles.commissionInfo}>
       <div className={styles.clientInfo}>
@@ -61,23 +76,47 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       </div>
 
       <div className={styles.emailButtonContainer}>
-        <div className={styles.emailBtn}>
-          <img className={styles.buttonText} src={btn1} alt="didntpayemailbutton" />
+        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+          <img
+            className={styles.buttonText}
+            src={btn1}
+            alt="didntpayemailbutton"
+          />
         </div>
-        <div className={styles.emailBtn}>
-          <img className={styles.buttonText} src={btn2} alt="iscomplexemailbutton" />
+        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+          <img
+            className={styles.buttonText}
+            src={btn2}
+            alt="iscomplexemailbutton"
+          />
         </div>
-        <div className={styles.emailBtn}>
+        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
           <img className={styles.buttonText} src={btn3} alt="bothemailbutton" />
         </div>
-        <div className={styles.emailBtn}>
+        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
           <img className={styles.buttonText} src={btn4} alt="wipemailbutton" />
         </div>
-        <div className={styles.emailBtn}>
-          <img className={styles.buttonText} src={btn5} alt="finishedemailbutton" />
+        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+          <img
+            className={styles.buttonText}
+            src={btn5}
+            alt="finishedemailbutton"
+          />
         </div>
       </div>
-
+      <div
+        id="contextMenuEmailButton"
+        onContextMenu={handleContextMenu}
+        className={styles.wrapper}
+      >
+        {menuVisible && (
+          <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
+            <ul>
+              <li className={styles.item}>✉</li>
+            </ul>
+          </div>
+        )}
+      </div>
       <div>
         <div className={styles.todoCountText}>
           ▾todo({listCount}/{userData.length})
