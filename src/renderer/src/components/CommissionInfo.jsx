@@ -56,7 +56,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         )}
       </div>
 
-      <div className={styles.clientInfo}>
+      <div className={styles.emailButtonContainer}>
         <div className={styles.emailBtn}>
           <img className={styles.buttonText} src={btn1} alt="didntpayemailbutton"/>
         </div>

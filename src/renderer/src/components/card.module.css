@@ -18,7 +18,7 @@
 
     position: relative;
 
-    margin: 4px;  
+    margin: 4px;
 
     overflow: hidden;
 }
@@ -49,4 +49,31 @@
 .cardText{
     font-size: 29px;
     margin-left: 5px;
+}
+
+.wrapper{
+    z-index: 1;
+    width: 0px;
+    display: none;
+}
+
+.item{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    height: 15px;
+    width: 15px;
+    margin: 1px;
+    justify-content: center;
+    margin-left: -2px;
+    transition: 0.2s ease;
+
+    border: 2px solid;
+
+    border-top-color: var(--bg);
+    border-left-color: var(--bg);
+
+    border-bottom-color: var(--borderbtm);
+    border-right-color: var(--borderbtm);
 }
