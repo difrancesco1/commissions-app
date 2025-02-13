@@ -63,7 +63,7 @@ const Card = ({ user, setCommissionIndex }) => {
         <h1 className={`${styles.cardText} 
           ${user.PAID === true ? null : styles.textNotPaid} 
           ${user.ARCHIVE === true ? styles.textArchive : null}`}
-        >{user.TWITTER}</h1>
+        >{user.TWITTER}{user.COMPLEX === true ? '⋆' : null}</h1>
     </div>
   );
 };
