@@ -53,7 +53,15 @@
 }
 
 .clientInfo{
-    display:flex;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 94px;
+}
+
+.emailButtonContainer{
+    height: 42px;
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
