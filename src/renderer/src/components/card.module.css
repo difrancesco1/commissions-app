@@ -93,3 +93,29 @@
     -webkit-filter: grayscale();
     filter: grayscale();
   }
+
+  .loadingStyle{
+    height: 100%;
+    width: 100%;
+    opacity: 50%;
+    filter: grayscale();
+  }
+
+  .loadingCardStyle{
+    width: 38px;
+    height: 35px;
+
+    border: 3.5px solid;
+
+    border-top-color: var(--bordertop);
+    border-left-color: var(--bordertop);
+
+    border-bottom-color: var(--borderbtm);
+    border-right-color: var(--borderbtm);
+
+    position: relative;
+
+    margin: 4px;
+
+    overflow: hidden;
+  }
