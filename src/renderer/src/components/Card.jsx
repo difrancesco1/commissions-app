@@ -76,7 +76,7 @@ const Card = ({ user, setCommissionIndex }) => {
       await updateDoc(documentRef, {
         ["PAID"]: `${!user.PAID}`,
       });
-      console.log("paid status toggled :PP");
+      console.log("paid status toggled :PP " + user.PAID);
     } catch (error) {
       console.error("Error toggling de paid status:", error);
     }
@@ -89,7 +89,7 @@ const Card = ({ user, setCommissionIndex }) => {
       await updateDoc(documentRef, {
         ["ARCHIVE"]: `${!user.ARCHIVE}`,
       });
-      console.log("archive status toggled :PP");
+      console.log("archive status toggled :PP " + user.ARCHIVE);
     } catch (error) {
       console.error("Error toggling de archive:", error);
     }

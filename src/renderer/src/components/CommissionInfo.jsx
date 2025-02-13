@@ -45,11 +45,66 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   // right click handling
   const [menuVisible, setMenuVisible] = useState(false);
 
+  const copyEmail = () => {
+    // 14 - 66
+    if (window.x >= 14 && window.x <= 66) {
+      updateEmailDatabase("email_pay");
+      disableEmailButton("btn1");
+    }
+    // 73 - 125
+    else if (window.x >= 73 && window.x <= 125) {
+      updateEmailDatabase("email_comp");
+      disableEmailButton("btn2");
+    }
+    // 131 - 184
+    else if (window.x >= 131 && window.x <= 184) {
+      updateEmailDatabase("email_comppay");
+      disableEmailButton("btn3");
+    } else {
+      updateEmailDatabase("email_pay");
+      disableEmailButton("btn1");
+      updateEmailDatabase("email_comp");
+      disableEmailButton("btn2");
+      updateEmailDatabase("email_comppay");
+      disableEmailButton("btn3");
+      // 190 - 242
+      if (window.x >= 190 && window.x <= 242) {
+        updateEmailDatabase("email_wip");
+        disableEmailButton("btn4");
+      }
+      // 249 - 301
+      else if (window.x >= 249 && window.x <= 301) {
+        updateEmailDatabase("complete");
+        updateEmailDatabase("archive");
+        disableEmailButton("btn5");
+      }
+    }
+  };
+
+  // update database on email info and disable button
+  const updateEmailDatabase = async (fieldName) => {
+    try {
+      const documentRef = doc(db, "commissions", user.ID);
+      await updateDoc(documentRef, {
+        [fieldName]: true,
+      });
+      console.log("updated as true: " + fieldName);
+    } catch (error) {
+      console.error("Error toggling de email:", error);
+    }
+  };
+
+  const disableEmailButton = (buttonId) => {
+    let btn = document.getElementById(buttonId);
+    btn.style.opacity = ".3";
+  };
+
   const handleContextMenu = (event) => {
     event.preventDefault();
     let menu = document.getElementById("contextMenuEmailButton");
     menu.style.left = event.clientX + "px";
     menu.style.top = event.clientY + "px";
+    window.x = event.clientX;
     setMenuVisible(true);
   };
 
@@ -76,27 +131,47 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       </div>
 
       <div className={styles.emailButtonContainer}>
-        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+        <div
+          id="btn1"
+          className={styles.emailBtn}
+          onContextMenu={handleContextMenu}
+        >
           <img
             className={styles.buttonText}
             src={btn1}
             alt="didntpayemailbutton"
           />
         </div>
-        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+        <div
+          id="btn2"
+          className={styles.emailBtn}
+          onContextMenu={handleContextMenu}
+        >
           <img
             className={styles.buttonText}
             src={btn2}
             alt="iscomplexemailbutton"
           />
         </div>
-        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+        <div
+          id="btn3"
+          className={styles.emailBtn}
+          onContextMenu={handleContextMenu}
+        >
           <img className={styles.buttonText} src={btn3} alt="bothemailbutton" />
         </div>
-        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+        <div
+          id="btn4"
+          className={styles.emailBtn}
+          onContextMenu={handleContextMenu}
+        >
           <img className={styles.buttonText} src={btn4} alt="wipemailbutton" />
         </div>
-        <div className={styles.emailBtn} onContextMenu={handleContextMenu}>
+        <div
+          id="btn5"
+          className={styles.emailBtn}
+          onContextMenu={handleContextMenu}
+        >
           <img
             className={styles.buttonText}
             src={btn5}
@@ -112,7 +187,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
             <ul>
-              <li className={styles.item}>✉</li>
+              <li className={styles.item} onClick={copyEmail}>
+                ✉
+              </li>
             </ul>
           </div>
         )}
