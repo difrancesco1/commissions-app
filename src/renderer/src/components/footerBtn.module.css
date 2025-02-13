@@ -44,39 +44,8 @@
   user-select: none;
 }
 
-.rectangleButton{
-  width: 45px;
-  height: 30px;
-
-  background-color: var(--bordertop);
-  text-align: center;
-  vertical-align: middle;
-  line-height: 24px;
-
-  font-size: larger;
-  font-weight: bold;
-
-  border: 3px solid;
-
-  border-top-color: var(--bg);
-  border-left-color: var(--bg);
-
-  border-bottom-color: var(--borderbtm);
-  border-right-color: var(--borderbtm);
-
-  -webkit-filter: grayscale();
-  filter: grayscale();
-
-  margin-left: 2px;
-  margin-right: 2px;
-
-  opacity: .7;
-
-  user-select: none;
-}
-
 .searchBar{
-  width: 190px;
+  width: 232px;
   height: 30px;
   background-color: var(--bordertop);
   text-align: center;
@@ -90,10 +59,10 @@
   -webkit-filter: grayscale();
   filter: grayscale();
   margin-left: 4px;
-  margin-right: -5px;
   margin-top: 2px;
   opacity: .7;
   font-style: italic;
+  margin-right: 2px;
 }
 
 .boxButton:active , .rectangleButton:active {

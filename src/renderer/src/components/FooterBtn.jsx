@@ -27,9 +27,6 @@ const FooterBtn = ({ setSearchQuery }) => {
         value={query} // Bind input value to local state
         onChange={handleChange} // Call handleChange on input change
       />
-      <div className={styles.rectangleButton}>
-        <img className={styles.buttonText} src={search} alt="search button"/>
-      </div>
 
       <div className={styles.boxButton}>
         <img className={styles.buttonText} src={copytocarrd} alt="copytocarrd button"/>
