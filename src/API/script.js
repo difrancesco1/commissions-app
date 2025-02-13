@@ -109,7 +109,7 @@ async function storeEmailInFirebase(emailData) {
             PAYPAL: emailData["mpaypal"], // paypal email
             MSG_ID: emailData["messageId"],
             IMG1: emailData["attachmentId"],  // Add file handling if needed later
-            NOTES: "click to add short note :3", // empty for now
+            NOTES: "add note :3", // empty for now
             COMPLETE: false,
             ARCHIVE: false, // if true, is archived
             PAID: false,
@@ -263,8 +263,30 @@ async function fetchEmails(auth) {
     }
 }
 
+
+// checking if user has iamge saved in their directory, if not, pull from gmail and save
+export function checkAndSaveEmailAttachment(id, messageId, attachmentId) {
+    const gmail = google.gmail({ version: 'v1', auth });
+    try {
+        // if attachment doesn't exist
+        if (!checkIfFileExists("./images/" + id + ".png")) {
+            // get attachment and save attachment
+            const attachmentData = await gmail.users.messages.attachments.get({
+                userId: 'me',
+                messageId: messageId,
+                id: attachmentId,
+            });
+            const attachmentBytes = decodeBase64(attachmentData.data["data"]);
+            fs.writeFileSync("./images/" + id + ".png", attachmentBytes);
+        }
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+
 async function saveEmailAttachment(gmail, messageId, attachmentId, mcomm_type, mtwitter) {
-    const fs = require('fs');
     try {
         // if attachment doesn't exist
         if (!checkIfFileExists("./images/" + mcomm_type + mtwitter + ".png")) {
@@ -285,8 +307,6 @@ async function saveEmailAttachment(gmail, messageId, attachmentId, mcomm_type, m
 }
 
 function checkIfFileExists(directoryPath) {
-    const fs = require('fs');
-
     try {
         fs.accessSync(directoryPath, fs.constants.F_OK);
         return true;

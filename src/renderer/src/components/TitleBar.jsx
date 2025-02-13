@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React from 'react'
 import styles from './titleBar.module.css'
-import icon from '../../../assets/rosieuna_icon.png'
 import exit from '../../../assets/exit.png'
 
 const TitleBar = () => {
@@ -9,7 +8,7 @@ const TitleBar = () => {
     <div className={styles.titlebarContainer} >
         <p className={styles.text}>✿ ROSIEUNA ˚˖ ࣪ </p>
         <div className={styles.btns}>
-            <img className={styles.exit} src={exit} alt="Rosieeuna icon"/>
+            <img className={styles.exit} src={exit} alt="exit button"/>
         </div>
     </div>
   )

@@ -16,6 +16,8 @@
 
 .noteText{
     color: var(--bordertop);
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .subText{
@@ -38,6 +40,8 @@
     border-right-color: var(--borderbtm);
 
     user-select: none;
+
+    margin-right: 8px;
 }
 
 .imgStyle:active, .emailBtn:active{
@@ -105,3 +109,9 @@
     letter-spacing: 1px;
     user-select: none;
 }
+
+.buttonText {
+    margin-top: 2px;
+    height: 90%;
+    opacity: 80%;
+  }

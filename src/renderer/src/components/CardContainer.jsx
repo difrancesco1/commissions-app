@@ -35,7 +35,7 @@ const CardContainer = ({ commissionIndex, setCommissionIndex, searchQuery }) => 
     console.log("Full user object:", user);
 
     const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : '';  // make sure user.TWITTER is not undefined
-    const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : '';  // make sure user.TWITTER is not undefined
+    const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : '';  // make sure user.paypal is not undefined
 
     console.log("Comparing:", userTwitter, "to", normalizedSearchQuery); // debug compare the userTwitter to the search 
 
