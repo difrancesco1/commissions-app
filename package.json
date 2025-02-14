@@ -1,9 +1,9 @@
 {
   "name": "rosieuna",
-  "version": "1.0.0",
-  "description": "An Electron application with React",
+  "version": "1.0.2",
+  "description": "pulls commission data from new emails",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "rosie+josh",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
