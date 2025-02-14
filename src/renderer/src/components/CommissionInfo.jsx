@@ -129,13 +129,15 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     console.log(typeof userData);
     for (const id in userData) {
       const user = userData[id];
-      if (user.ARCHIVE) {
+      if (user.ARCHIVE && !user.COMPLETE) {
+        // if in archive and NOT complete, skip over
         continue;
       }
       const twitter = user.TWITTER;
       const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
 
       // add due date if there is a due date
+      // format information for website
       try {
         const commmDue = new Date(user.DUE.toDate());
         const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
@@ -144,16 +146,21 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           `♥ ${dueDate} ♥ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
         );
         carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}\n`);
+        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
+        carrdArr.push(`${user.EMAIL_WIP ? " ✉" : ""}`);
+        carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
+        carrdArr.push(`\n`);
       } catch {
         carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
         carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
         carrdArr.push(`${user.EMAIL_PAY ? " ✉" : ""}`);
         carrdArr.push(`${user.EMAIL_COMP ? " ✉" : ""}`);
-        carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}^\n`);
+        carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}^`);
+        carrdArr.push(`\n`);
       }
     }
     console.log(carrdArr.join(""));
+    // copy website information to clipboard
     navigator.clipboard.writeText(carrdArr.join(""));
   };
 
