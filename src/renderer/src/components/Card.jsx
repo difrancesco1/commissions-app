@@ -10,6 +10,7 @@ import {
   updateDoc,
   doc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
 // const contextMenu = document.getElementById("contextMenu");
 
@@ -83,8 +84,6 @@ const Card = ({ user, setCommissionIndex }) => {
       console.log("set user to " + payStatus);
       // if user paid, update due date
       if (payStatus) {
-        console.log(user.id + " paid, trying update");
-
         // get due date
         const docSnap = await getDoc(
           doc(db, "commissionDueDate", user.COMM_TYPE),
@@ -92,8 +91,7 @@ const Card = ({ user, setCommissionIndex }) => {
 
         // set due date as incremented date (server and user)
         if (docSnap.exists()) {
-          const dueDatets = Object.values(docSnap.data())[0];
-          const dueDate = new Date(dueDatets * 1000);
+          const dueDate = new Date(Object.values(docSnap.data())[0].toDate());
           dueDate.setDate(dueDate.getDate() + 1);
 
           // update database with incremented due date
@@ -112,6 +110,8 @@ const Card = ({ user, setCommissionIndex }) => {
           await updateDoc(updateUserDueDate, {
             DUE: intDueDate,
           });
+
+          console.log(user.id + " paid, set due date: " + intDueDate);
         } else {
           // docSnap.data() will be undefined in this case
           console.log("Due date not found in database commissionDueDate.");
