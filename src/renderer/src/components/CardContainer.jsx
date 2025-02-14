@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import Card from "./Card.jsx";
 import styles from "./cardContainer.module.css";
 import { db } from "../firebaseConfig"; // Import Firestore
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 const CardContainer = ({
   commissionIndex,
@@ -44,11 +51,10 @@ const CardContainer = ({
     const userEmail = user.EMAIL ? user.EMAIL.trim().toLowerCase() : "";
 
     return (
-      userTwitter.includes(normalizedSearchQuery) || 
-      userPaypal.includes(normalizedSearchQuery) || 
-      userName.includes(normalizedSearchQuery) || 
+      userTwitter.includes(normalizedSearchQuery) ||
+      userPaypal.includes(normalizedSearchQuery) ||
+      userName.includes(normalizedSearchQuery) ||
       userEmail.includes(normalizedSearchQuery)
-      
     );
   });
 
