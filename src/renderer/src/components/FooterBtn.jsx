@@ -50,6 +50,15 @@ const FooterBtn = ({ setSearchQuery }) => {
   const changeToDog = () => {
     const dogButton = document.getElementById("dog");
     dogButton.src = dog;
+    dogButton.setAttribute(
+      "style",
+      `  height: 100px;
+  width: 100px;
+  /* margin-bottom: 100px; */
+  /* padding-bottom: 100px; */
+  margin-left: -50px;
+  margin-top: -50px;`,
+    );
   };
 
   return (
@@ -74,7 +83,7 @@ const FooterBtn = ({ setSearchQuery }) => {
       <div className={styles.boxButton}>
         <img
           id="dog"
-          className={styles.buttonText}
+          className={`${styles.buttonText}`}
           src={copytocarrd}
           alt="now its a dog button"
           onClick={changeToDog}

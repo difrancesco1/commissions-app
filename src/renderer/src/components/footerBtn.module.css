@@ -45,6 +45,10 @@
   cursor: pointer;
 }
 
+.dogDog:active{
+
+}
+
 .searchBar{
   width: 232px;
   height: 30px;
