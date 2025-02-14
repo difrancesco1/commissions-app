@@ -217,15 +217,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         );
         carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
         carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
-        carrdArr.push(`${user.EMAIL_WIP ? " ✉" : ""}`);
         carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
         carrdArr.push(`\n`);
       } catch {
         carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
         carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-        carrdArr.push(`${user.EMAIL_PAY ? " ✉" : ""}`);
-        carrdArr.push(`${user.EMAIL_COMP ? " ✉" : ""}`);
-        carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}^`);
+        carrdArr.push(
+          `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
+        );
         carrdArr.push(`\n`);
       }
     }

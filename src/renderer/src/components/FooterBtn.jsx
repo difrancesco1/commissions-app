@@ -37,11 +37,11 @@ const FooterBtn = ({ setSearchQuery }) => {
         console.log("Images refreshed and emails fetched successfully"); // if the POST is successful (even if no images need to be updated)
       } else {
         console.error("One or both requests failed");
-        alert("Failed to Fetch Emails and Save Images.");
+        alert("Could not refresh email/images :( ");
       }
     } catch (error) {
       console.error("Error during refresh:", error);
-      alert("Error during refresh. Please try again.");
+      alert("Error during refresh :(");
       btn.src = done;
     }
     document.body.style.cursor = "default";
