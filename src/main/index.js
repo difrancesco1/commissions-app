@@ -6,7 +6,6 @@ import "./styles.css";
 import rosieunaIcon from "../assets/rosieuna_icon.ico";
 const path = require("path");
 const { exec } = require("child_process");
-var child;
 
 function createWindow() {
   const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
@@ -33,7 +32,7 @@ function createWindow() {
     },
   });
 
-  child = exec(`node ${scriptPath}`, (error, stdout, stderr) => {
+  exec(`node ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing script: ${error}`);
       return;
@@ -91,13 +90,11 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    child.kill();
     app.quit();
   }
 });
 
 ipcMain.on("app-close", () => {
-  child.kill();
   app.quit();
 });
 
