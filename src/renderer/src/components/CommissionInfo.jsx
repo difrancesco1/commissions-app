@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./commissionInfo.module.css";
 import CommissionInfoImg from "./CommissionInfoImg";
-
 import { db } from "../firebaseConfig";
 import {
   collection,
@@ -13,19 +12,18 @@ import {
   where,
 } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
-
-import btn1 from "../../../assets/btn1.png";
-import btn2 from "../../../assets/btn2.png";
-import btn3 from "../../../assets/btn3.png";
-import btn4 from "../../../assets/btn4.png";
-import btn5 from "../../../assets/btn5.png";
+import EmailButtonContainer from "./EmailButtonContainer"; // Import new component
 
 const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
-  const [userData, setUserData] = useState([]);
-  const [paidUsers, setPaidUsers] = useState([]);
-  const [archiveUsers, setarchiveUsers] = useState([]);
+  const [userData, setUserData] = useState([]); // Holds the list of all commission data from Firestore
+  const [paidUsers, setPaidUsers] = useState([]); // Holds users who have paid
+  const [archiveUsers, setArchiveUsers] = useState([]); // Holds users whose commissions are archived
+  const [disabledButtons, setDisabledButtons] = useState({}); // Track disabled buttons
+  const [menuVisible, setMenuVisible] = useState(false); // Controls whether the context menu is visible when the user right clicks
+  const [selectedButtonId, setSelectedButtonId] = useState(null); // Track selected button storing the ID
 
   useEffect(() => {
+    // Fetches all commissions ordered by ARCHIVE, PAID, and DUE
     var q = query(
       collection(db, "commissions"),
       orderBy("ARCHIVE"),
@@ -42,14 +40,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setUserData(newData);
     });
 
-    // Boolean queryTrue = true;
-    // Boolean(!user.PAID)
+    // Fetches all users who have paid where (PAID = true and ARCHIVE = false)
     q = query(
       collection(db, "commissions"),
       where("PAID", "==", Boolean(true)),
       where("ARCHIVE", "==", Boolean(false)),
     );
     unsubscribe = onSnapshot(q, (snapshot) => {
+      // Stores users who have paid and are not archived in paidUsers
       const paidUsers = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -58,93 +56,67 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setPaidUsers(paidUsers);
     });
 
+    // Fetches users whose commissions are archived (ARCHIVE = true)
     q = query(
       collection(db, "commissions"),
       where("ARCHIVE", "==", Boolean(true)),
     );
     unsubscribe = onSnapshot(q, (snapshot) => {
+      // Stores archived users in archiveUsers
       const archiveUsers = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       console.log("amount of users archived:", archiveUsers.length); // Debugging log
-      setarchiveUsers(archiveUsers);
+      setArchiveUsers(archiveUsers);
     });
-
+    // Stop listeners
     return () => unsubscribe();
   }, []);
 
-  // Use useMemo to ensure selectedCommission updates correctly
+  // helps find commission data of currently selected user
   const selectedCommission = useMemo(() => {
-    return userData.find((user, index) =>
-      commissionIndex ? user.id === commissionIndex : index === 0,
-    );
+    return userData.find(
+      (user, index) =>
+        commissionIndex ? user.id === commissionIndex : index === 0, // if the commissionIndex is provided, if find the commission with the matching id
+    ); // if the commissionIndex is not provided, it will return the first commission in the index
   }, [userData, commissionIndex]);
 
-  // right click handling
-  const [menuVisible, setMenuVisible] = useState(false);
-
-  // handle right click button show / update database
-  const copyEmail = () => {
-    // 14 - 66
-    if (window.x >= 14 && window.x <= 66) {
-      updateEmailDatabase("email_pay");
-      disableEmailButton("btn1");
-    }
-    // 73 - 125
-    else if (window.x >= 73 && window.x <= 125) {
-      updateEmailDatabase("email_comp");
-      disableEmailButton("btn2");
-    }
-    // 131 - 184
-    else if (window.x >= 131 && window.x <= 184) {
-      updateEmailDatabase("email_comppay");
-      disableEmailButton("btn3");
-    } else {
-      updateEmailDatabase("email_pay");
-      disableEmailButton("btn1");
-      updateEmailDatabase("email_comp");
-      disableEmailButton("btn2");
-      updateEmailDatabase("email_comppay");
-      disableEmailButton("btn3");
-      // 190 - 242
-      updateEmailDatabase("email_wip");
-      disableEmailButton("btn4");
-      // 249 - 301
-      if (window.x >= 249 && window.x <= 301) {
-        updateEmailDatabase("complete");
-        updateEmailDatabase("archive");
-        disableEmailButton("btn5");
-      }
-    }
+  // right-click handling
+  const handleContextMenu = (event, buttonId, userId) => {
+    event.preventDefault(); // Prevents default right-click behavior
+    let menu = document.getElementById("contextMenuEmailButton"); // Selects button specific ID
+    menu.style.left = event.clientX + "px"; // Pop up where mouse is
+    menu.style.top = event.clientY + "px";
+    window.x = event.clientX;
+    setSelectedButtonId(buttonId); // Track the selected button ID
+    setMenuVisible(true); // Show context menu
   };
 
-  // update database on email info and disable button
-  const updateEmailDatabase = async (fieldName) => {
+  // Triggered when user clicks button in context menu
+  const handleContextMenuAction = (buttonId, userId) => {
+    // Disable the button after the context menu action is selected
+    setDisabledButtons((prev) => ({
+      ...prev,
+      [userId]: {
+        ...prev[userId],
+        [buttonId]: true, // Disable the button
+      },
+    }));
+    updateEmailDatabase(buttonId, userId); // Update the database
+  };
+
+  // Updates Firestore doc of specific user
+  const updateEmailDatabase = async (fieldName, userId) => {
     try {
-      const documentRef = doc(db, "commissions", user.id);
+      const documentRef = doc(db, "commissions", userId);
       await updateDoc(documentRef, {
         [fieldName]: true,
       });
       console.log("updated as true: " + fieldName);
     } catch (error) {
-      console.error("Error toggling de email:", error);
+      console.error("Error toggling email:", error);
     }
-  };
-
-  const disableEmailButton = (buttonId) => {
-    let btn = document.getElementById(buttonId);
-    btn.style.opacity = ".3";
-  };
-
-  // handles right click
-  const handleContextMenu = (event) => {
-    event.preventDefault();
-    let menu = document.getElementById("contextMenuEmailButton");
-    menu.style.left = event.clientX + "px";
-    menu.style.top = event.clientY + "px";
-    window.x = event.clientX;
-    setMenuVisible(true);
   };
 
   const handleCloseMenu = () => {
@@ -169,73 +141,43 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         )}
       </div>
 
-      <div className={styles.emailButtonContainer}>
-        <div
-          id="btn1"
-          className={styles.emailBtn}
-          onContextMenu={handleContextMenu}
-        >
-          <img
-            className={styles.buttonText}
-            src={btn1}
-            alt="didntpayemailbutton"
-          />
-        </div>
-        <div
-          id="btn2"
-          className={styles.emailBtn}
-          onContextMenu={handleContextMenu}
-        >
-          <img
-            className={styles.buttonText}
-            src={btn2}
-            alt="iscomplexemailbutton"
-          />
-        </div>
-        <div
-          id="btn3"
-          className={styles.emailBtn}
-          onContextMenu={handleContextMenu}
-        >
-          <img className={styles.buttonText} src={btn3} alt="bothemailbutton" />
-        </div>
-        <div
-          id="btn4"
-          className={styles.emailBtn}
-          onContextMenu={handleContextMenu}
-        >
-          <img className={styles.buttonText} src={btn4} alt="wipemailbutton" />
-        </div>
-        <div
-          id="btn5"
-          className={styles.emailBtn}
-          onContextMenu={handleContextMenu}
-        >
-          <img
-            className={styles.buttonText}
-            src={btn5}
-            alt="finishedemailbutton"
-          />
-        </div>
-      </div>
+      {/* Email Buttons container */}
+      {selectedCommission && (
+        <EmailButtonContainer
+          userId={selectedCommission.id}
+          onContextMenuHandler={handleContextMenu}
+          disabledButtons={disabledButtons[selectedCommission.id]} // Pass disabled state for the user
+          handleContextMenuAction={handleContextMenuAction} // Action handler to disable button
+        />
+      )}
+
       <div
         id="contextMenuEmailButton"
-        onContextMenu={handleContextMenu}
         className={styles.wrapper}
+        style={{ visibility: menuVisible ? "visible" : "hidden" }}
       >
         {menuVisible && (
           <div onClick={handleCloseMenu} onMouseLeave={handleCloseMenu}>
             <ul>
-              <li className={styles.item} onClick={copyEmail}>
+              <li
+                className={styles.item}
+                onClick={() =>
+                  handleContextMenuAction(
+                    selectedButtonId,
+                    selectedCommission.id,
+                  )
+                }
+              >
                 ✉
               </li>
             </ul>
           </div>
         )}
       </div>
+
       <div>
         <div className={styles.todoCountText}>
-          ▾todo({paidUsers.length}/{userData.length - archiveUsers.length})
+          ▾todo({paidUsers.length}/{listCount - archiveUsers.length})
         </div>
       </div>
     </div>
