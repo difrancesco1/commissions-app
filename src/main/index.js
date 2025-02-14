@@ -31,8 +31,6 @@ function createWindow() {
     },
   });
 
-  mainWindow.webContents.openDevTools();
-
   child = exec(`node ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing script: ${error}`);
@@ -91,25 +89,29 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    child.kill();
+    // child.kill();
     app.quit();
-    mainWindow.close();
-    mainWindow = null;
-    process.exit(1);
+    // mainWindow.close();
+    // mainWindow = null;
+    // process.exit(1);
   }
 });
 
-ipcMain.on("app-close", () => {
-  child.kill();
-  app.quit();
-  mainWindow.close();
-  mainWindow = null;
-  process.exit(1);
+ipcMain.on("open-devtools", () => {
+  mainWindow.webContents.openDevTools();
 });
 
-app.on("quit", () => {
-  app.exit(0);
+ipcMain.on("app-close", () => {
+  // child.kill();
+  app.quit();
+  // mainWindow.close();
+  // mainWindow = null;
+  // process.exit(1);
 });
+
+// app.on("quit", () => {
+//   app.exit(0);
+// });
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.

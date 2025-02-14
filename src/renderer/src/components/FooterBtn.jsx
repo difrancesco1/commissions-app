@@ -5,6 +5,7 @@ import copytocarrd from "../../../assets/copytocarrd.png";
 import loading from "../../../assets/loading.gif";
 import done from "../../../assets/done.png";
 import dog from "../../../assets/dog.gif";
+const { ipcRenderer } = window.require("electron");
 
 const FooterBtn = ({ setSearchQuery }) => {
   const [query, setQuery] = useState(""); // Local state for the search query
@@ -47,18 +48,25 @@ const FooterBtn = ({ setSearchQuery }) => {
     document.body.style.cursor = "default";
   };
 
+  const [clickCount, setClickCount] = useState(0);
   const changeToDog = () => {
     const dogButton = document.getElementById("dog");
     dogButton.src = dog;
     dogButton.setAttribute(
       "style",
       `  height: 100px;
-  width: 100px;
-  /* margin-bottom: 100px; */
-  /* padding-bottom: 100px; */
-  margin-left: -50px;
-  margin-top: -50px;`,
+      width: 100px;
+      margin-left: -50px;
+      margin-top: -50px;`,
     );
+
+    // click 5 times, open dev tools
+    if (clickCount == 5) {
+      ipcRenderer.send("open-devtools");
+      setClickCount(0);
+    } else {
+      setClickCount(clickCount + 1);
+    }
   };
 
   return (
