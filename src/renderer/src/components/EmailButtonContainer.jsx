@@ -13,9 +13,9 @@ const EmailButtonContainer = ({
   handleContextMenuAction,
 }) => {
   const getButtonStyle = (buttonId) => {
-    return disabledButtons && disabledButtons[buttonId]
-      ? { opacity: 0.3, pointerEvents: "none" } // Disable button visually
-      : {}; // Default style
+    return disabledButtons?.[buttonId]
+      ? { opacity: 0.3, pointerEvents: "none" }
+      : {};
   };
 
   return (

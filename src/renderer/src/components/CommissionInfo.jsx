@@ -90,18 +90,38 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     setSelectedButtonId(buttonId); // Track the selected button ID
     setMenuVisible(true); // Show context menu
   };
+  useEffect(() => {
+    if (selectedCommission) {
+      setDisabledButtons({
+        [selectedCommission.id]: {
+          btn1: selectedCommission.EMAIL_PAY,
+          btn2: selectedCommission.EMAIL_COMPPAY,
+          btn3:
+            selectedCommission.EMAIL_PAY && selectedCommission.EMAIL_COMPPAY,
+          btn4: selectedCommission.EMAIL_WIP,
+          btn5: selectedCommission.EMAIL_COMP,
+        },
+      });
+    }
+  }, [selectedCommission]);
+  const buttonIdToField = {
+    btn1: "EMAIL_PAY",
+    btn2: "EMAIL_COMPPAY",
+    btn3: ["EMAIL_PAY", "EMAIL_COMPPAY"], // btn3 updates both EMAIL_PAY and EMAIL_COMPPAY
+    btn4: "EMAIL_WIP",
+    btn5: "EMAIL_COMP",
+  };
 
   // Triggered when user clicks button in context menu
   const handleContextMenuAction = (buttonId, userId) => {
-    // Disable the button after the context menu action is selected
-    setDisabledButtons((prev) => ({
-      ...prev,
-      [userId]: {
-        ...prev[userId],
-        [buttonId]: true, // Disable the button
-      },
-    }));
-    updateEmailDatabase(buttonId, userId); // Update the database
+    const field = buttonIdToField[buttonId];
+
+    if (Array.isArray(field)) {
+      // If button updates multiple fields (like btn3)
+      field.forEach((f) => updateEmailDatabase(f, userId));
+    } else {
+      updateEmailDatabase(field, userId);
+    }
   };
 
   // Updates Firestore doc of specific user
@@ -111,9 +131,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       await updateDoc(documentRef, {
         [fieldName]: true,
       });
-      console.log("updated as true: " + fieldName);
+      console.log("Updated as true:", fieldName);
     } catch (error) {
-      console.error("Error toggling email:", error);
+      console.error("Error updating email field:", error);
     }
   };
 
