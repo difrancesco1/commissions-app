@@ -40,10 +40,15 @@ const CardContainer = ({
   const filteredData = userData.filter((user) => {
     const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : "";
     const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : "";
+    const userName = user.NAME ? user.NAME.trim().toLowerCase() : "";
+    const userEmail = user.EMAIL ? user.EMAIL.trim().toLowerCase() : "";
 
     return (
-      userTwitter.includes(normalizedSearchQuery) ||
-      userPaypal.includes(normalizedSearchQuery)
+      userTwitter.includes(normalizedSearchQuery) || 
+      userPaypal.includes(normalizedSearchQuery) || 
+      userName.includes(normalizedSearchQuery) || 
+      userEmail.includes(normalizedSearchQuery)
+      
     );
   });
 
