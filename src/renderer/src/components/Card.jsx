@@ -80,9 +80,10 @@ const Card = ({ user, setCommissionIndex }) => {
       await updateDoc(documentRef, {
         PAID: Boolean(payStatus),
       });
+      console.log("set user to " + payStatus);
       // if user paid, update due date
       if (payStatus) {
-        console.log(user.id + " paid, update due date");
+        console.log(user.id + " paid, trying update");
 
         // get due date
         const docSnap = await getDoc(
@@ -91,19 +92,25 @@ const Card = ({ user, setCommissionIndex }) => {
 
         // set due date as incremented date (server and user)
         if (docSnap.exists()) {
-          const dueDate = new Date(Object.values(docSnap.data())[0] * 1000);
+          const dueDatets = Object.values(docSnap.data())[0];
+          const dueDate = new Date(dueDatets * 1000);
           dueDate.setDate(dueDate.getDate() + 1);
 
           // update database with incremented due date
-          const updateCommissionDueDate = doc(db, "commissionDueDate", user.id);
+          const updateCommissionDueDate = doc(
+            db,
+            "commissionDueDate",
+            user.COMM_TYPE,
+          );
           await updateDoc(updateCommissionDueDate, {
             COMM_START_DATE: dueDate,
           });
 
-          // update user due date with incremented date
+          const intDueDate = `${dueDate.getMonth()}/${dueDate.getDate()}`;
+          // update user due date with integer of due date
           const updateUserDueDate = doc(db, "commissions", user.id);
-          await updateDoc(documentRef, {
-            DUE: dueDate,
+          await updateDoc(updateUserDueDate, {
+            DUE: intDueDate,
           });
         } else {
           // docSnap.data() will be undefined in this case
