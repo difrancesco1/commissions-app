@@ -143,14 +143,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         carrdArr.push(
           `♥ ${dueDate} ♥ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
         );
-        carrdArr.push(`${user.PAID ? " paid" : " pending ~"}`);
-        carrdArr.push(`${id < 5 ? " ✎working" : ""}`);
-        carrdArr.push(`${user.COMPLETE ? " ✉" : ""}\n`);
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}\n`);
       } catch {
-        carrdArr.push(` ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `);
+        carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
         carrdArr.push(`${user.EMAIL_PAY ? " ✉" : ""}`);
         carrdArr.push(`${user.EMAIL_COMP ? " ✉" : ""}`);
-        carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}`);
+        carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}^\n`);
       }
     }
     console.log(carrdArr.join(""));
