@@ -1,4 +1,5 @@
 const express = require("express");
+const { startFetchingEmails } = require("./script");
 const checkAndSaveImages = require("./imageSave");
 const path = require("path"); // To handle file paths
 const app = express();
@@ -17,6 +18,16 @@ app.post("/api/save-images", async (req, res) => {
   } catch (error) {
     console.error("Error during image refresh:", error);
     res.status(500).send("Failed to refresh images");
+  }
+});
+
+app.get("/fetch-emails", async (req, res) => {
+  try {
+    await startFetchingEmails();
+    res.send("Emails fetched successfully");
+  } catch (error) {
+    console.error("Error fetching emails: ", error);
+    res.status(500).send("Failed to fetch");
   }
 });
 

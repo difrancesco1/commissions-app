@@ -5,11 +5,13 @@ const { google } = require("googleapis");
 const serviceAccount = require("./commissions-app-c6e2c-firebase-adminsdk-fbsvc-473cacb7d7.json");
 const creds = require("./credentials.json");
 
-// Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://commissions-app-c6e2c.firebaseio.com",
-});
+// Ensure Firebase is only initialized once
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://commissions-app-c6e2c.firebaseio.com",
+  });
+}
 
 const db = admin.firestore();
 
@@ -30,12 +32,7 @@ const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 // Decode base64 image data
 function decodeBase64(data) {
   const base64 = data.replace(/-/g, "+").replace(/_/g, "/");
-  const decoded = atob(base64);
-  const bytes = new Uint8Array(decoded.length);
-  for (let i = 0; i < decoded.length; i++) {
-    bytes[i] = decoded.charCodeAt(i);
-  }
-  return bytes;
+  return Buffer.from(base64, "base64");
 }
 
 // Function to download the attachment from Gmail API
@@ -46,17 +43,15 @@ const downloadAttachmentFromGmail = async (attachmentId, messageId) => {
       messageId: messageId,
       id: attachmentId,
     });
-    const attachmentData = res.data.data;
-    const buffer = Buffer.from(attachmentData, "base64");
-    return buffer;
+    return Buffer.from(res.data.data, "base64");
   } catch (error) {
     console.error("Error downloading attachment:", error);
     throw error;
   }
 };
+
 const checkAndSaveImages = async () => {
   try {
-    // Fetch all documents from the 'commissions' collection in Firestore
     const snapshot = await db.collection("commissions").get();
 
     if (snapshot.empty) {
@@ -64,46 +59,38 @@ const checkAndSaveImages = async () => {
       return;
     }
 
-    // Ensure the images directory exists
     const imagesDir = path.join(__dirname, "./images");
     if (!fs.existsSync(imagesDir)) {
-      fs.mkdirSync(imagesDir); // Create the directory if it doesn't exist
+      fs.mkdirSync(imagesDir);
     }
 
-    // Loop through each document in the 'commissions' collection
     for (const doc of snapshot.docs) {
-      const ID = doc.id; // Get document ID (used as the image filename)
-      const attachmentId = doc.data().IMG1; // Get the attachment ID (stored in Firestore)
-      const messageId = doc.data().MSG_ID; // Get the message ID (stored in Firestore)
+      const ID = doc.id;
+      const attachmentId = doc.data().IMG1;
+      const messageId = doc.data().MSG_ID;
 
       if (!attachmentId || !messageId) {
-        console.log(`Missing attachmentId or messageId for document ID: ${ID}`);
-        continue; // Skip if no attachment ID or message ID is available
+        console.log(
+          `Skipping document ${ID}, missing attachmentId or messageId.`,
+        );
+        continue;
       }
 
-      console.log(
-        `Document ID: ${ID}, messageId: ${messageId}, attachmentId: ${attachmentId}`,
-      );
-
       const imagePath = path.join(imagesDir, `${ID}.png`);
-
-      // Check if the image already exists in the local directory
       if (fs.existsSync(imagePath)) {
-        console.log(`Image with ID ${ID} already exists at ${imagePath}`);
-      } else {
-        try {
-          // Download the attachment from Gmail
-          const imageBuffer = await downloadAttachmentFromGmail(
-            attachmentId,
-            messageId,
-          );
+        console.log(`Image ${ID} already exists.`);
+        continue;
+      }
 
-          // Save the image locally
-          await fs.promises.writeFile(imagePath, imageBuffer); // Write the buffer to the file asynchronously
-          console.log(`Image with ID ${ID} saved at ${imagePath}`);
-        } catch (error) {
-          console.error("Error downloading or saving image:", error);
-        }
+      try {
+        const imageBuffer = await downloadAttachmentFromGmail(
+          attachmentId,
+          messageId,
+        );
+        await fs.promises.writeFile(imagePath, imageBuffer);
+        console.log(`Image ${ID} saved.`);
+      } catch (error) {
+        console.error(`Error processing image ${ID}:`, error);
       }
     }
   } catch (error) {

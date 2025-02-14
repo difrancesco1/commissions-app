@@ -415,3 +415,9 @@ function getAttachmentIds(parts) {
 
 // Run fetchEmails function AFTER autherization
 authorize().then(fetchEmails).catch(console.error);
+
+async function startFetchingEmails() {
+  const auth = await authorize();
+  await fetchEmails(auth);
+}
+module.exports = { startFetchingEmails };
