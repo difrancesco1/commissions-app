@@ -103,14 +103,13 @@ const Card = ({ user, setCommissionIndex }) => {
             COMM_START_DATE: dueDate,
           });
 
-          const intDueDate = `${dueDate.getMonth()}/${dueDate.getDate()}`;
           // update user due date with integer of due date
           const updateUserDueDate = doc(db, "commissions", user.id);
           await updateDoc(updateUserDueDate, {
-            DUE: intDueDate,
+            DUE: dueDate,
           });
 
-          console.log(user.id + " paid, set due date: " + intDueDate);
+          console.log(user.id + " paid, set due date: " + dueDate);
         } else {
           // docSnap.data() will be undefined in this case
           console.log("Due date not found in database commissionDueDate.");

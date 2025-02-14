@@ -235,7 +235,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       </div>
       <div>
         <div className={styles.todoCountText}>
-          ▾todo({paidUsers.length}/{listCount - archiveUsers.length})
+          ▾todo({paidUsers.length}/{userData.length - archiveUsers.length})
         </div>
       </div>
     </div>

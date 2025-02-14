@@ -172,8 +172,8 @@ async function fetchEmails(auth) {
   // prevent duplicates -> sent side by side usually
   const commsInDatabase = [];
   const failedEmailNames = [];
-  const emailReq =
-    'is:unread (subject:"- new commission - DO NOT OPEN - app will not update if read -")';
+  const emailReq = 'is:unread (subject:"- DO NOT OPEN -")';
+  // const emailReq = 'is:unread (subject:"TWITCH ALERTS")';
 
   try {
     // List the latest 10 emails fetched
@@ -240,6 +240,34 @@ async function fetchEmails(auth) {
         //     .replace(/_/g, "/"),
         // ).split("\r\n");
         // const memail = msgBody[5];
+        // // check for duplicates
+        // if (commsInDatabase.includes(memail)) {
+        //   continue;
+        // }
+        // commsInDatabase.push(memail.toLowerCase());
+        // const mdate = new Date(2025, 2, 1); // -1 because months begin with 0
+        // const mcomm_type = "A03";
+        // const mcomm_name = "animated alerts bundle";
+        // const mname = msgBody[0].split(" ")[1];
+        // var mtwitter = msgBody[1].split(" ")[1];
+        // // scrape data to only include username
+        // if (mtwitter.includes("/")) {
+        //   mtwitter = mtwitter.split("/").pop();
+        // } else if (mtwitter.includes("@")) {
+        //   mtwitter = mtwitter.split("@").pop();
+        // }
+        // const mpaypal = "N/A";
+        // const mcomplex = msgBody[2].split(" ")[1];
+        // // -----------------------------------------------------------------------------------
+
+        // // OLD OLD EMAIL PULL -----------------------------------------------------------------------------------
+        // const msgBody = atob(
+        //   msg.data.payload.parts[0].body.data
+        //     .replace(/-/g, "+")
+        //     .replace(/_/g, "/"),
+        // ).split("\r\n");
+
+        // const memail = msgBody[4];
         // // check for duplicates
         // if (commsInDatabase.includes(memail)) {
         //   continue;

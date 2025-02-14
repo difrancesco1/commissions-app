@@ -16,10 +16,22 @@ const updateData = async (id, newNotes) => {
 
 function CommissionInfoText({ user }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
+  const [dueDate, setDueDate] = useState([]);
   // Ensure state updates when `user.NOTES` changes
   useEffect(() => {
     setNotes(user.NOTES || ""); // Update state if Firestore data changes
   }, [user.NOTES]);
+
+  useEffect(() => {
+    try {
+      const databaseDueDate = new Date(user.DUE.toDate());
+      const dueDate = `${databaseDueDate.getMonth() + 1}/${databaseDueDate.getDate()}`;
+      setDueDate(dueDate);
+    } catch {
+      console.log("no due date set yet for user " + user.ID);
+      setDueDate("");
+    }
+  }, [user.DUE]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -50,15 +62,36 @@ function CommissionInfoText({ user }) {
           onKeyDown={handleKeyDown}
           onBlur={() => updateData(user.id, notes)} // Update Firestore on blur
         />
-        <p className={styles.subText}>{user.TWITTER}</p>
-        <p className={styles.subText}>{user.EMAIL}</p>
-        <p className={styles.subText}>{user.PAYPAL}</p>
+        <p
+          className={styles.subText}
+          onClick={() => {
+            navigator.clipboard.writeText(user.TWITTER);
+          }}
+        >
+          {user.TWITTER}
+        </p>
+        <p
+          className={styles.subText}
+          onClick={() => {
+            navigator.clipboard.writeText(user.EMAIL);
+          }}
+        >
+          {user.EMAIL}
+        </p>
+        <p
+          className={styles.subText}
+          onClick={() => {
+            navigator.clipboard.writeText(user.PAYPAL);
+          }}
+        >
+          {user.PAYPAL}
+        </p>
         <p className={`${styles.noteText} ${styles.formatTextSize}`}>
           ⨯˚ʚᗢ ₍^.ˬ.^₎ ₍ᐢ.ˬ.ᐢ₎ ♡.°₊ˎˊ˗
         </p>
       </div>
       <div className={styles.dueInfo}>
-        <p className={styles.subText}>{user.DUE}</p>
+        <p className={styles.subText}>{dueDate}</p>
         <p className={styles.subText}>{user.COMM_TYPE}</p>
       </div>
     </>

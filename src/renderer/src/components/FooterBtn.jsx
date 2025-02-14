@@ -31,7 +31,7 @@ const FooterBtn = ({ setSearchQuery }) => {
       console.log("🟢 Emails Response:", emailsResponse);
 
       btn.src = done;
-      
+
       if (imagesResponse.ok && emailsResponse.ok) {
         console.log("Images refreshed and emails fetched successfully"); // if the POST is successful (even if no images need to be updated)
       } else {
@@ -43,6 +43,10 @@ const FooterBtn = ({ setSearchQuery }) => {
       alert("Error during refresh. Please try again.");
     }
     document.body.style.cursor = "default";
+  };
+
+  const copyInfoToClipboard = () => {
+    console.log("copying info");
   };
 
   return (
@@ -69,6 +73,7 @@ const FooterBtn = ({ setSearchQuery }) => {
           className={styles.buttonText}
           src={copytocarrd}
           alt="copytocarrd button"
+          onCLick={copyInfoToClipboard}
         />
       </div>
     </div>
