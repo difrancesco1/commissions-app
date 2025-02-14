@@ -42,6 +42,7 @@ const FooterBtn = ({ setSearchQuery }) => {
     } catch (error) {
       console.error("Error during refresh:", error);
       alert("Error during refresh. Please try again.");
+      btn.src = done;
     }
     document.body.style.cursor = "default";
   };

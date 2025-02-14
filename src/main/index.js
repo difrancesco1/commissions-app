@@ -4,8 +4,12 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import "./styles.css";
 import rosieunaIcon from "../assets/rosieuna_icon.ico";
+const path = require("path");
+const { exec } = require("child_process");
 
 function createWindow() {
+  const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 322,
@@ -26,6 +30,15 @@ function createWindow() {
       enableRemoteModule: true,
       contextIsolation: false,
     },
+  });
+
+  exec(`node ${scriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing script: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
   });
 
   mainWindow.on("ready-to-show", () => {

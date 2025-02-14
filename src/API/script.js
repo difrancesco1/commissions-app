@@ -18,8 +18,11 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.modify"];
 // // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = path.join(process.cwd(), "token.json");
-const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
+const TOKEN_PATH = path.join(process.cwd(), "/src/API/token.json");
+const CREDENTIALS_PATH = path.join(process.cwd(), "/src/API/credentials.json");
+
+// const TOKEN_PATH = path.join(process.cwd(), "/token.json");
+// const CREDENTIALS_PATH = path.join(process.cwd(), "/credentials.json");
 
 /**
  * Reads previously authorized credentials from the save file.
