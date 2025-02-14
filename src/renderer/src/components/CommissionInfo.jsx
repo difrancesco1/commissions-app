@@ -47,6 +47,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     q = query(
       collection(db, "commissions"),
       where("PAID", "==", Boolean(true)),
+      where("ARCHIVE", "==", Boolean(false)),
     );
     unsubscribe = onSnapshot(q, (snapshot) => {
       const paidUsers = snapshot.docs.map((doc) => ({
