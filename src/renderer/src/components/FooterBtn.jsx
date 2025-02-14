@@ -20,16 +20,23 @@ const FooterBtn = ({ setSearchQuery }) => {
       var btn = document.getElementById("refreshBtn");
       document.body.style.cursor = "wait";
       btn.src = loading;
-      const response = await fetch("http://localhost:5000/api/save-images", {
-        //points to our server api that has the save image path/script
-        method: "POST",
-      });
+      // Call both APIs
+      const [imagesResponse, emailsResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/save-images", { method: "POST" }),
+        fetch("http://localhost:5000/fetch-emails"),
+      ]);
+
+      console.log("🟠 Fetch completed.");
+      console.log("🔵 Images Response:", imagesResponse);
+      console.log("🟢 Emails Response:", emailsResponse);
+
       btn.src = done;
-      if (response.ok) {
-        console.log("Images refreshed successfully"); // if the POST is successful (even if no images need to be updated)
+      
+      if (imagesResponse.ok && emailsResponse.ok) {
+        console.log("Images refreshed and emails fetched successfully"); // if the POST is successful (even if no images need to be updated)
       } else {
-        console.error("Failed to refresh images");
-        alert("Failed to refresh images.");
+        console.error("One or both requests failed");
+        alert("Failed to Fetch Emails and Save Images.");
       }
     } catch (error) {
       console.error("Error during refresh:", error);
