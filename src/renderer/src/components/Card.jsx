@@ -126,11 +126,11 @@ const Card = ({ user, setCommissionIndex }) => {
   const toggleArchive = async () => {
     console.log(user.id + "archive");
     try {
-      const documentRef = doc(db, "commissions", user.id);
-      await getDocs(documentRef, {
+      const archiveDoc = doc(db, "commissions", user.id);
+      await getDocs(archiveDoc, {
         ARCHIVE: Boolean(!user.ARCHIVE),
       });
-      console.log("archive status toggled :PP " + user.ARCHIVE);
+      console.log("archive status toggled :PP " + !user.ARCHIVE);
     } catch (error) {
       console.error("Error toggling de archive:", error);
     }
