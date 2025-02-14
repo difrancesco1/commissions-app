@@ -3,16 +3,16 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import "./styles.css";
-import rosieunaIcon from "../assets/rosieuna_icon.ico";
 const path = require("path");
 const { exec } = require("child_process");
 var child;
+var mainWindow;
 
 function createWindow() {
   const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 322,
     height: 533,
     show: false,
@@ -22,16 +22,16 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
-    icon: `${__dirname}/dist/assets/imgs/logo.png`,
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, rosieunaIcon),
       sandbox: false,
       nodeIntegration: true,
       enableRemoteModule: true,
       contextIsolation: false,
     },
   });
+
+  mainWindow.webContents.openDevTools();
 
   child = exec(`node ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {
@@ -93,14 +93,18 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     child.kill();
     app.quit();
-    process.exit();
+    mainWindow.close();
+    mainWindow = null;
+    process.exit(1);
   }
 });
 
 ipcMain.on("app-close", () => {
   child.kill();
   app.quit();
-  process.exit();
+  mainWindow.close();
+  mainWindow = null;
+  process.exit(1);
 });
 
 app.on("quit", () => {
