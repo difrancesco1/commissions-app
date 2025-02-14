@@ -3,6 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import "./styles.css";
+import rosieunaIcon from "../assets/rosieuna_icon.ico";
 
 function createWindow() {
   // Create the browser window.
@@ -16,15 +17,16 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: `${__dirname}/dist/assets/imgs/logo.png`,
+    ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, rosieunaIcon),
       sandbox: false,
       nodeIntegration: true,
       enableRemoteModule: true,
-      contextIsolation: false
-    }
-  })
+      contextIsolation: false,
+    },
+  });
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -77,12 +79,11 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
-})
-
-ipcMain.on('app-close', () => {
-  app.quit();
 });
 
+ipcMain.on("app-close", () => {
+  app.quit();
+});
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
