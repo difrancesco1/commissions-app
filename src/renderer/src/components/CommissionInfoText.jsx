@@ -16,11 +16,17 @@ const updateData = async (id, newNotes) => {
 
 function CommissionInfoText({ user }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
-
   // Ensure state updates when `user.NOTES` changes
   useEffect(() => {
     setNotes(user.NOTES || ""); // Update state if Firestore data changes
   }, [user.NOTES]);
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      updateData(user.id, notes);
+      document.getElementById("setNote").blur();
+    }
+  };
 
   return (
     <>
@@ -36,10 +42,12 @@ function CommissionInfoText({ user }) {
           {user.COMPLEX ? "⋆" : ""}
         </p>
         <input
+          id="setNote"
           type="text"
           className={`${styles.noteText} ${styles.placeholderText}`}
           value={notes}
           onChange={(e) => setNotes(e.target.value)} // Make input editable
+          onKeyDown={handleKeyDown}
           onBlur={() => updateData(user.id, notes)} // Update Firestore on blur
         />
         <p className={styles.subText}>{user.TWITTER}</p>
