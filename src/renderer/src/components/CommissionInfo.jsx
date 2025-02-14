@@ -95,9 +95,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setDisabledButtons({
         [selectedCommission.id]: {
           btn1:
-            selectedCommission.EMAIL_PAY &&
-            selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.COMPLEX,
+            selectedCommission.EMAIL_PAY && selectedCommission.EMAIL_COMPPAY,
           btn2:
             selectedCommission.EMAIL_PAY &&
             selectedCommission.EMAIL_COMPPAY &&
@@ -109,12 +107,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           btn4:
             selectedCommission.EMAIL_PAY &&
             selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.COMPLEX &&
             selectedCommission.EMAIL_WIP,
           btn5:
             selectedCommission.EMAIL_PAY &&
             selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.COMPLEX &&
             selectedCommission.EMAIL_WIP &&
             selectedCommission.EMAIL_COMP,
         },
@@ -122,11 +118,18 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     }
   }, [selectedCommission]);
   const buttonIdToField = {
-    btn1: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
+    btn1: ["EMAIL_PAY", "EMAIL_COMPPAY"],
     btn2: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
     btn3: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
-    btn4: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY", "EMAIL_WIP"],
-    btn5: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY", "EMAIL_WIP", "EMAIL_COMP"],
+    btn4: ["EMAIL_PAY", "EMAIL_COMPPAY", "EMAIL_WIP"],
+    btn5: [
+      "EMAIL_PAY",
+      "EMAIL_COMPPAY",
+      "EMAIL_WIP",
+      "EMAIL_COMP",
+      "ARCHIVE",
+      "COMPLETE",
+    ],
   };
 
   // Triggered when user clicks button in context menu
