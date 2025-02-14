@@ -172,7 +172,8 @@ async function fetchEmails(auth) {
   // prevent duplicates -> sent side by side usually
   const commsInDatabase = [];
   const failedEmailNames = [];
-  const emailReq = 'is:unread (subject:"new commission")';
+  const emailReq =
+    'is:unread (subject:"- new commission - DO NOT OPEN - app will not update if read -")';
 
   try {
     // List the latest 10 emails fetched
@@ -211,10 +212,6 @@ async function fetchEmails(auth) {
             .replace(/_/g, "/"),
         ).split("\r\n");
         const memail = msgBody[11];
-        if (!memail || typeof memail !== "string") {
-          console.error("Invalid email address:", memail);
-          continue; // Skip this iteration if the email is invalid
-        }
         if (commsInDatabase.includes(memail.toLowerCase())) {
           continue;
         }
@@ -237,11 +234,15 @@ async function fetchEmails(auth) {
         // -----------------------------------------------------------------------------------
 
         // // OLD EMAIL PULL -----------------------------------------------------------------------------------
-        // const msgBody = atob(msg.data.payload.parts[0].body.data.replace(/-/g, '+').replace(/_/g, '/')).split("\r\n");
+        // const msgBody = atob(
+        //   msg.data.payload.parts[0].body.data
+        //     .replace(/-/g, "+")
+        //     .replace(/_/g, "/"),
+        // ).split("\r\n");
         // const memail = msgBody[5];
         // // check for duplicates
         // if (commsInDatabase.includes(memail)) {
-        //     continue;
+        //   continue;
         // }
         // commsInDatabase.push(memail.toLowerCase());
         // const mdate = new Date(2025, 2, 1); // -1 because months begin with 0
@@ -251,10 +252,9 @@ async function fetchEmails(auth) {
         // var mtwitter = msgBody[1].split(" ")[1];
         // // scrape data to only include username
         // if (mtwitter.includes("/")) {
-        //     mtwitter = mtwitter.split("/").pop();
-        // }
-        // else if (mtwitter.includes("@")) {
-        //     mtwitter = mtwitter.split("@").pop();
+        //   mtwitter = mtwitter.split("/").pop();
+        // } else if (mtwitter.includes("@")) {
+        //   mtwitter = mtwitter.split("@").pop();
         // }
         // const mpaypal = "N/A";
         // const mcomplex = msgBody[2].split(" ")[1];

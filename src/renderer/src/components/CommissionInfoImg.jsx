@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./CommissionInfo.module.css";
 import loading from "../../../assets/loading.gif";
+const path = require("path");
+const fs = require("fs");
 
 const CommissionInfoImg = ({ user }) => {
   const [imageExists, setImageExists] = useState(false);
@@ -24,6 +26,16 @@ const CommissionInfoImg = ({ user }) => {
     loadImage();
   }, [user.ID]);
 
+  const openImageOnComputer = () => {
+    const imagePath = `http://localhost:5000/API/images/${user.ID}.png`;
+
+    try {
+      window.open(imagePath, "_blank");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div
       className={`${imageExists ? styles.imgStyle : styles.loadingCardStyle} 
@@ -33,6 +45,7 @@ const CommissionInfoImg = ({ user }) => {
         className={
           imageExists ? styles.commissionImageStyle : styles.loadingStyle
         }
+        onClick={openImageOnComputer}
         src={imageExists ? imagePath : loading}
         alt="Commission Preview"
       />
