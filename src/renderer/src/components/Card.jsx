@@ -74,7 +74,6 @@ const Card = ({ user, setCommissionIndex }) => {
 
   // Toggles the PAID status of a commission in DB
   const togglePaid = async () => {
-    console.log(user.id + "paid");
     try {
       const payStatus = !user.PAID;
       const documentRef = doc(db, "commissions", user.id);
@@ -124,13 +123,13 @@ const Card = ({ user, setCommissionIndex }) => {
 
   // Toggles Archive Status
   const toggleArchive = async () => {
-    console.log(user.id + "archive");
     try {
-      const archiveDoc = doc(db, "commissions", user.id);
-      await getDocs(archiveDoc, {
-        ARCHIVE: Boolean(!user.ARCHIVE),
+      const archiveStatus = !user.ARCHIVE;
+      const archiveRef = doc(db, "commissions", user.id);
+      await updateDoc(archiveRef, {
+        ARCHIVE: Boolean(archiveStatus),
       });
-      console.log("archive status toggled :PP " + !user.ARCHIVE);
+      console.log("archive status toggled :PP " + archiveStatus);
     } catch (error) {
       console.error("Error toggling de archive:", error);
     }
