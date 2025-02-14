@@ -3,7 +3,15 @@ import styles from "./commissionInfo.module.css";
 import CommissionInfoImg from "./CommissionInfoImg";
 
 import { db } from "../firebaseConfig";
-import { collection, orderBy, query, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  orderBy,
+  query,
+  onSnapshot,
+  doc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 
 import btn1 from "../../../assets/btn1.png";
@@ -14,22 +22,53 @@ import btn5 from "../../../assets/btn5.png";
 
 const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   const [userData, setUserData] = useState([]);
+  const [paidUsers, setPaidUsers] = useState([]);
+  const [archiveUsers, setarchiveUsers] = useState([]);
 
   useEffect(() => {
-    const q = query(
+    var q = query(
       collection(db, "commissions"),
       orderBy("ARCHIVE"),
       orderBy("PAID", "desc"),
       orderBy("DUE"),
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    var unsubscribe = onSnapshot(q, (snapshot) => {
       const newData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       console.log("Updated Firestore Data:", newData); // Debugging log
       setUserData(newData);
+    });
+
+    // Boolean queryTrue = true;
+    // Boolean(!user.PAID)
+    q = query(
+      collection(db, "commissions"),
+      where("PAID", "==", Boolean(true)),
+      where("ARCHIVE", "==", Boolean(false)),
+    );
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const paidUsers = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log("amount of users paid:", paidUsers.length); // Debugging log
+      setPaidUsers(paidUsers);
+    });
+
+    q = query(
+      collection(db, "commissions"),
+      where("ARCHIVE", "==", Boolean(true)),
+    );
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const archiveUsers = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log("amount of users archived:", archiveUsers.length); // Debugging log
+      setarchiveUsers(archiveUsers);
     });
 
     return () => unsubscribe();
@@ -45,6 +84,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   // right click handling
   const [menuVisible, setMenuVisible] = useState(false);
 
+  // handle right click button show / update database
   const copyEmail = () => {
     // 14 - 66
     if (window.x >= 14 && window.x <= 66) {
@@ -97,6 +137,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     btn.style.opacity = ".3";
   };
 
+  // handles right click
   const handleContextMenu = (event) => {
     event.preventDefault();
     let menu = document.getElementById("contextMenuEmailButton");
@@ -194,7 +235,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       </div>
       <div>
         <div className={styles.todoCountText}>
-          ▾todo({listCount}/{userData.length})
+          ▾todo({paidUsers.length}/{listCount - archiveUsers.length})
         </div>
       </div>
     </div>

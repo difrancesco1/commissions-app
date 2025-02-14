@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import styles from "./footerBtn.module.css";
 import refreshgmail from "../../../assets/refreshgmail.png";
-import search from "../../../assets/search.png";
 import copytocarrd from "../../../assets/copytocarrd.png";
+import loading from "../../../assets/loading.gif";
+import done from "../../../assets/done.png";
 
 const FooterBtn = ({ setSearchQuery }) => {
   const [query, setQuery] = useState(""); // Local state for the search query
@@ -16,15 +17,16 @@ const FooterBtn = ({ setSearchQuery }) => {
   // Function for button click and refresh images
   const handleRefreshClick = async () => {
     try {
+      var btn = document.getElementById("refreshBtn");
       document.body.style.cursor = "wait";
+      btn.src = loading;
       const response = await fetch("http://localhost:5000/api/save-images", {
         //points to our server api that has the save image path/script
         method: "POST",
       });
-
+      btn.src = done;
       if (response.ok) {
         console.log("Images refreshed successfully"); // if the POST is successful (even if no images need to be updated)
-        alert("Images refreshed successfully!");
       } else {
         console.error("Failed to refresh images");
         alert("Failed to refresh images.");
@@ -40,6 +42,7 @@ const FooterBtn = ({ setSearchQuery }) => {
     <div className={styles.footerContainer}>
       <div className={styles.boxButton} onClick={handleRefreshClick}>
         <img
+          id="refreshBtn"
           className={styles.buttonText}
           src={refreshgmail}
           alt="refreshgmail button"

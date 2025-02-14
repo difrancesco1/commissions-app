@@ -50,7 +50,7 @@ function CommissionInfoText({ user }) {
         </p>
       </div>
       <div className={styles.dueInfo}>
-        <p className={styles.subText}>2/10</p>
+        <p className={styles.subText}>{user.DUE}</p>
         <p className={styles.subText}>{user.COMM_TYPE}</p>
       </div>
     </>
