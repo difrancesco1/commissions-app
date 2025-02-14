@@ -94,22 +94,39 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     if (selectedCommission) {
       setDisabledButtons({
         [selectedCommission.id]: {
-          btn1: selectedCommission.EMAIL_PAY,
-          btn2: selectedCommission.EMAIL_COMPPAY,
+          btn1:
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX,
+          btn2:
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX,
           btn3:
-            selectedCommission.EMAIL_PAY && selectedCommission.EMAIL_COMPPAY,
-          btn4: selectedCommission.EMAIL_WIP,
-          btn5: selectedCommission.EMAIL_COMP,
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX,
+          btn4:
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX &&
+            selectedCommission.EMAIL_WIP,
+          btn5:
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX &&
+            selectedCommission.EMAIL_WIP &&
+            selectedCommission.EMAIL_COMP,
         },
       });
     }
   }, [selectedCommission]);
   const buttonIdToField = {
-    btn1: "EMAIL_PAY",
-    btn2: "EMAIL_COMPPAY",
-    btn3: ["EMAIL_PAY", "EMAIL_COMPPAY"], // btn3 updates both EMAIL_PAY and EMAIL_COMPPAY
-    btn4: "EMAIL_WIP",
-    btn5: "EMAIL_COMP",
+    btn1: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
+    btn2: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
+    btn3: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
+    btn4: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY", "EMAIL_WIP"],
+    btn5: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY", "EMAIL_WIP", "EMAIL_COMP"],
   };
 
   // Triggered when user clicks button in context menu
