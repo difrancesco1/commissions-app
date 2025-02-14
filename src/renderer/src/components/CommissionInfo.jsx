@@ -10,6 +10,7 @@ import {
   doc,
   updateDoc,
   where,
+  deleteDoc,
 } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 import EmailButtonContainer from "./EmailButtonContainer"; // Import new component
@@ -36,7 +37,6 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log("Updated Firestore Data:", newData); // Debugging log
       setUserData(newData);
     });
 
@@ -52,7 +52,6 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log("amount of users paid:", paidUsers.length); // Debugging log
       setPaidUsers(paidUsers);
     });
 
@@ -67,7 +66,6 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log("amount of users archived:", archiveUsers.length); // Debugging log
       setArchiveUsers(archiveUsers);
     });
     // Stop listeners
@@ -124,15 +122,47 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   };
 
   // copy to clipboard information to paste into website
-  const copyCarrdInfo = () => {
+  // also put items that are past pay due into archive
+  const copyCarrdInfo = async () => {
     var carrdArr = [];
-    console.log(typeof userData);
     for (const id in userData) {
       const user = userData[id];
-      if (user.ARCHIVE && !user.COMPLETE) {
-        // if in archive and NOT complete, skip over
-        continue;
+
+      // today's date + commission due date
+      const todayDate = new Date();
+      const commDue = new Date(user.PAYDUE.toDate());
+      // commission due date + 7 days
+      const weekFromPayDue = new Date(user.PAYDUE.toDate());
+      weekFromPayDue.setDate(weekFromPayDue.getDate() + 14);
+
+      // if data is in archive,
+      if (user.ARCHIVE) {
+        // if today is 14 days past paydue, delete entry. if deleted entry, continue.
+        if (todayDate > weekFromPayDue) {
+          await deleteDoc(doc(db, "commissions", user.ID));
+          continue;
+        }
+        if (!user.COMPLETE) {
+          // if not complete, skip over to not have entry listed in carrd website
+          continue;
+        }
       }
+
+      // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
+      if (!user.PAID) {
+        // PAYDATE HAS BEEN PASSED
+        if (todayDate > commDue) {
+          const documentRef = doc(db, "commissions", user.id);
+          await updateDoc(documentRef, {
+            ARCHIVE: Boolean(true),
+          });
+          console.log(
+            "archived " + user.id + " due to payment not being made in 30 days",
+          );
+        }
+      }
+
+      // clean twitter name to not have any symbols
       const twitter = user.TWITTER;
       const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
 
@@ -159,7 +189,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         carrdArr.push(`\n`);
       }
     }
-    console.log(carrdArr.join(""));
+    // console.log(carrdArr.join(""));
     // copy website information to clipboard
     navigator.clipboard.writeText(carrdArr.join(""));
   };
