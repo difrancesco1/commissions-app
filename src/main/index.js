@@ -8,7 +8,7 @@ const path = require("path");
 const { exec } = require("child_process");
 
 function createWindow() {
-  const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
+  const scriptPath = path.join(__dirname, "../../src/API/script.js"); // Adjust path as needed
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
