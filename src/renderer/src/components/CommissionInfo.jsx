@@ -151,6 +151,40 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     setMenuVisible(false);
   };
 
+  // copy to clipboard information to paste into website
+  const copyCarrdInfo = () => {
+    var carrdArr = [];
+    console.log(typeof userData);
+    for (const id in userData) {
+      const user = userData[id];
+      if (user.ARCHIVE) {
+        continue;
+      }
+      const twitter = user.TWITTER;
+      const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
+
+      // add due date if there is a due date
+      try {
+        const commmDue = new Date(user.DUE.toDate());
+        const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
+
+        carrdArr.push(
+          `♥ ${dueDate} ♥ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+        );
+      } catch {
+        carrdArr.push(` ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `);
+      }
+      carrdArr.push(`${user.PAID ? " paid" : " pending ~"}`);
+      carrdArr.push(`${id < 5 ? " ✎working" : ""}`);
+      carrdArr.push(`${user.EMAIL_PAY ? " ✉" : ""}`);
+      carrdArr.push(`${user.EMAIL_COMP ? " ✉" : ""}`);
+      carrdArr.push(`${user.EMAIL_COMPPAY ? " ✉" : ""}`);
+      carrdArr.push(`${user.COMPLETE ? " ✉" : ""}\n`);
+    }
+    console.log(carrdArr.join(""));
+    navigator.clipboard.writeText(carrdArr.join(""));
+  };
+
   return (
     <div className={styles.commissionInfo}>
       <div className={styles.clientInfo}>
@@ -234,7 +268,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         )}
       </div>
       <div>
-        <div className={styles.todoCountText}>
+        <div className={styles.todoCountText} onClick={copyCarrdInfo}>
           ▾todo({paidUsers.length}/{userData.length - archiveUsers.length})
         </div>
       </div>
