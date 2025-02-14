@@ -8,7 +8,7 @@ const path = require("path");
 const { exec } = require("child_process");
 
 function createWindow() {
-  const scriptPath = path.join(__dirname, "../../src/API/script.js"); // Adjust path as needed
+  const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -91,11 +91,13 @@ app.whenReady().then(() => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
+    exec.exit();
   }
 });
 
 ipcMain.on("app-close", () => {
   app.quit();
+  exec.exit();
 });
 
 // In this file you can include the rest of your app"s specific main process
