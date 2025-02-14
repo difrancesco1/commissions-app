@@ -9,6 +9,7 @@ import {
   query,
   updateDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 // const contextMenu = document.getElementById("contextMenu");
 
@@ -74,11 +75,41 @@ const Card = ({ user, setCommissionIndex }) => {
   const togglePaid = async () => {
     console.log(user.id + "paid");
     try {
+      const payStatus = !user.PAID;
       const documentRef = doc(db, "commissions", user.id);
       await updateDoc(documentRef, {
-        PAID: Boolean(!user.PAID),
+        PAID: Boolean(payStatus),
       });
-      console.log("paid status toggled :PP " + user.PAID);
+      // if user paid, update due date
+      if (payStatus) {
+        console.log(user.id + " paid, update due date");
+
+        // get due date
+        const docSnap = await getDoc(
+          doc(db, "commissionDueDate", user.COMM_TYPE),
+        );
+
+        // set due date as incremented date (server and user)
+        if (docSnap.exists()) {
+          const dueDate = new Date(Object.values(docSnap.data())[0] * 1000);
+          dueDate.setDate(dueDate.getDate() + 1);
+
+          // update database with incremented due date
+          const updateCommissionDueDate = doc(db, "commissionDueDate", user.id);
+          await updateDoc(updateCommissionDueDate, {
+            COMM_START_DATE: dueDate,
+          });
+
+          // update user due date with incremented date
+          const updateUserDueDate = doc(db, "commissions", user.id);
+          await updateDoc(documentRef, {
+            DUE: dueDate,
+          });
+        } else {
+          // docSnap.data() will be undefined in this case
+          console.log("Due date not found in database commissionDueDate.");
+        }
+      }
     } catch (error) {
       console.error("Error toggling de paid status:", error);
     }
@@ -89,7 +120,7 @@ const Card = ({ user, setCommissionIndex }) => {
     console.log(user.id + "archive");
     try {
       const documentRef = doc(db, "commissions", user.id);
-      await updateDoc(documentRef, {
+      await getDocs(documentRef, {
         ARCHIVE: Boolean(!user.ARCHIVE),
       });
       console.log("archive status toggled :PP " + user.ARCHIVE);
