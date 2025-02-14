@@ -4,6 +4,7 @@ import refreshgmail from "../../../assets/refreshgmail.png";
 import copytocarrd from "../../../assets/copytocarrd.png";
 import loading from "../../../assets/loading.gif";
 import done from "../../../assets/done.png";
+import dog from "../../../assets/dog.gif";
 
 const FooterBtn = ({ setSearchQuery }) => {
   const [query, setQuery] = useState(""); // Local state for the search query
@@ -45,8 +46,9 @@ const FooterBtn = ({ setSearchQuery }) => {
     document.body.style.cursor = "default";
   };
 
-  const copyInfoToClipboard = () => {
-    console.log("copying info");
+  const changeToDog = () => {
+    const dogButton = document.getElementById("dog");
+    dogButton.src = dog;
   };
 
   return (
@@ -70,10 +72,11 @@ const FooterBtn = ({ setSearchQuery }) => {
 
       <div className={styles.boxButton}>
         <img
+          id="dog"
           className={styles.buttonText}
           src={copytocarrd}
-          alt="copytocarrd button"
-          onCLick={copyInfoToClipboard}
+          alt="now its a dog button"
+          onClick={changeToDog}
         />
       </div>
     </div>
