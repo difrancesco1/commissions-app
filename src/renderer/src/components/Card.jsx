@@ -54,7 +54,7 @@ const Card = ({ user, setCommissionIndex }) => {
     }
   };
 
-  // when user.ID changes
+  // when application breathes
   useEffect(() => {
     const fetchData = async () => {
       // Calls db to set new data
@@ -64,7 +64,7 @@ const Card = ({ user, setCommissionIndex }) => {
 
     fetchData();
     loadImage(); // Checks if the image exists by calling the loadImage function
-  }, [user.ID]); // [user.ID] ensures that the effect will ONLY run when user.ID changes ^_^
+  }, [user.ID]); 
 
   //When user clicks on card
   const handleClick = (id) => {

@@ -24,7 +24,7 @@ const CommissionInfoImg = ({ user }) => {
 
   useEffect(() => {
     loadImage();
-  }, [user.ID]);
+  }, []);
 
   const openImageOnComputer = () => {
     const imagePath = `http://localhost:5000/API/images/${user.ID}.png`;

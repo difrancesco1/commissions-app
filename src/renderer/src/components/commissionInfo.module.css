@@ -29,6 +29,11 @@
 
 .subText{
     font-size: 13px;
+    user-select: none;
+}
+
+.subText:active{
+    color: var(--bordertop);
 }
 
 .imgStyle{
@@ -133,6 +138,10 @@
     margin-left: -5px;
     letter-spacing: 1px;
     user-select: none;
+}
+
+.todoCountText:active{
+    color: var(--bordertop);
 }
 
 .buttonText {

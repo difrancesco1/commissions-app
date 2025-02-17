@@ -4,6 +4,9 @@ import refreshgmail from "../../../assets/refreshgmail.png";
 import copytocarrd from "../../../assets/copytocarrd.png";
 import loading from "../../../assets/loading.gif";
 import done from "../../../assets/done.png";
+import imagefailed from "../../../assets/imagefailed.png";
+import emailfailed from "../../../assets/emailfailed.png";
+import allfailed from "../../../assets/exit.png";
 import dog from "../../../assets/dog.gif";
 const { ipcRenderer } = window.require("electron");
 
@@ -20,8 +23,11 @@ const FooterBtn = ({ setSearchQuery }) => {
   const handleRefreshClick = async () => {
     try {
       var btn = document.getElementById("refreshBtn");
+      var searchBar = document.getElementById("refreshresult");
+
       document.body.style.cursor = "wait";
       btn.src = loading;
+
       // Call both APIs
       const [imagesResponse, emailsResponse] = await Promise.all([
         fetch("http://localhost:5000/api/save-images", { method: "POST" }),
@@ -32,18 +38,30 @@ const FooterBtn = ({ setSearchQuery }) => {
       console.log("🔵 Images Response:", imagesResponse);
       console.log("🟢 Emails Response:", emailsResponse);
 
-      btn.src = done;
-
-      if (imagesResponse.ok && emailsResponse.ok) {
-        console.log("Images refreshed and emails fetched successfully"); // if the POST is successful (even if no images need to be updated)
-      } else {
-        console.error("One or both requests failed");
-        alert("Could not refresh email/images :( ");
+      // display response to user
+      if (!imagesResponse.ok && !emailsResponse.ok){
+        // both image and email pull failed
+        btn.src = allfailed;
+        searchBar.placeholder = "failure";
       }
+      else if(!imagesResponse.ok){
+        // image loading failed
+        btn.src = imagefailed;
+        searchBar.placeholder = "image refresh failed";
+      } else if(!emailsResponse.ok){
+        // email loading failed
+        btn.src = emailfailed;
+        searchBar.placeholder = "email refresh failed";
+      } else{
+        // all success
+        btn.src = done;
+        searchBar.placeholder = "-.⊹˖ᯓ★. ݁₊"; // try catch didn't fail. replace search bar error 
+      }
+
     } catch (error) {
       console.error("Error during refresh:", error);
-      alert("Error during refresh :(");
-      btn.src = done;
+      btn.src = allfailed;
+      searchBar.placeholder = error.message.toLowerCase();
     }
     document.body.style.cursor = "default";
   };
@@ -81,6 +99,7 @@ const FooterBtn = ({ setSearchQuery }) => {
       </div>
 
       <input
+        id= "refreshresult"
         type="text"
         placeholder="-.⊹˖ᯓ★. ݁₊"
         className={styles.searchBar}

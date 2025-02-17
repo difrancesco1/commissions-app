@@ -213,7 +213,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
 
         carrdArr.push(
-          `♥ ${dueDate} ♥ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+          `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
         );
         carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
         carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);

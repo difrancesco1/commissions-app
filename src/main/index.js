@@ -5,14 +5,13 @@ import icon from "../../resources/icon.png?asset";
 import "./styles.css";
 const path = require("path");
 const { exec } = require("child_process");
-var child;
+// const terminate = require('terminate');
 var mainWindow;
 
 function createWindow() {
-  const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({
+   mainWindow = new BrowserWindow({
     width: 322,
     height: 533,
     show: false,
@@ -29,15 +28,6 @@ function createWindow() {
       enableRemoteModule: true,
       contextIsolation: false,
     },
-  });
-
-  child = exec(`node ${scriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error executing script: ${error}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.error(`stderr: ${stderr}`);
   });
 
   mainWindow.on("ready-to-show", () => {
@@ -84,16 +74,25 @@ app.whenReady().then(() => {
   });
 });
 
+const scriptPath = path.join(__dirname, "../../src/API/server.js"); // Adjust path as needed
+const child = exec(`node ${scriptPath}`, (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error executing script: ${error}`);
+    return;
+  }
+  console.log(`stdout: ${stdout}`);
+  console.error(`stderr: ${stderr}`);
+});
+
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    // child.kill();
+    // process.kill(child.pid);
     app.quit();
     // mainWindow.close();
     // mainWindow = null;
-    // process.exit(1);
   }
 });
 
@@ -102,16 +101,20 @@ ipcMain.on("open-devtools", () => {
 });
 
 ipcMain.on("app-close", () => {
-  // child.kill();
+  // process.kill(child.pid);
+  // terminate(child.pid, err => console.log(err))
+  // mainWindow.close();
+
   app.quit();
   // mainWindow.close();
   // mainWindow = null;
-  // process.exit(1);
 });
 
-// app.on("quit", () => {
-//   app.exit(0);
-// });
+app.on("quit", () => {
+  mainWindow = null;
+  child.kill();
+  app.exit(0);
+});
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.

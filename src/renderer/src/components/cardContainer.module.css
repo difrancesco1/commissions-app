@@ -35,8 +35,9 @@
 }
 
 .noneFound {
-  text-align: center;
-  margin-top: 12px;
+  width: 280px;
+  opacity: 25%;
+  margin-left: 8px;
 }
 .disabled {
   opacity: 0.5; /* Make it look faded */
