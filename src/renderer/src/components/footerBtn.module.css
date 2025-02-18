@@ -45,10 +45,6 @@
   cursor: pointer;
 }
 
-.dogDog:active{
-
-}
-
 .searchBar{
   width: 232px;
   height: 30px;
@@ -65,7 +61,7 @@
   filter: grayscale();
   margin-left: 4px;
   margin-top: 2px;
-  opacity: .6;
+  opacity: .8;
   font-style: italic;
   margin-right: 2px;
 }

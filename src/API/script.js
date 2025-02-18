@@ -220,7 +220,7 @@ async function fetchEmails(auth) {
         }
         commsInDatabase.push(memail.toLowerCase());
 
-        const mname = msgBody[7];
+        const mname = msgBody[7].split(" ")[0]; // only save the first part of the name
         const msgDate = msgBody[1].split("/");
         const mdate = new Date(msgDate[2], msgDate[0] - 1, msgDate[1]); // -1 because months begin with 0
         const mcomm_type = msgBody[3];

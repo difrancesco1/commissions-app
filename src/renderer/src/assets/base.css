@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
 
 :root {
+  /* pink */
   --bg: #FEE8EB;
   --bordertop: #ff78a181;
   --borderbtm: #45314a81;
@@ -12,6 +13,19 @@
   --green: #D4F2A8;
   --blue: #A2F5F9;
   --purple: #DBC5F6;
+
+  /* yellow */
+  /* --bg: #FEF0C1;
+  --bordertop: #F7CB40;
+  --borderbtm: #7A6B50;
+  --accent: #FFE87E; */
+
+  /* retro dark mode */
+  /* --bg: #000000;
+  --bordertop: #8A8A8A;
+  --borderbtm: rgb(224, 224, 224);
+  --accent: #FF78A0; */
+
 }
 
 * {

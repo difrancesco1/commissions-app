@@ -128,8 +128,8 @@
 }
 
 .emailBtn:hover{
-    -webkit-filter: hue-rotate(35deg);
-    filter: hue-rotate(35deg);
+    -webkit-filter: hue-rotate(180deg);
+    filter: hue-rotate(180deg);
 }
 
 .todoCountText{

@@ -43,12 +43,16 @@
     margin-right: 4px;
 
     z-index: 99;
-    transition: .5s ease;
-}
 
-.exit:hover{
     -webkit-filter: contrast(200%);
     filter: contrast(200%);
+}
+
+.exit:hover {
+    background-color: rgba(255, 0, 0, 0.253);
+    
+    border-top-color: var(--accent);
+    border-left-color: var(--accent);
 }
 
 .exit:active{
