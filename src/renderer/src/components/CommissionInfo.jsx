@@ -251,9 +251,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         )}
       </div>
 
-      {/* Email Buttons container */}
       {selectedCommission && (
         <EmailButtonContainer
+          user={selectedCommission}
           userId={selectedCommission.id}
           onContextMenuHandler={handleContextMenu}
           disabledButtons={disabledButtons[selectedCommission.id]} // Pass disabled state for the user
