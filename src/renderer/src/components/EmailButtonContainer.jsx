@@ -25,11 +25,11 @@ const EmailButtonContainer = ({
   };
 
   const templates = {
-    btn1: `${user.NAME}, we didn't recieve your payment yet`,
-    btn2: `${user.NAME}, your commission is complex and requires an additional charge`,
-    btn3: `${user.NAME}, your commission is complex and we have not recieved your payment yet`,
-    btn4: `N/A`,
-    btn5: `${user.NAME} we just finished your commission!`,
+    btn1: `hello ${user.NAME.toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME} but we can't find your paypal payment. if you still want to commission us, please pay with the link below, and note your twitter in the payment! if you already paid us, we are so sorry for missing your payment. let us know your paypal email so we can look it up in the search~\n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you!\n🎀rosie + euna🎀`,
+    btn2: `hello ${user.NAME.toLowerCase()}!!\n\nwe took a closer look at your reference, and unfortunately the design will be complex to draw, as well as to animate. if this is okay with you, please send the complex fee (noted in our website) to our paypal with this link!\n\nhttps://www.paypal.com/biz/profile/eunamiku\nwe hope you have a wonderful day~\n🎀rosie + euna🎀`,
+    btn3: `hello ${user.NAME.toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME} but we can't find your paypal payment. did you still want to commission us? we also took a closer look at your reference, and unfortunately the design will be complex to draw, as well as to animate. if you're still interested, please pay the complex fee (noted in our website) to our paypal with this link! \n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you ~!\n🎀rosie + euna🎀`,
+    btn4: ``,
+    btn5: `hello ${user.NAME.toLowerCase()}!!\n\nthank you for your support on the ${user.COMM_NAME} <3 we've provided the full art size, and a smaller size for twitch/discord ~\n\nwe hope you enjoy your commission♡✧~\nhave a wonderful day!\n🎀rosie + euna🎀`,
   };
 
   // Function to handle button click
