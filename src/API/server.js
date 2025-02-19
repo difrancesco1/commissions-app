@@ -1,14 +1,14 @@
 const express = require("express");
 const { startFetchingEmails } = require("./script");
 const checkAndSaveImages = require("./imageSave");
-const path = require("path"); // To handle file paths
-const app = express();
-const port = 5000; // Backend port
+const path = require("path");
 const cors = require("cors");
 
-app.use(cors()); // Enable CORS for all routes because frontend and backend are on different ports
+const app = express();
+const port = 5000;
 
-// Serve static images from the 'images/' folder inside the 'API' directory
+// Middleware
+app.use(cors());
 app.use("/API/images", express.static(path.join(__dirname, "images")));
 
 app.post("/api/save-images", async (req, res) => {
@@ -31,8 +31,24 @@ app.get("/fetch-emails", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+// Start the server
+const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-// https://stackoverflow.com/questions/43003870/how-do-i-shut-down-my-express-server-gracefully-when-its-process-is-killed
+// Handle shutdown gracefully
+const shutdown = () => {
+  console.log("Received shutdown signal, closing server gracefully...");
+  server.close((err) => {
+    if (err) {
+      console.error("Error closing server:", err);
+      process.exit(1);
+    }
+    console.log("Server closed successfully");
+    process.exit(0);
+  });
+};
+
+// Listen for termination signals
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);

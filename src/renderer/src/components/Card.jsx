@@ -10,9 +10,7 @@ import {
   updateDoc,
   doc,
   getDoc,
-  Timestamp,
 } from "firebase/firestore";
-// const contextMenu = document.getElementById("contextMenu");
 
 // fetches data from Firestore
 const fetchDataFromFirestore = async () => {
@@ -35,7 +33,7 @@ const fetchDataFromFirestore = async () => {
 };
 
 const Card = ({ user, setCommissionIndex }) => {
-  const [data, setData] = useState([]); //data store the fetched data
+  const [data, setData] = useState([]); // data stores the fetched data
   const [imageExists, setImageExists] = useState(false); // imageExists stores whether an image exists or not
 
   const imagePath = `http://localhost:5000/API/images/${user.ID}.png`; // URL pointing towards server API endpoint
@@ -64,9 +62,9 @@ const Card = ({ user, setCommissionIndex }) => {
 
     fetchData();
     loadImage(); // Checks if the image exists by calling the loadImage function
-  }, [user.ID]); 
+  }, []);
 
-  //When user clicks on card
+  // When user clicks on card
   const handleClick = (id) => {
     setCommissionIndex(id); // sets commission index
     // handleCloseMenu();

@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // Import useMemo
 import Card from "./Card.jsx";
 import styles from "./cardContainer.module.css";
 import notfound from "../../../assets/notfound.gif";
 import { db } from "../firebaseConfig"; // Import Firestore
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 const CardContainer = ({
   commissionIndex,
@@ -44,27 +37,29 @@ const CardContainer = ({
   // Normalize to lowercase and remove spaces
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
-  // Filter the user data based on the search query (matches TWITTER or PAYPAL)
-  const filteredData = userData.filter((user) => {
-    const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : "";
-    const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : "";
-    const userName = user.NAME ? user.NAME.trim().toLowerCase() : "";
-    const userEmail = user.EMAIL ? user.EMAIL.trim().toLowerCase() : "";
-    const userNotes = user.NOTES ? user.NOTES.trim().toLowerCase() : "";
+  // Memoized filteredData to prevent unnecessary recalculations
+  const filteredData = useMemo(() => {
+    return userData.filter((user) => {
+      const userTwitter = user.TWITTER ? user.TWITTER.trim().toLowerCase() : "";
+      const userPaypal = user.PAYPAL ? user.PAYPAL.trim().toLowerCase() : "";
+      const userName = user.NAME ? user.NAME.trim().toLowerCase() : "";
+      const userEmail = user.EMAIL ? user.EMAIL.trim().toLowerCase() : "";
+      const userNotes = user.NOTES ? user.NOTES.trim().toLowerCase() : "";
 
-    return (
-      userTwitter.includes(normalizedSearchQuery) ||
-      userPaypal.includes(normalizedSearchQuery) ||
-      userName.includes(normalizedSearchQuery) ||
-      userEmail.includes(normalizedSearchQuery) ||
-      userNotes.includes(normalizedSearchQuery)
-    );
-  });
+      return (
+        userTwitter.includes(normalizedSearchQuery) ||
+        userPaypal.includes(normalizedSearchQuery) ||
+        userName.includes(normalizedSearchQuery) ||
+        userEmail.includes(normalizedSearchQuery) ||
+        userNotes.includes(normalizedSearchQuery)
+      );
+    });
+  }, [userData, normalizedSearchQuery]); // Depend on userData and normalizedSearchQuery
 
-  // Update thr parent with the length of cards
+  // Update the parent with the length of cards
   useEffect(() => {
     setListCount(filteredData.length);
-  }, [filteredData, setListCount]); //Runs when filteredData changes
+  }, [filteredData, setListCount]); // Runs when filteredData changes
 
   return (
     <div className={styles.container}>
@@ -79,10 +74,11 @@ const CardContainer = ({
         ))
       ) : (
         <div>
-                  <img className={styles.noneFound}
-                    src={notfound}
-                    alt="searchnotfound"
-                  />
+          <img
+            className={styles.noneFound}
+            src={notfound}
+            alt="searchnotfound"
+          />
         </div> // If there are no results when typing or in general
       )}
     </div>

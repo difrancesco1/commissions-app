@@ -8,38 +8,57 @@ const scriptPath = path.join(__dirname, "../../src/API/server.js");
 let mainWindow;
 let backendProcess;
 
-// Function to kill any process using the specified port (5000) before starting the backend
-function killPort(port) {
+function checkPortInUse(port) {
   return new Promise((resolve) => {
     const cmd =
       process.platform === "win32"
         ? `netstat -ano | findstr :${port}`
         : `lsof -ti:${port}`;
     exec(cmd, (err, stdout) => {
+      resolve(stdout.trim() !== "");
+    });
+  });
+}
+
+function killPort(port) {
+  return new Promise((resolve) => {
+    const cmd =
+      process.platform === "win32"
+        ? `netstat -ano | findstr :${port}`
+        : `lsof -ti:${port}`;
+
+    exec(cmd, (err, stdout) => {
       if (!err && stdout) {
-        const pid =
-          process.platform === "win32"
-            ? stdout.trim().split(/\s+/).pop()
-            : stdout.trim();
-        if (pid) {
-          const killCmd =
-            process.platform === "win32"
-              ? `taskkill /PID ${pid} /F`
-              : `kill -9 ${pid}`;
+        const pids = stdout.trim().split(/\s+/);
+        const killCommands = pids.map((pid) => {
+          return process.platform === "win32"
+            ? `taskkill /PID ${pid} /F`
+            : `kill -9 ${pid}`;
+        });
+
+        // Execute all kill commands
+        killCommands.forEach((killCmd) => {
           exec(killCmd, (killErr) => {
             if (killErr) {
-              console.error(
-                `Error killing process on port ${port}: ${killErr}`,
-              );
+              console.error(`Error killing process: ${killErr}`);
             } else {
-              console.log(`Process ${pid} terminated`);
+              console.log(`Killed process on port ${port}`);
             }
-            resolve();
           });
-        } else {
-          console.log(`No process found on port ${port}`);
-          resolve();
-        }
+        });
+
+        // Wait a short time and then check if the port is free
+        setTimeout(() => {
+          checkPortInUse(port).then((inUse) => {
+            if (inUse) {
+              console.log(`Port ${port} is still in use. Retrying...`);
+              killPort(port).then(resolve);
+            } else {
+              console.log(`Port ${port} is now free.`);
+              resolve();
+            }
+          });
+        }, 1000); // Adjust this timeout as needed
       } else {
         console.log(`No process found on port ${port}`);
         resolve();
@@ -48,39 +67,35 @@ function killPort(port) {
   });
 }
 
-function startBackend(scriptPath, retries = 5) {
+function startBackend(scriptPath2, retries = 5) {
   return new Promise((resolve, reject) => {
-    backendProcess = spawn("node", [scriptPath], {
+    backendProcess = spawn("node", [scriptPath2], {
       stdio: ["ignore", "pipe", "pipe"],
       shell: true,
     });
     console.log("Attempting to start backend server...");
-
     backendProcess.stdout.on("data", (data) => {
       console.log(`Server Output: ${data.toString()}`);
       if (data.toString().includes("Server is running on")) {
-        resolve(); // Resolve when the server starts successfully
+        resolve();
       }
     });
-
     backendProcess.stderr.on("data", (data) => {
       console.error(`Server Error: ${data.toString()}`);
     });
-
     backendProcess.on("error", (err) => {
       console.error(`Failed to start backend: ${err}`);
-      reject(err); // Reject the promise on error
+      reject(err);
     });
-
     backendProcess.on("exit", (code) => {
       console.log(`Backend exited with code ${code}`);
       if (code !== 0 && retries > 0) {
         console.log("Retrying to start backend...");
         setTimeout(() => {
-          startBackend(scriptPath, retries - 1)
+          startBackend(scriptPath2, retries - 1)
             .then(resolve)
             .catch(reject);
-        }, 2000); // Wait 2 seconds before retrying
+        }, 2000);
       } else {
         reject(new Error(`Backend process exited with code ${code}`));
       }
@@ -108,8 +123,6 @@ function createWindow() {
       contextIsolation: false,
     },
   });
-
-  // Kill any process using port 5000, then start the backend
   killPort(5000).then(() => {
     console.log("Port 5000 is free, starting backend server...");
     startBackend(scriptPath)
@@ -120,16 +133,13 @@ function createWindow() {
         console.error("Failed to start the backend server:", err);
       });
   });
-
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
   });
-
   mainWindow.webContents.setWindowOpenHandler((details) => {
     electron.shell.openExternal(details.url);
     return { action: "deny" };
   });
-
   if (utils.is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
@@ -137,7 +147,6 @@ function createWindow() {
   }
 }
 
-// backend stops when Electron closes
 electron.app.whenReady().then(() => {
   utils.electronApp.setAppUserModelId("com.electron");
   electron.app.on("browser-window-created", (_, window) => {
@@ -150,7 +159,6 @@ electron.app.whenReady().then(() => {
   });
 });
 
-// backend stops when Electron closes
 electron.app.on("window-all-closed", () => {
   if (backendProcess) {
     backendProcess.kill("SIGTERM");
@@ -169,7 +177,8 @@ electron.app.on("before-quit", () => {
 
 electron.ipcMain.on("app-close", () => {
   if (backendProcess) {
-    backendProcess.kill();
+    backendProcess.kill("SIGTERM");
+    backendProcess = null;
   }
   killPort(5000).then(() => {
     electron.app.quit();
