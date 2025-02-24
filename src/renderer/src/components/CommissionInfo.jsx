@@ -95,7 +95,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setDisabledButtons({
         [selectedCommission.id]: {
           btn1:
-            selectedCommission.EMAIL_PAY && selectedCommission.EMAIL_COMPPAY,
+            selectedCommission.EMAIL_PAY &&
+            selectedCommission.EMAIL_COMPPAY &&
+            selectedCommission.COMPLEX,
           btn2:
             selectedCommission.EMAIL_PAY &&
             selectedCommission.EMAIL_COMPPAY &&
@@ -118,7 +120,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     }
   }, [selectedCommission]);
   const buttonIdToField = {
-    btn1: ["EMAIL_PAY", "EMAIL_COMPPAY"],
+    btn1: ["EMAIL_PAY", "EMAIL_COMPPAY", "COMPLEX"],
     btn2: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
     btn3: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
     btn4: ["EMAIL_PAY", "EMAIL_COMPPAY", "EMAIL_WIP"],
