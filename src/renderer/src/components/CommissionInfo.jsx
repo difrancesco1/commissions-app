@@ -182,12 +182,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         // if today is 14 days past paydue, delete entry. if deleted entry, continue.
         if (todayDate > weekFromPayDue) {
           await deleteDoc(doc(db, "commissions", user.ID));
-          continue;
         }
-        if (!user.COMPLETE) {
-          // if not complete, skip over to not have entry listed in carrd website
-          continue;
-        }
+        // skip all in archive
+        continue;
       }
 
       // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
@@ -201,6 +198,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           console.log(
             "archived " + user.id + " due to payment not being made in 30 days",
           );
+          continue;
         }
       }
 
