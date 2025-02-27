@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from "./CommissionInfo.module.css";
+import styles from "./commissionInfo.module.css";
 import loading from "../../../assets/loading.gif";
 const path = require("path");
 const fs = require("fs");

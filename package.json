@@ -6,7 +6,16 @@
   "author": "rosie+josh",
   "homepage": "https://electron-vite.org",
   "build": {
-    "appId": "rosieuna"
+    "appId": "rosieuna",
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+      "from": "src/API",
+      "to": "src/API"
+      }
+    ]
   },
   "scripts": {
     "format": "prettier --write .",
@@ -20,8 +29,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
-    "preinstall": "./configure",
-    "install": "make && make install",
+    "preinstall": "",
+    "install": "",
     "test": "make test"
   },
   "dependencies": {
