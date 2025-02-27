@@ -1,8 +1,5 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
-import { join } from "path";
-import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-import icon from "../../resources/icon.png?asset";
-import "./styles.css";
+"use strict";
+const electron = require("electron");
 const path = require("path");
 const { exec, spawn } = require("child_process");
 const fs = require('fs');
@@ -16,8 +13,8 @@ function createWindow() {
     width: 322,
     height: 533,
     show: false,
-    frame: false, // Remove the window frame
-    transparent: true, // Allow transparency for rounded corners
+    frame: false,
+    transparent: true,
     titleBarStyle: "hidden",
     resizable: false,
     autoHideMenuBar: true,
@@ -34,7 +31,7 @@ function createWindow() {
     mainWindow.show();
   });
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
+    electron.shell.openExternal(details.url);
     return { action: "deny" };
   });
   // HMR for renderer base on electron-vite cli.
@@ -42,7 +39,7 @@ function createWindow() {
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 }
 
@@ -215,7 +212,22 @@ app.on("window-all-closed", async () => {
   }
 });
 
-ipcMain.on("open-devtools", () => {
+electron.app.on("before-quit", () => {
+  if (backendProcess) {
+    backendProcess.kill("SIGTERM");
+  }
+});
+
+electron.ipcMain.on("app-close", () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+  killPort(5000).then(() => {
+    electron.app.quit();
+  });
+});
+
+electron.ipcMain.on("open-devtools", () => {
   mainWindow.webContents.openDevTools();
 });
 

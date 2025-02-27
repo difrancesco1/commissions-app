@@ -8,6 +8,7 @@
   "build": {
     "appId": "rosieuna",
     "files": [
+<<<<<<< HEAD
       "out/**/*"
     ],
     "extraResources": [
@@ -15,6 +16,13 @@
       "from": "src/API",
       "to": "src/API"
       }
+=======
+      "out/**/*",
+      "src/main/**/*",
+      "src/renderer/**/*",
+      "src/API/**/*",
+      "src/API/credentials.json"
+>>>>>>> 0ce5565d7003d08e6eaab5fabe452d67fc373aa4
     ]
   },
   "scripts": {
@@ -22,7 +30,7 @@
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "electron-vite build",
+    "build": "node copy-index.js && electron-vite build && node copy-index.js",
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
