@@ -64,7 +64,7 @@ const Card = ({ user, setCommissionIndex }) => {
 
     fetchData();
     loadImage(); // Checks if the image exists by calling the loadImage function
-  }, [user.ID]); 
+  }, [user.ID]);
 
   //When user clicks on card
   const handleClick = (id) => {

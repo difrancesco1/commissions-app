@@ -8,22 +8,17 @@
   "build": {
     "appId": "rosieuna",
     "files": [
-<<<<<<< HEAD
-      "out/**/*"
+      "out/**/*",
+      "node_modules/**/*"
     ],
     "extraResources": [
       {
-      "from": "src/API",
-      "to": "src/API"
+        "from": "src/API",
+        "to": "src/API",
+        "filter": ["**/*"]
       }
-=======
-      "out/**/*",
-      "src/main/**/*",
-      "src/renderer/**/*",
-      "src/API/**/*",
-      "src/API/credentials.json"
->>>>>>> 0ce5565d7003d08e6eaab5fabe452d67fc373aa4
-    ]
+    ],
+    "asar": false
   },
   "scripts": {
     "format": "prettier --write .",
