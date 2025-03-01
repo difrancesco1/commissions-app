@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
+const isPackaged = !process.env.NODE_ENV === 'development';
+const resourcesPath = isPackaged ? process.resourcesPath : process.cwd();
 
 // Attempt to load optional dependencies - with much better error handling
 let startFetchingEmails;

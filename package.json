@@ -8,16 +8,23 @@
   "build": {
     "appId": "rosieuna",
     "files": [
-      "out/**/*",
-      "node_modules/**/*"
+      "out/**/*"
     ],
     "extraResources": [
       {
         "from": "src/API",
         "to": "src/API",
         "filter": ["**/*"]
+      },
+      {
+        "from": "node_modules",
+        "to": "node_modules",
+        "filter": ["express/**", "cors/**", "firebase-admin/**", "googleapis/**", "@google-cloud/**"]
       }
     ],
+    "directories": {
+      "buildResources": "resources"
+    },
     "asar": false
   },
   "scripts": {
@@ -25,7 +32,7 @@
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "node copy-index.js && electron-vite build && node copy-index.js",
+    "build": "node copy-index.js && node copy-server-deps.js && electron-vite build && node copy-index.js",
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
