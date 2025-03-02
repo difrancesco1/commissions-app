@@ -1,96 +1,22 @@
-"use strict";
-const electron = require("electron");
-const path = require("path");
-const utils = require("@electron-toolkit/utils");
-const { exec, spawn } = require("child_process");
-const icon = path.join(__dirname, "../../resources/icon.png");
-const scriptPath = path.join(__dirname, "../../src/API/server.js");
-let mainWindow;
-let backendProcess;
+const { app, shell, BrowserWindow, ipcMain } = require('electron');
+const { join } = require('path');
+const { electronApp, optimizer, is } = require('@electron-toolkit/utils');
+const path = require('path');
+const fs = require('fs');
 
-// Function to kill any process using the specified port (5000) before starting the backend
-function killPort(port) {
-  return new Promise((resolve) => {
-    const cmd =
-      process.platform === "win32"
-        ? `netstat -ano | findstr :${port}`
-        : `lsof -ti:${port}`;
-    exec(cmd, (err, stdout) => {
-      if (!err && stdout) {
-        const pid =
-          process.platform === "win32"
-            ? stdout.trim().split(/\s+/).pop()
-            : stdout.trim();
-        if (pid) {
-          const killCmd =
-            process.platform === "win32"
-              ? `taskkill /PID ${pid} /F`
-              : `kill -9 ${pid}`;
-          exec(killCmd, (killErr) => {
-            if (killErr) {
-              console.error(
-                `Error killing process on port ${port}: ${killErr}`,
-              );
-            } else {
-              console.log(`Process ${pid} terminated`);
-            }
-            resolve();
-          });
-        } else {
-          console.log(`No process found on port ${port}`);
-          resolve();
-        }
-      } else {
-        console.log(`No process found on port ${port}`);
-        resolve();
-      }
-    });
-  });
-}
+// Express server integration
+const express = require('express');
+const cors = require('cors');
+let serverApp = null;
+let server = null;
+const PORT = 5000;
 
-function startBackend(scriptPath, retries = 5) {
-  return new Promise((resolve, reject) => {
-    backendProcess = spawn("node", [scriptPath], {
-      stdio: ["ignore", "pipe", "pipe"],
-      shell: true,
-    });
-    console.log("Attempting to start backend server...");
-
-    backendProcess.stdout.on("data", (data) => {
-      console.log(`Server Output: ${data.toString()}`);
-      if (data.toString().includes("Server is running on")) {
-        resolve(); // Resolve when the server starts successfully
-      }
-    });
-
-    backendProcess.stderr.on("data", (data) => {
-      console.error(`Server Error: ${data.toString()}`);
-    });
-
-    backendProcess.on("error", (err) => {
-      console.error(`Failed to start backend: ${err}`);
-      reject(err); // Reject the promise on error
-    });
-
-    backendProcess.on("exit", (code) => {
-      console.log(`Backend exited with code ${code}`);
-      if (code !== 0 && retries > 0) {
-        console.log("Retrying to start backend...");
-        setTimeout(() => {
-          startBackend(scriptPath, retries - 1)
-            .then(resolve)
-            .catch(reject);
-        }, 2000); // Wait 2 seconds before retrying
-      } else {
-        reject(new Error(`Backend process exited with code ${code}`));
-      }
-    });
-  });
-}
+// Create the main window
+var mainWindow;
 
 function createWindow() {
-  console.log(`Resolved script path: ${scriptPath}`);
-  mainWindow = new electron.BrowserWindow({
+  // Create the browser window.
+  mainWindow = new BrowserWindow({
     width: 322,
     height: 533,
     show: false,
@@ -100,25 +26,12 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
-    ...(process.platform === "linux" ? { icon } : {}),
+    ...(process.platform === "linux" ? { icon: path.join(__dirname, '../../resources/icon.png') } : {}),
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,
-      enableRemoteModule: true,
       contextIsolation: false,
     },
-  });
-
-  // Kill any process using port 5000, then start the backend
-  killPort(5000).then(() => {
-    console.log("Port 5000 is free, starting backend server...");
-    startBackend(scriptPath)
-      .then(() => {
-        mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
-      })
-      .catch((err) => {
-        console.error("Failed to start the backend server:", err);
-      });
   });
 
   mainWindow.on("ready-to-show", () => {
@@ -126,56 +39,146 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    electron.shell.openExternal(details.url);
+    shell.openExternal(details.url);
     return { action: "deny" };
   });
 
-  if (utils.is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+  // Load the appropriate URL
+  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 }
 
-// backend stops when Electron closes
-electron.app.whenReady().then(() => {
-  utils.electronApp.setAppUserModelId("com.electron");
-  electron.app.on("browser-window-created", (_, window) => {
-    utils.optimizer.watchWindowShortcuts(window);
+// Start the Express server
+function startExpressServer() {
+  try {
+    console.log("Starting Express server...");
+    serverApp = express();
+
+    // Enable CORS
+    serverApp.use(cors());
+
+    // Find the images directory
+    let imagesPath;
+    const possiblePaths = [
+      path.join(__dirname, "../../src/API/images"),
+      path.join(app.getAppPath(), "src/API/images"),
+      path.join(process.resourcesPath, "src/API/images"),
+      path.join(__dirname, "../../../src/API/images")
+    ];
+
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        imagesPath = testPath;
+        console.log(`Found images directory: ${imagesPath}`);
+        break;
+      }
+    }
+
+    // Create images directory if it doesn't exist
+    if (!imagesPath) {
+      imagesPath = path.join(__dirname, "images");
+      try {
+        fs.mkdirSync(imagesPath, { recursive: true });
+        console.log(`Created images directory: ${imagesPath}`);
+      } catch (err) {
+        console.error(`Failed to create images directory: ${err.message}`);
+      }
+    }
+
+    // Serve static images
+    serverApp.use("/API/images", express.static(imagesPath));
+
+    // Test endpoint
+    serverApp.get("/test", (req, res) => {
+      res.send("Server is running!");
+    });
+
+    // Mock endpoints for your actual API
+    serverApp.post("/api/save-images", (req, res) => {
+      console.log("Received request to save images");
+      res.status(200).send({ success: true, message: "Images refreshed" });
+    });
+
+    serverApp.get("/fetch-emails", (req, res) => {
+      console.log("Received request to fetch emails");
+      res.status(200).send({ success: true, message: "Emails fetched" });
+    });
+
+    // Start listening
+    server = serverApp.listen(PORT, () => {
+      console.log(`Express server running on port ${PORT}`);
+    });
+
+    // Handle server errors
+    server.on('error', (err) => {
+      console.error(`Express server error: ${err.message}`);
+
+      // Try another port if this one is in use
+      if (err.code === 'EADDRINUSE') {
+        console.log(`Port ${PORT} is in use, trying port ${PORT + 1}`);
+        server = serverApp.listen(PORT + 1);
+      }
+    });
+
+    return true;
+  } catch (err) {
+    console.error(`Failed to start Express server: ${err.message}`);
+    return false;
+  }
+}
+
+// App initialization
+app.whenReady().then(() => {
+  // Start Express server first
+  startExpressServer();
+
+  electronApp.setAppUserModelId("com.electron");
+
+  app.on("browser-window-created", (_, window) => {
+    optimizer.watchWindowShortcuts(window);
   });
-  electron.ipcMain.on("ping", () => console.log("pong"));
+
+  // Create the window
   createWindow();
-  electron.app.on("activate", function () {
-    if (electron.BrowserWindow.getAllWindows().length === 0) createWindow();
+
+  app.on("activate", function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-// backend stops when Electron closes
-electron.app.on("window-all-closed", () => {
-  if (backendProcess) {
-    backendProcess.kill("SIGTERM");
-    backendProcess = null;
-  }
+// Window close handling
+app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    electron.app.quit();
+    app.quit();
   }
 });
 
-electron.app.on("before-quit", () => {
-  if (backendProcess) {
-    backendProcess.kill("SIGTERM");
+// DevTools toggle
+ipcMain.on("open-devtools", () => {
+  if (mainWindow) {
+    mainWindow.webContents.openDevTools();
   }
 });
 
-electron.ipcMain.on("app-close", () => {
-  if (backendProcess) {
-    backendProcess.kill();
+// App close handling
+ipcMain.on("app-close", () => {
+  // Close the Express server if it's running
+  if (server) {
+    server.close(() => {
+      console.log("Express server closed");
+    });
   }
-  killPort(5000).then(() => {
-    electron.app.quit();
-  });
+  app.quit();
 });
 
-electron.ipcMain.on("open-devtools", () => {
-  mainWindow.webContents.openDevTools();
+// App quit handling
+app.on("quit", () => {
+  // Close the Express server if it's running
+  if (server) {
+    server.close();
+  }
+  app.exit(0);
 });
