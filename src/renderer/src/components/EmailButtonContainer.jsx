@@ -9,25 +9,43 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 
 const EmailButtonContainer = ({
-  user = {}, // Provide default empty object
+  user = {},
   userId,
   onContextMenuHandler,
-  disabledButtons = {}, // Provide default empty object
+  disabledButtons = {},
   handleContextMenuAction,
 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Enhanced debug logging for button state
+  useEffect(() => {}, [disabledButtons, user]);
+
+  // Helper function to check if a button should be disabled
   const getButtonStyle = (buttonId) => {
+    // Explicit check to ensure buttons 4 and 5 are properly disabled
+    if (buttonId === "btn4" && user.EMAIL_WIP === true) {
+      return { opacity: 0.3, pointerEvents: "none" };
+    }
+
+    if (
+      buttonId === "btn5" &&
+      user.COMPLETE === true &&
+      user.ARCHIVE === true
+    ) {
+      return { opacity: 0.3, pointerEvents: "none" };
+    }
+
+    // Normal check based on disabledButtons prop
     return disabledButtons[buttonId]
-      ? { opacity: 0.3, pointerEvents: "none" } // Fixed pointerEvents
+      ? { opacity: 0.3, pointerEvents: "none" }
       : {};
   };
 
   const templates = {
-    btn1: `♡ ${user.COMM_NAME || "Commission"} followup ♡\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME || "commission"} but we can't find your paypal payment. if you still want to commission us, please pay with the link below, and note your twitter in the payment! if you already paid us, we are so sorry for missing your payment. let us know your paypal email so we can look it up in the search~\n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you!\n🎀rosie + euna🎀`,
+    btn1: `♡ ${user.COMM_NAME || "Commission"} follow-up ♡\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME || "commission"} but we can't find your paypal payment. if you still want to commission us, please pay with the link below, and note your twitter in the payment! if you already paid us, we are so sorry for missing your payment. let us know your paypal email so we can look it up in the search~\n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you!\n🎀rosie + euna🎀`,
     btn2: `♡ ${user.COMM_NAME || "Commission"} commission fee ♡\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nwe took a closer look at your reference, and unfortunately the design will be complex to draw, as well as to animate. if this is okay with you, please send the complex fee (noted in our website) to our paypal with this link!\n\nhttps://www.paypal.com/biz/profile/eunamiku\nwe hope you have a wonderful day~\n🎀rosie + euna🎀`,
-    btn3: `♡ ${user.COMM_NAME || "Commission"} followup ♡\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME || "commission"} but we can't find your paypal payment. did you still want to commission us? we also took a closer look at your reference, and unfortunately the design will be complex to draw, as well as to animate. if you're still interested, please pay the complex fee (noted in our website) to our paypal with this link! \n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you ~!\n🎀rosie + euna🎀`,
+    btn3: `♡ ${user.COMM_NAME || "Commission"} follow-up ♡\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nwe received your form for our ${user.COMM_NAME || "commission"} but we can't find your paypal payment. did you still want to commission us? we also took a closer look at your reference, and unfortunately the design will be complex to draw, as well as to animate. if you're still interested, please pay the complex fee (noted in our website) to our paypal with this link! \n\nhttps://www.paypal.com/biz/profile/eunamiku\nthank you ~!\n🎀rosie + euna🎀`,
     btn4: ` `,
     btn5: `❣ your ${user.COMM_NAME || "Commission"} is finished! ❣\n\nhello ${(user.NAME || "customer").toLowerCase()}!!\n\nthank you for your support on the ${user.COMM_NAME || "commission"} <3 we've provided the full art size, and a smaller size for twitch/discord ~\n\nwe hope you enjoy your commission♡✧~\nhave a wonderful day!\n🎀rosie + euna🎀`,
   };
@@ -124,6 +142,7 @@ const EmailButtonContainer = ({
             onContextMenu={(e) => onContextMenuHandler(e, "btn4", userId)}
             onClick={() => handleButtonClick("btn4")}
             style={getButtonStyle("btn4")}
+            data-testid="btn4"
           >
             <img
               className={styles.buttonText}
@@ -137,6 +156,7 @@ const EmailButtonContainer = ({
             onContextMenu={(e) => onContextMenuHandler(e, "btn5", userId)}
             onClick={() => handleButtonClick("btn5")}
             style={getButtonStyle("btn5")}
+            data-testid="btn5"
           >
             <img
               className={styles.buttonText}

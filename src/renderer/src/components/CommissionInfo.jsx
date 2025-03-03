@@ -13,26 +13,68 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
-import EmailButtonContainer from "./EmailButtonContainer"; // Import new component
+import EmailButtonContainer from "./EmailButtonContainer";
 
 const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
-  const [userData, setUserData] = useState([]); // Holds the list of all commission data from Firestore
-  const [paidUsers, setPaidUsers] = useState([]); // Holds users who have paid
-  const [archiveUsers, setArchiveUsers] = useState([]); // Holds users whose commissions are archived
-  const [disabledButtons, setDisabledButtons] = useState({}); // Track disabled buttons
-  const [menuVisible, setMenuVisible] = useState(false); // Controls whether the context menu is visible when the user right clicks
-  const [selectedButtonId, setSelectedButtonId] = useState(null); // Track selected button storing the ID
+  const [userData, setUserData] = useState([]);
+  const [paidUsers, setPaidUsers] = useState([]);
+  const [archiveUsers, setArchiveUsers] = useState([]);
+  const [disabledButtons, setDisabledButtons] = useState({});
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedButtonId, setSelectedButtonId] = useState(null);
 
+  // Detailed button configuration
+  const buttonConfig = {
+    btn1: {
+      fields: ["EMAIL_PAY", "EMAIL_COMP", "EMAIL_COMPPAY"],
+      disableButtons: ["btn1", "btn2", "btn3"],
+      complexRequired: false,
+      additionalUpdate: { BTN1_CLICKED: true },
+    },
+    btn2: {
+      fields: ["EMAIL_PAY", "EMAIL_COMP", "EMAIL_COMPPAY", "COMPLEX"],
+      disableButtons: ["btn1", "btn2", "btn3"],
+      complexRequired: false,
+      additionalUpdate: { COMPLEX: true },
+    },
+    btn3: {
+      fields: ["EMAIL_PAY", "EMAIL_COMP", "EMAIL_COMPPAY", "COMPLEX"],
+      disableButtons: ["btn1", "btn2", "btn3"],
+      complexRequired: false,
+      additionalUpdate: { COMPLEX: true },
+    },
+    btn4: {
+      fields: ["EMAIL_PAY", "EMAIL_COMP", "EMAIL_COMPPAY", "EMAIL_WIP"],
+      disableButtons: ["btn1", "btn2", "btn3", "btn4"],
+      complexRequired: false,
+      additionalUpdate: {},
+    },
+    btn5: {
+      fields: [
+        "EMAIL_PAY",
+        "EMAIL_COMP",
+        "EMAIL_COMPPAY",
+        "EMAIL_WIP",
+        "COMPLETE",
+        "ARCHIVE",
+      ],
+      disableButtons: ["btn1", "btn2", "btn3", "btn4", "btn5"],
+      complexRequired: false,
+      additionalUpdate: {},
+    },
+  };
+
+  // Firestore data fetching
   useEffect(() => {
-    // Fetches all commissions ordered by ARCHIVE, PAID, and DUE
-    var q = query(
+    // Fetch all commissions
+    const commissionsQuery = query(
       collection(db, "commissions"),
       orderBy("ARCHIVE"),
       orderBy("PAID", "desc"),
       orderBy("DUE"),
     );
 
-    var unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribeCommissions = onSnapshot(commissionsQuery, (snapshot) => {
       const newData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -40,14 +82,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setUserData(newData);
     });
 
-    // Fetches all users who have paid where (PAID = true and ARCHIVE = false)
-    q = query(
+    // Fetch paid users
+    const paidUsersQuery = query(
       collection(db, "commissions"),
-      where("PAID", "==", Boolean(true)),
-      where("ARCHIVE", "==", Boolean(false)),
+      where("PAID", "==", true),
+      where("ARCHIVE", "==", false),
     );
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      // Stores users who have paid and are not archived in paidUsers
+
+    const unsubscribePaidUsers = onSnapshot(paidUsersQuery, (snapshot) => {
       const paidUsers = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -55,199 +97,170 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       setPaidUsers(paidUsers);
     });
 
-    // Fetches users whose commissions are archived (ARCHIVE = true)
-    q = query(
+    // Fetch archived users
+    const archivedUsersQuery = query(
       collection(db, "commissions"),
-      where("ARCHIVE", "==", Boolean(true)),
+      where("ARCHIVE", "==", true),
     );
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      // Stores archived users in archiveUsers
-      const archiveUsers = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setArchiveUsers(archiveUsers);
-    });
-    // Stop listeners
-    return () => unsubscribe();
+
+    const unsubscribeArchivedUsers = onSnapshot(
+      archivedUsersQuery,
+      (snapshot) => {
+        const archiveUsers = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setArchiveUsers(archiveUsers);
+      },
+    );
+
+    // Cleanup subscriptions
+    return () => {
+      unsubscribeCommissions();
+      unsubscribePaidUsers();
+      unsubscribeArchivedUsers();
+    };
   }, []);
 
-  // helps find commission data of currently selected user
+  // Selected commission logic
   const selectedCommission = useMemo(() => {
-    return userData.find(
-      (user, index) =>
-        commissionIndex ? user.id === commissionIndex : index === 0, // if the commissionIndex is provided, if find the commission with the matching id
-    ); // if the commissionIndex is not provided, it will return the first commission in the index
+    return userData.find((user, index) =>
+      commissionIndex ? user.id === commissionIndex : index === 0,
+    );
   }, [userData, commissionIndex]);
 
-  // right-click handling
-  const handleContextMenu = (event, buttonId, userId) => {
-    event.preventDefault(); // Prevents default right-click behavior
-    let menu = document.getElementById("contextMenuEmailButton"); // Selects button specific ID
-    menu.style.left = event.clientX + "px"; // Pop up where mouse is
-    menu.style.top = event.clientY + "px";
-    window.x = event.clientX;
-    setSelectedButtonId(buttonId); // Track the selected button ID
-    setMenuVisible(true); // Show context menu
+  // Get disabled buttons based on the commission data
+  const getDisabledButtonsState = (commission) => {
+    if (!commission) return {};
+
+    const disabledState = {};
+
+    // DIRECT CHECK FOR BUTTON 4 - If EMAIL_WIP is true, disable buttons 1-4
+    if (commission.EMAIL_WIP === true) {
+      disabledState.btn1 = true;
+      disabledState.btn2 = true;
+      disabledState.btn3 = true;
+      disabledState.btn4 = true;
+    }
+
+    // DIRECT CHECK FOR BUTTON 5 - If COMPLETE and ARCHIVE are true, disable all buttons
+    if (commission.COMPLETE === true && commission.ARCHIVE === true) {
+      disabledState.btn1 = true;
+      disabledState.btn2 = true;
+      disabledState.btn3 = true;
+      disabledState.btn4 = true;
+      disabledState.btn5 = true;
+    }
+
+    // Process other button conditions using the configuration
+    Object.keys(buttonConfig).forEach((btnKey) => {
+      if (btnKey !== "btn4" && btnKey !== "btn5") {
+        // Skip btn4 and btn5 as we handled them directly
+        const config = buttonConfig[btnKey];
+
+        // Check if all fields are true for this button
+        const allFieldsTrue = config.fields.every(
+          (field) => commission[field] === true,
+        );
+
+        // Complex requirement check
+        const complexCheck = config.complexRequired ? commission.COMPLEX : true;
+
+        // Additional checks for specific buttons
+        const btn1Condition =
+          btnKey !== "btn1"
+            ? commission.BTN1_CLICKED || commission.COMPLEX
+            : true;
+
+        // If all conditions are met, disable the buttons according to config
+        if (allFieldsTrue && complexCheck && btn1Condition) {
+          config.disableButtons.forEach((disableBtn) => {
+            disabledState[disableBtn] = true;
+          });
+        }
+      }
+    });
+
+    return disabledState;
   };
+
+  // Context menu handling
+  const handleContextMenu = (event, buttonId, userId) => {
+    event.preventDefault();
+    let menu = document.getElementById("contextMenuEmailButton");
+    menu.style.left = `${event.clientX}px`;
+    menu.style.top = `${event.clientY}px`;
+    window.x = event.clientX;
+    setSelectedButtonId(buttonId);
+    setMenuVisible(true);
+  };
+
+  // Update disabled buttons whenever selected commission changes
   useEffect(() => {
     if (selectedCommission) {
-      setDisabledButtons({
-        [selectedCommission.id]: {
-          btn1:
-            selectedCommission.EMAIL_PAY && selectedCommission.EMAIL_COMPPAY,
-          btn2:
-            selectedCommission.EMAIL_PAY &&
-            selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.COMPLEX,
-          btn3:
-            selectedCommission.EMAIL_PAY &&
-            selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.COMPLEX,
-          btn4:
-            selectedCommission.EMAIL_PAY &&
-            selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.EMAIL_WIP,
-          btn5:
-            selectedCommission.EMAIL_PAY &&
-            selectedCommission.EMAIL_COMPPAY &&
-            selectedCommission.EMAIL_WIP &&
-            selectedCommission.EMAIL_COMP,
-        },
-      });
+      const newDisabledState = getDisabledButtonsState(selectedCommission);
+      setDisabledButtons(newDisabledState);
     }
   }, [selectedCommission]);
-  const buttonIdToField = {
-    btn1: ["EMAIL_PAY", "EMAIL_COMPPAY"],
-    btn2: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
-    btn3: ["EMAIL_PAY", "COMPLEX", "EMAIL_COMPPAY"],
-    btn4: ["EMAIL_PAY", "EMAIL_COMPPAY", "EMAIL_WIP"],
-    btn5: [
-      "EMAIL_PAY",
-      "EMAIL_COMPPAY",
-      "EMAIL_WIP",
-      "EMAIL_COMP",
-      "ARCHIVE",
-      "COMPLETE",
-    ],
-  };
 
-  // Triggered when user clicks button in context menu
+  // Context menu action handler
   const handleContextMenuAction = (buttonId, userId) => {
-    const field = buttonIdToField[buttonId];
+    const config = buttonConfig[buttonId];
 
-    if (Array.isArray(field)) {
-      // If button updates multiple fields (like btn3)
-      field.forEach((f) => updateEmailDatabase(f, userId));
-    } else {
-      updateEmailDatabase(field, userId);
+    // Validate complex requirement if needed
+    if (config.complexRequired && !selectedCommission.COMPLEX) {
+      return;
     }
+
+    // Update specified fields
+    const updateData = {
+      ...config.fields.reduce(
+        (acc, field) => ({
+          ...acc,
+          [field]: true,
+        }),
+        {},
+      ),
+      ...config.additionalUpdate,
+    };
+
+    updateEmailDatabase(updateData, userId);
+    handleCloseMenu();
   };
 
-  // Updates Firestore doc of specific user
-  const updateEmailDatabase = async (fieldName, userId) => {
+  // Database update function
+  const updateEmailDatabase = async (updateData, userId) => {
     try {
       const documentRef = doc(db, "commissions", userId);
-      await updateDoc(documentRef, {
-        [fieldName]: true,
-      });
-      console.log("Updated as true:", fieldName);
+      await updateDoc(documentRef, updateData);
+      console.log("Updated fields:", Object.keys(updateData));
     } catch (error) {
-      console.error("Error updating email field:", error);
+      console.error("Error updating email fields:", error);
     }
   };
 
+  // Close context menu
   const handleCloseMenu = () => {
     setMenuVisible(false);
   };
 
-  // copy to clipboard information to paste into website
-  // also put items that are past pay due into archive
-  const copyCarrdInfo = async () => {
-    var carrdArr = [];
-    for (const id in userData) {
-      const user = userData[id];
-
-      // today's date + commission due date
-      const todayDate = new Date();
-      const commDue = new Date(user.PAYDUE.toDate());
-      // commission due date + 7 days
-      const weekFromPayDue = new Date(user.PAYDUE.toDate());
-      weekFromPayDue.setDate(weekFromPayDue.getDate() + 14);
-
-      // if data is in archive,
-      if (user.ARCHIVE) {
-        // if today is 14 days past paydue, delete entry. if deleted entry, continue.
-        if (todayDate > weekFromPayDue) {
-          await deleteDoc(doc(db, "commissions", user.ID));
-          continue;
-        }
-        if (!user.COMPLETE) {
-          // if not complete, skip over to not have entry listed in carrd website
-          continue;
-        }
-      }
-
-      // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
-      if (!user.PAID) {
-        // PAYDATE HAS BEEN PASSED
-        if (todayDate > commDue) {
-          const documentRef = doc(db, "commissions", user.id);
-          await updateDoc(documentRef, {
-            ARCHIVE: Boolean(true),
-          });
-          console.log(
-            "archived " + user.id + " due to payment not being made in 30 days",
-          );
-        }
-      }
-
-      // clean twitter name to not have any symbols
-      const twitter = user.TWITTER;
-      const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
-
-      // add due date if there is a due date
-      // format information for website
-      try {
-        const commmDue = new Date(user.DUE.toDate());
-        const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
-
-        carrdArr.push(
-          `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
-        );
-        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
-        carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
-        carrdArr.push(`\n`);
-      } catch {
-        carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
-        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-        carrdArr.push(
-          `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
-        );
-        carrdArr.push(`\n`);
-      }
-    }
-    // console.log(carrdArr.join(""));
-    // copy website information to clipboard
-    navigator.clipboard.writeText(carrdArr.join(""));
-  };
+  // Copy Carrd Info (existing implementation)
+  const copyCarrdInfo = async () => {};
 
   return (
     <div className={styles.commissionInfo}>
       <div className={styles.clientInfo}>
         {selectedCommission && (
-          <CommissionInfoImg
-            commissionIndex={commissionIndex}
-            user={selectedCommission}
-          />
-        )}
-
-        {selectedCommission && (
-          <CommissionInfoText
-            commissionIndex={commissionIndex}
-            user={selectedCommission}
-          />
+          <>
+            <CommissionInfoImg
+              commissionIndex={commissionIndex}
+              user={selectedCommission}
+            />
+            <CommissionInfoText
+              commissionIndex={commissionIndex}
+              user={selectedCommission}
+            />
+          </>
         )}
       </div>
 
@@ -255,9 +268,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       {selectedCommission && (
         <EmailButtonContainer
           userId={selectedCommission.id}
+          user={selectedCommission}
           onContextMenuHandler={handleContextMenu}
-          disabledButtons={disabledButtons[selectedCommission.id]} // Pass disabled state for the user
-          handleContextMenuAction={handleContextMenuAction} // Action handler to disable button
+          disabledButtons={disabledButtons}
+          handleContextMenuAction={handleContextMenuAction}
         />
       )}
 

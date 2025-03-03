@@ -2,261 +2,395 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
-const isPackaged = !process.env.NODE_ENV === 'development';
+const isPackaged = !process.env.NODE_ENV === "development";
 const resourcesPath = isPackaged ? process.resourcesPath : process.cwd();
 
-// Attempt to load optional dependencies - with much better error handling
+// Load required modules
 let startFetchingEmails;
-try {
-  const scriptModule = require("./script");
-  startFetchingEmails = scriptModule.startFetchingEmails;
-  console.log("Successfully loaded script.js and startFetchingEmails function");
-} catch (err) {
-  console.error(`Error loading script.js: ${err.message}`);
-  console.error(err.stack);
+let checkAndSaveImages;
+let downloadAttachmentFromGmail;
+let findImagesDirectory;
+let db;
+let gmail;
 
-  // Create a mock function that returns success
-  startFetchingEmails = async () => {
-    console.log("Mock startFetchingEmails called (module not available)");
-    return { success: true, message: "Mock email fetch (module not available)" };
-  };
+// Load email fetching module
+try {
+  const scriptPath = path.join(__dirname, "script.js");
+  const scriptModule = require(scriptPath);
+  startFetchingEmails = scriptModule.startFetchingEmails;
+} catch (err) {
+  // Try alternative paths
+  const alternativePaths = [
+    path.join(process.cwd(), "script.js"),
+    path.join(process.cwd(), "src/API/script.js"),
+    path.join(__dirname, "../script.js"),
+  ];
+
+  for (const altPath of alternativePaths) {
+    if (fs.existsSync(altPath)) {
+      const scriptModule = require(altPath);
+      startFetchingEmails = scriptModule.startFetchingEmails;
+      break;
+    }
+  }
+
+  // Create a mock function if not found
+  if (!startFetchingEmails) {
+    startFetchingEmails = async () => ({
+      success: true,
+      message: "Mock email fetch (module not available)",
+    });
+  }
 }
 
-// Similar approach for image saving
-let checkAndSaveImages;
+// Load image saving module
 try {
-  checkAndSaveImages = require("./imageSave");
-  console.log("Successfully loaded imageSave.js");
-} catch (err) {
-  console.error(`Error loading imageSave.js: ${err.message}`);
-  console.error(err.stack);
+  const imageSavePath = path.join(__dirname, "imageSave.js");
+  checkAndSaveImages = require(imageSavePath);
 
-  // Create a mock function that returns success
-  checkAndSaveImages = async () => {
-    console.log("Mock checkAndSaveImages called (module not available)");
-    return { success: true, message: "Mock image save (module not available)" };
-  };
+  // Get needed functions from module
+  if (typeof checkAndSaveImages === "object") {
+    downloadAttachmentFromGmail =
+      checkAndSaveImages.downloadAttachmentFromGmail;
+    findImagesDirectory = checkAndSaveImages.findImagesDirectory;
+    db = checkAndSaveImages.db;
+    gmail = checkAndSaveImages.gmail;
+  }
+} catch (err) {
+  // Try alternative paths
+  const alternativePaths = [
+    path.join(process.cwd(), "imageSave.js"),
+    path.join(process.cwd(), "src/API/imageSave.js"),
+    path.join(__dirname, "../imageSave.js"),
+  ];
+
+  for (const altPath of alternativePaths) {
+    if (fs.existsSync(altPath)) {
+      checkAndSaveImages = require(altPath);
+      break;
+    }
+  }
+
+  // Create a mock function if not found
+  if (!checkAndSaveImages) {
+    checkAndSaveImages = async () => ({
+      success: true,
+      message: "Mock image save (module not available)",
+    });
+  }
 }
 
 // Create the Express app
 const app = express();
-
-// Get port from environment or use default
 const port = process.env.PORT || 5000;
-
-// Add extensive logging
-console.log("============ SERVER STARTING ============");
-console.log(`Server starting at: ${new Date().toISOString()}`);
-console.log(`Server process ID: ${process.pid}`);
-console.log(`Current directory: ${__dirname}`);
-console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-console.log(`Node version: ${process.version}`);
-console.log(`Platform: ${process.platform}`);
 
 // Enable CORS
 app.use(cors());
 
-// Find the images directory with better path detection and more logging
-console.log("Searching for images directory...");
-
-// Possible locations for the images directory
+// Find the images directory
+let imagesPath = null;
 const possibleImagePaths = [
-  path.join(__dirname, "images"),                  // Default path
-  path.join(__dirname, "../images"),               // One level up
-  path.join(__dirname, "../../images"),            // Two levels up
-  path.join(__dirname, "../../src/API/images"),    // Source location
-  path.join(__dirname, "../../../src/API/images"), // Another possible source location
-  path.join(process.resourcesPath || "", "src/API/images"), // Electron resourcesPath
-  path.join(process.cwd(), "src/API/images"),      // Current working directory
-  path.join(process.cwd(), "images"),              // CWD/images
-  path.join(path.dirname(process.execPath || ""), "resources", "src/API/images") // Next to executable
+  path.join(__dirname, "images"),
+  path.join(__dirname, "../images"),
+  path.join(process.resourcesPath || "", "src/API/images"),
+  path.join(process.cwd(), "src/API/images"),
+  path.join(process.cwd(), "images"),
 ];
 
-// Try to find the first path that exists
-let imagesPath = null;
-
+// Find existing images directory
 for (const testPath of possibleImagePaths) {
   try {
-    console.log(`Checking path: ${testPath}`);
     if (fs.existsSync(testPath)) {
       imagesPath = testPath;
-      console.log(`Found images directory at: ${imagesPath}`);
       break;
     }
   } catch (err) {
-    console.log(`Error checking path ${testPath}: ${err.message}`);
+    // Skip if path not accessible
   }
 }
 
-// If no path was found, create one
+// Create directory if not found
 if (!imagesPath) {
-  // Try to create the directory in a few different locations
   const fallbackPaths = [
     path.join(__dirname, "images"),
     path.join(process.cwd(), "images"),
-    path.join(path.dirname(process.execPath || ""), "images")
   ];
 
   for (const tryPath of fallbackPaths) {
     try {
-      console.log(`Attempting to create images directory at: ${tryPath}`);
       fs.mkdirSync(tryPath, { recursive: true });
       imagesPath = tryPath;
-      console.log(`Created and using images directory at: ${imagesPath}`);
       break;
     } catch (err) {
-      console.error(`Failed to create directory at ${tryPath}: ${err.message}`);
+      // Skip if directory creation fails
     }
   }
 
-  // If still no path, use a fallback
+  // Default path as fallback
   if (!imagesPath) {
     imagesPath = path.join(__dirname, "images");
-    console.log(`Warning: Using default images path ${imagesPath} even though it doesn't exist`);
   }
 }
 
-console.log(`Final images directory path: ${imagesPath}`);
-
-// If the images directory exists, list its contents
-if (fs.existsSync(imagesPath)) {
+// Create a test image
+if (imagesPath) {
+  const testImagePath = path.join(imagesPath, "test.png");
   try {
-    const files = fs.readdirSync(imagesPath);
-    console.log(`Images directory contains ${files.length} files`);
-    if (files.length > 0) {
-      console.log(`Image examples: ${files.slice(0, 5).join(", ")}${files.length > 5 ? '...' : ''}`);
+    const testPngData = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      "base64",
+    );
+    fs.writeFileSync(testImagePath, testPngData);
+  } catch (err) {
+    // Ignore test image creation failure
+  }
+}
+
+// Image serving middleware
+app.use(
+  "/API/images",
+  (req, res, next) => {
+    const fullPath = path.join(imagesPath, req.path);
+    let fileExists = false;
+
+    try {
+      fileExists = fs.existsSync(fullPath);
+    } catch (err) {
+      // Silently handle error
     }
-  } catch (err) {
-    console.error(`Error reading images directory: ${err.message}`);
-  }
-} else {
-  console.log("Warning: Final images directory does not exist");
-}
 
-// Create a middleware to handle image requests with extensive logging
-app.use("/API/images", (req, res, next) => {
-  console.log(`Image request: ${req.path}`);
+    if (!fileExists) {
+      return res.status(404).send("Image not found");
+    }
+    next();
+  },
+  express.static(imagesPath),
+);
 
-  const fullPath = path.join(imagesPath, req.path);
-  console.log(`Full image path: ${fullPath}`);
+// Also serve images from lowercase path for compatibility
+app.use("/api/images", express.static(imagesPath));
 
-  let fileExists = false;
-  try {
-    fileExists = fs.existsSync(fullPath);
-  } catch (err) {
-    console.error(`Error checking if file exists: ${err.message}`);
-  }
-
-  console.log(`File exists: ${fileExists ? 'YES' : 'NO'}`);
-
-  if (!fileExists) {
-    // Return a 404 for non-existent images
-    return res.status(404).send('Image not found');
-  }
-
-  // Continue to the static middleware if file exists
-  next();
-}, express.static(imagesPath));
-
-// API routes - with much better error handling
+// API routes
 app.post("/api/save-images", async (req, res) => {
   console.log("Received save-images request");
   try {
     const result = await checkAndSaveImages();
+    console.log("Image save result:", result);
     res.status(200).send(result || "Images refreshed successfully");
   } catch (error) {
     console.error("Error during image refresh:", error);
     res.status(500).send({
       error: "Failed to refresh images",
       message: error.message,
-      stack: error.stack
     });
   }
 });
 
-// Improved email fetching endpoint with better error handling
+// Email fetching endpoint
 app.get("/fetch-emails", async (req, res) => {
   console.log("Received fetch-emails request");
   try {
-    // Add a timeout to prevent hanging
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Email fetch timeout after 30 seconds')), 30000)
+      setTimeout(
+        () => reject(new Error("Email fetch timeout after 30 seconds")),
+        30000,
+      ),
     );
 
-    // Race the email fetching against the timeout
-    const result = await Promise.race([
-      startFetchingEmails(),
-      timeoutPromise
-    ]);
-
-    console.log("Email fetch completed successfully:", result);
+    const result = await Promise.race([startFetchingEmails(), timeoutPromise]);
+    console.log("Email fetch completed successfully");
     res.send(result || "Emails fetched successfully");
   } catch (error) {
     console.error("Error fetching emails:", error);
-    // Send a more detailed error response
     res.status(500).json({
       error: "Failed to fetch emails",
       message: error.message,
-      stack: error.stack
     });
   }
 });
 
-// Add a test endpoint to check if server is running
+// Server test endpoint
 app.get("/test", (req, res) => {
-  console.log("Test endpoint called");
   res.send("Server is running properly");
 });
 
-// Add a endpoint to list all available images
+// List images endpoint
 app.get("/api/list-images", (req, res) => {
-  console.log("List images endpoint called");
   try {
     if (fs.existsSync(imagesPath)) {
       const files = fs.readdirSync(imagesPath);
       res.json({
         imagesPath,
         fileCount: files.length,
-        files
+        files,
       });
     } else {
       res.status(404).json({
         error: "Images directory not found",
-        imagesPath
+        imagesPath,
       });
     }
   } catch (err) {
     res.status(500).json({
       error: err.message,
-      imagesPath
     });
   }
 });
 
-// Add an echo endpoint for quick testing
-app.get("/echo", (req, res) => {
-  res.json({
-    timestamp: new Date().toISOString(),
-    query: req.query,
-    message: "Server echo response"
-  });
+// Debug endpoints for image downloading
+app.get("/api/debug-image/:docId", async (req, res) => {
+  const docId = req.params.docId;
+  if (!docId) {
+    return res.status(400).json({ error: "Document ID required" });
+  }
+
+  try {
+    // Get document from Firestore
+    const docRef = db.collection("commissions").doc(docId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    const data = doc.data();
+    const attachmentId = data.IMG1;
+    const messageId = data.MSG_ID;
+
+    res.json({
+      success: true,
+      docId: docId,
+      exists: true,
+      attachmentId: attachmentId
+        ? {
+            exists: !!attachmentId,
+            length: attachmentId ? attachmentId.length : 0,
+            preview: attachmentId
+              ? attachmentId.substring(0, 50) + "..."
+              : null,
+          }
+        : null,
+      messageId: messageId
+        ? {
+            exists: !!messageId,
+            value: messageId,
+          }
+        : null,
+      allFields: Object.keys(data),
+    });
+  } catch (error) {
+    console.error("Error in debug endpoint:", error);
+    res.status(500).json({
+      error: "Server error",
+      message: error.message,
+    });
+  }
 });
 
-// Add a diagnostic endpoint
+// Endpoint to test downloading a single image
+app.get("/api/test-download/:docId", async (req, res) => {
+  const docId = req.params.docId;
+
+  try {
+    // Get document from Firestore
+    const docRef = db.collection("commissions").doc(docId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    const data = doc.data();
+    const attachmentId = data.IMG1;
+    const messageId = data.MSG_ID;
+
+    if (!attachmentId || !messageId) {
+      return res.status(400).json({
+        error: "Missing data",
+        hasAttachmentId: !!attachmentId,
+        hasMessageId: !!messageId,
+      });
+    }
+
+    // Try to download the attachment
+    const targetDir = imagesPath || path.join(__dirname, "images");
+    const imagePath = path.join(targetDir, `${docId}-test.png`);
+
+    // Download attachment using our fixed method
+    const imageBuffer = await downloadAttachmentFromGmail(
+      attachmentId,
+      messageId,
+    );
+
+    // Save the image
+    await fs.promises.writeFile(imagePath, imageBuffer);
+
+    res.json({
+      success: true,
+      message: `Image downloaded and saved to ${imagePath}`,
+      size: imageBuffer.length,
+      path: imagePath,
+    });
+  } catch (error) {
+    console.error("Test download error:", error);
+    res.status(500).json({
+      error: "Download failed",
+      message: error.message,
+    });
+  }
+});
+
+// List documents with attachment IDs for debugging
+app.get("/api/debug/list-docs", async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({
+        error: "Database not initialized",
+      });
+    }
+
+    const snapshot = await db.collection("commissions").get();
+
+    if (snapshot.empty) {
+      return res.json({
+        count: 0,
+        documents: [],
+      });
+    }
+
+    const documents = [];
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      documents.push({
+        id: doc.id,
+        twitter: data.TWITTER || "",
+        hasAttachment: !!data.IMG1,
+        hasMessageId: !!data.MSG_ID,
+        attachmentLength: data.IMG1 ? data.IMG1.length : 0,
+      });
+    });
+
+    res.json({
+      count: documents.length,
+      documents,
+    });
+  } catch (error) {
+    console.error("List docs error:", error);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+});
+
+// Diagnostic endpoint
 app.get("/diagnostic", (req, res) => {
   const info = {
     serverTime: new Date().toISOString(),
-    nodeVersion: process.version,
-    platform: process.platform,
-    architecture: process.arch,
-    nodeEnv: process.env.NODE_ENV || 'development',
     currentDirectory: __dirname,
     workingDirectory: process.cwd(),
-    execPath: process.execPath,
-    pid: process.pid,
-    memoryUsage: process.memoryUsage(),
     imagesPath: imagesPath,
-    imagesExist: fs.existsSync(imagesPath)
+    imagesExist: fs.existsSync(imagesPath),
   };
 
   if (info.imagesExist) {
@@ -274,36 +408,34 @@ app.get("/diagnostic", (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  console.error("Server error:", err);
   res.status(500).json({
-    error: 'Something broke on the server',
+    error: "Something broke on the server",
     message: err.message,
-    stack: err.stack
   });
 });
 
-// Add uncaught exception handler
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception:', err);
+// Handle uncaught errors
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
 
-// Start the server with better error handling
+// Start the server
 let serverInstance;
 try {
   serverInstance = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    console.log("============ SERVER STARTED ============");
+    console.log(`Test image at: http://localhost:${port}/API/images/test.png`);
   });
 
-  serverInstance.on('error', (error) => {
+  serverInstance.on("error", (error) => {
     console.error(`Server error: ${error.message}`);
-    if (error.code === 'EADDRINUSE') {
+    if (error.code === "EADDRINUSE") {
       console.error(`Port ${port} is already in use. Trying next port.`);
-      // Try the next port
       serverInstance = app.listen(port + 1, () => {
         const newPort = port + 1;
         console.log(`Server now running on port ${newPort}`);
@@ -315,23 +447,25 @@ try {
 }
 
 // Handle graceful shutdown
-process.on('SIGTERM', shutDown);
-process.on('SIGINT', shutDown);
-
 function shutDown() {
-  console.log('Received kill signal, shutting down gracefully');
+  console.log("Received kill signal, shutting down gracefully");
   if (serverInstance) {
     serverInstance.close(() => {
-      console.log('Closed out remaining connections');
+      console.log("Closed out remaining connections");
       process.exit(0);
     });
 
     // Force close after 10s
     setTimeout(() => {
-      console.error('Could not close connections in time, forcefully shutting down');
+      console.error(
+        "Could not close connections in time, forcefully shutting down",
+      );
       process.exit(1);
     }, 10000);
   } else {
     process.exit(0);
   }
 }
+
+process.on("SIGTERM", shutDown);
+process.on("SIGINT", shutDown);
