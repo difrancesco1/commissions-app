@@ -180,8 +180,12 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         // if today is 14 days past paydue, delete entry. if deleted entry, continue.
         if (todayDate > weekFromPayDue) {
           await deleteDoc(doc(db, "commissions", user.ID));
+          continue;
         }
-        continue;
+        if (!user.COMPLETE) {
+          // if archive and not complete, skip over to not have entry listed in carrd website
+          continue;
+        }
       }
 
       // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
@@ -208,12 +212,15 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         const commmDue = new Date(user.DUE.toDate());
         const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
 
-        carrdArr.push(
-          `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
-        );
-        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
-        carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
+        if (user.COMPLETE) {
+          carrdArr.push(`~⋆ ${noUnderscoreTwitter} - done! ⋆ check ✉/spamfolder ♡~`);
+        } else {
+          carrdArr.push(
+            `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+          );
+          carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+          carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
+        }
         carrdArr.push(`\n`);
       } catch {
         carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
