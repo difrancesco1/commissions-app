@@ -244,8 +244,73 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     setMenuVisible(false);
   };
 
-  // Copy Carrd Info (existing implementation)
-  const copyCarrdInfo = async () => {};
+  // copy to clipboard information to paste into website
+  // also put items that are past pay due into archive
+  const copyCarrdInfo = async () => {
+    var carrdArr = [];
+    for (const id in userData) {
+      const user = userData[id];
+
+      // today's date + commission due date
+      const todayDate = new Date();
+      const commDue = new Date(user.PAYDUE.toDate());
+      // commission due date + 7 days
+      const weekFromPayDue = new Date(user.PAYDUE.toDate());
+      weekFromPayDue.setDate(weekFromPayDue.getDate() + 14);
+
+      // if data is in archive,
+      if (user.ARCHIVE) {
+        // if today is 14 days past paydue, delete entry. if deleted entry, continue.
+        if (todayDate > weekFromPayDue) {
+          await deleteDoc(doc(db, "commissions", user.ID));
+        }
+        continue;
+      }
+
+      // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
+      if (!user.PAID) {
+        // PAYDATE HAS BEEN PASSED
+        if (todayDate > commDue) {
+          const documentRef = doc(db, "commissions", user.id);
+          await updateDoc(documentRef, {
+            ARCHIVE: Boolean(true),
+          });
+          console.log(
+            "archived " + user.id + " due to payment not being made in 30 days",
+          );
+        }
+      }
+
+      // clean twitter name to not have any symbols
+      const twitter = user.TWITTER;
+      const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
+
+      // add due date if there is a due date
+      // format information for website
+      try {
+        const commmDue = new Date(user.DUE.toDate());
+        const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
+
+        carrdArr.push(
+          `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+        );
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
+        carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
+        carrdArr.push(`\n`);
+      } catch {
+        carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+        carrdArr.push(
+          `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
+        );
+        carrdArr.push(`\n`);
+      }
+    }
+    // console.log(carrdArr.join(""));
+    // copy website information to clipboard
+    navigator.clipboard.writeText(carrdArr.join(""));
+  };
 
   return (
     <div className={styles.commissionInfo}>
