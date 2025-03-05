@@ -166,7 +166,7 @@ const Card = ({ user, setCommissionIndex }) => {
           ${user.ARCHIVE === true ? styles.textArchive : null}`}
         onClick={() => handleClick(user.id)}
       >
-        {user.EMAIL_WIP === true ? "☑" : null}
+        {user.EMAIL_WIP === true ? "»" : null}
         {user.TWITTER}
         {user.COMPLEX === true ? "⋆" : null}
       </h1>
