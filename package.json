@@ -14,12 +14,20 @@
       {
         "from": "src/API",
         "to": "src/API",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "node_modules",
         "to": "node_modules",
-        "filter": ["express/**", "cors/**", "firebase-admin/**", "googleapis/**", "@google-cloud/**"]
+        "filter": [
+          "express/**",
+          "cors/**",
+          "firebase-admin/**",
+          "googleapis/**",
+          "@google-cloud/**"
+        ]
       }
     ],
     "directories": {
@@ -52,6 +60,7 @@
     "firebase": "^11.3.1",
     "firebase-admin": "^13.1.0",
     "googleapis": "^105.0.0",
+    "open": "^10.1.0",
     "terminate": "^2.8.0",
     "tree-kill": "^1.2.2",
     "yarn": "^1.22.22"
