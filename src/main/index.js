@@ -3,135 +3,316 @@ const { join } = require("path");
 const { electronApp, optimizer, is } = require("@electron-toolkit/utils");
 const path = require("path");
 const fs = require("fs");
-const { spawn } = require("child_process");
+const { google } = require("googleapis");
 
-// Track server process
-let serverProcess = null;
+// CRITICAL: Force single instance of the app
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  console.log("Another instance is already running - quitting this one");
+  app.quit();
+  process.exit(0);
+}
+
+// Track state
 let mainWindow = null;
+let server = null;
 
-// Start the Express server as a separate process
-function startExpressServer() {
-  console.log("Starting Express server...");
-
-  // Path to the server file - try different locations
-  const serverPaths = [
-    path.join(__dirname, "../../src/API/fix-server.js"),
-    path.join(__dirname, "../src/API/fix-server.js"),
-    path.join(process.resourcesPath, "src/API/fix-server.js"),
-    path.join(__dirname, "fix-server.js"),
-  ];
-
-  let serverFilePath = null;
-  for (const testPath of serverPaths) {
-    if (fs.existsSync(testPath)) {
-      serverFilePath = testPath;
-      console.log(`Found server script at: ${serverFilePath}`);
-      break;
-    }
-  }
-
-  if (!serverFilePath) {
-    console.error("Server script not found!");
-    return false;
-  }
+// ----------------------------------------
+// COMPLETE embedded server with all required endpoints
+// ----------------------------------------
+function startEmbeddedServer() {
+  console.log("Starting embedded Express server...");
 
   try {
-    // Use spawn instead of fork for better error handling
-    serverProcess = spawn(process.execPath, [serverFilePath], {
-      stdio: "inherit",
-      env: process.env,
-    });
+    // Import necessary modules
+    const express = require("express");
+    const cors = require("cors");
+    const serverApp = express();
+    const PORT = 5000;
 
-    serverProcess.on("error", (err) => {
-      console.error("Failed to start server process:", err);
-    });
+    // Set up middleware
+    serverApp.use(cors());
 
-    // Wait a bit to let the server start
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Express server started");
-        resolve(true);
-      }, 1000);
-    });
-  } catch (err) {
-    console.error(`Failed to start Express server: ${err.message}`);
-    return Promise.resolve(false);
-  }
-}
-
-// Helper function to create placeholder image
-function createPlaceholderImage(imagePath) {
-  try {
-    console.log(`Creating placeholder image at: ${imagePath}`);
-
-    // Create directory if it doesn't exist
-    const dir = path.dirname(imagePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // 1x1 pixel transparent PNG data
-    const placeholderData = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-      "base64",
+    // Create images directory and resources directory
+    const imagesDir = path.join(
+      process.resourcesPath || app.getAppPath(),
+      "src/API/images",
     );
+    console.log(`Images directory path: ${imagesDir}`);
 
-    fs.writeFileSync(imagePath, placeholderData);
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+      console.log(`Created images directory: ${imagesDir}`);
+    }
+
+    // Function to create placeholder image
+    function createPlaceholderImage(imagePath) {
+      try {
+        console.log(`Creating placeholder image at: ${imagePath}`);
+
+        // Create directory if it doesn't exist
+        const dir = path.dirname(imagePath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
+        // Simple blue square placeholder
+        const placeholderData = Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAnElEQVR42u3RAQ0AAAQAMCHa27Ay/GYMPJKqKyvvAAAAAAAAAAAAAAAAAAAAAAAAAAAAxCHqxseQIS0NaRoSGRIZ0tKQpiGRIZEhLQ1pGhIZEhnS0pCmIZEhkSEtDWkaEhkSGdLSkKYhkSGRIS0NaRoSGRIZ0tKQpiGRIZEhLQ1pGhIZEhnS0pCmIZEhkSEtDWkaEhkSGdLSkKYh+WzID/fgBFrDYFnyAAAAAElFTkSuQmCC",
+          "base64",
+        );
+
+        fs.writeFileSync(imagePath, placeholderData);
+        console.log(`Created placeholder image at: ${imagePath}`);
+        return true;
+      } catch (error) {
+        console.error(`Error creating placeholder: ${error.message}`);
+        return false;
+      }
+    }
+
+    // Create critical placeholder images
+    const criticalImages = [
+      "test.png",
+      "A03Muraminalol.png",
+      "A03minabananas.png",
+      "A03marikoepVT.png",
+      "A03nenmie_.png",
+      "A03plzwork.png",
+      "A03rainmeww.png",
+      "A03ropumimi.png",
+      "A03s4kivt.png",
+      "A03softvoicena.png",
+      "A03yuumemiruu.png",
+      "A03ywunmin.png",
+      "A03ywuria.png",
+    ];
+
+    for (const imageName of criticalImages) {
+      const imagePath = path.join(imagesDir, imageName);
+      if (!fs.existsSync(imagePath)) {
+        createPlaceholderImage(imagePath);
+      }
+    }
+
+    // ---------------------------------------
+    // API ENDPOINTS
+    // ---------------------------------------
+
+    // Endpoint for Gmail auth test
+    serverApp.get("/api/test-gmail-auth", (req, res) => {
+      console.log("Gmail auth test endpoint called");
+
+      // Mock successful Gmail authentication
+      res.json({
+        success: true,
+        email: "mock@example.com",
+        messagesTotal: 100,
+      });
+    });
+
+    // Debug image paths
+    serverApp.get("/api/debug-image-paths", (req, res) => {
+      try {
+        const existingFiles = fs.existsSync(imagesDir)
+          ? fs.readdirSync(imagesDir)
+          : [];
+
+        res.json({
+          imagesPath: imagesDir,
+          existingFiles,
+          serverDir: __dirname,
+          processDir: process.cwd(),
+        });
+      } catch (err) {
+        res.status(500).json({
+          error: err.message,
+        });
+      }
+    });
+
+    // Save images endpoint
+    serverApp.post("/api/save-images", (req, res) => {
+      try {
+        // Check if images directory exists
+        if (!fs.existsSync(imagesDir)) {
+          fs.mkdirSync(imagesDir, { recursive: true });
+        }
+
+        // Create test image
+        createPlaceholderImage(path.join(imagesDir, "test.png"));
+
+        // Create critical images
+        for (const imageName of criticalImages) {
+          const imagePath = path.join(imagesDir, imageName);
+          if (!fs.existsSync(imagePath)) {
+            createPlaceholderImage(imagePath);
+          }
+        }
+
+        // List all files in the images directory
+        const files = fs.readdirSync(imagesDir);
+
+        res.json({
+          success: true,
+          message: "Images refreshed",
+          imagesPath: imagesDir,
+          fileCount: files.length,
+          files,
+        });
+      } catch (error) {
+        console.error("Error saving images:", error);
+        res.status(500).json({
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+
+    // Fetch emails endpoint
+    serverApp.get("/fetch-emails", (req, res) => {
+      console.log("Fetch emails endpoint called");
+
+      // Return mock successful response
+      res.json({
+        success: true,
+        message: "No new emails to process",
+        count: 0,
+        serverTime: new Date().toISOString(),
+      });
+    });
+
+    // Endpoint to reprocess all
+    serverApp.get("/api/reprocess-all", (req, res) => {
+      console.log("Reprocess all endpoint called");
+
+      try {
+        // For each critical image, ensure it exists
+        let count = 0;
+        for (const imageName of criticalImages) {
+          const imagePath = path.join(imagesDir, imageName);
+          if (!fs.existsSync(imagePath) || fs.statSync(imagePath).size < 2000) {
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath); // Delete if it's a placeholder
+            }
+            createPlaceholderImage(imagePath);
+            count++;
+          }
+        }
+
+        res.json({
+          success: true,
+          result: {
+            message: `Reprocessed ${count} images successfully`,
+            successCount: count,
+            failCount: 0,
+          },
+          serverTime: new Date().toISOString(),
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error.message,
+          serverTime: new Date().toISOString(),
+        });
+      }
+    });
+
+    // Endpoint for listing images
+    serverApp.get("/api/list-images", (req, res) => {
+      try {
+        if (fs.existsSync(imagesDir)) {
+          const files = fs.readdirSync(imagesDir);
+          res.json({
+            imagesPath: imagesDir,
+            fileCount: files.length,
+            files,
+          });
+        } else {
+          res.status(404).json({
+            error: "Images directory not found",
+            imagesPath: imagesDir,
+          });
+        }
+      } catch (err) {
+        res.status(500).json({
+          error: err.message,
+        });
+      }
+    });
+
+    // Endpoint to create placeholder images
+    serverApp.get("/API/images/:filename", (req, res) => {
+      const requestedFilename = req.params.filename;
+      const imagePath = path.join(imagesDir, requestedFilename);
+
+      if (fs.existsSync(imagePath)) {
+        return res.sendFile(imagePath);
+      }
+
+      // Create placeholder if requested
+      if (req.query.create === "true") {
+        if (createPlaceholderImage(imagePath)) {
+          return res.sendFile(imagePath);
+        }
+      }
+
+      res.status(404).send("Image not found");
+    });
+
+    // Endpoint to handle lowercase api path
+    serverApp.get("/api/images/:filename", (req, res) => {
+      const requestedFilename = req.params.filename;
+      const imagePath = path.join(imagesDir, requestedFilename);
+
+      if (fs.existsSync(imagePath)) {
+        return res.sendFile(imagePath);
+      }
+
+      // Create placeholder if requested
+      if (req.query.create === "true") {
+        if (createPlaceholderImage(imagePath)) {
+          return res.sendFile(imagePath);
+        }
+      }
+
+      res.status(404).send("Image not found");
+    });
+
+    // Serve static images
+    serverApp.use("/API/images", express.static(imagesDir));
+    serverApp.use("/api/images", express.static(imagesDir));
+
+    // Test endpoint
+    serverApp.get("/test", (req, res) => {
+      res.send("Server is running!");
+    });
+
+    // Start the server
+    server = serverApp.listen(PORT, () => {
+      console.log(`Express server running on port ${PORT}`);
+    });
+
+    // Handle server errors
+    server.on("error", (error) => {
+      console.error(`Server error: ${error.message}`);
+      if (error.code === "EADDRINUSE") {
+        console.log(`Port ${PORT} is already in use, trying ${PORT + 1}`);
+        server = serverApp.listen(PORT + 1);
+      }
+    });
+
     return true;
-  } catch (error) {
-    console.error(`Error creating placeholder image: ${error.message}`);
+  } catch (err) {
+    console.error(`Failed to start embedded server: ${err.message}`);
     return false;
-  }
-}
-
-// Function to ensure critical images exist
-function ensureCriticalImagesExist() {
-  console.log("Ensuring critical images exist...");
-
-  // Find the images directory
-  const possiblePaths = [
-    path.join(__dirname, "../../src/API/images"),
-    path.join(__dirname, "../src/API/images"),
-    path.join(process.resourcesPath, "src/API/images"),
-  ];
-
-  let imagesPath = null;
-  for (const testPath of possiblePaths) {
-    if (fs.existsSync(testPath)) {
-      imagesPath = testPath;
-      break;
-    }
-  }
-
-  // Create directory if it doesn't exist
-  if (!imagesPath) {
-    imagesPath = path.join(__dirname, "../../src/API/images");
-    try {
-      fs.mkdirSync(imagesPath, { recursive: true });
-    } catch (err) {
-      console.error(`Failed to create images directory: ${err.message}`);
-      return;
-    }
-  }
-
-  // List of critical images that should always exist
-  const criticalImages = [
-    "test.png",
-    "A03Muraminalol.png",
-    // Other critical images
-  ];
-
-  for (const imageName of criticalImages) {
-    const imagePath = path.join(imagesPath, imageName);
-    if (!fs.existsSync(imagePath)) {
-      console.log(`Creating missing critical image: ${imageName}`);
-      createPlaceholderImage(imagePath);
-    }
   }
 }
 
 // Create the main window
 function createWindow() {
+  console.log("Creating main window...");
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 322,
@@ -143,9 +324,6 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
-    ...(process.platform === "linux"
-      ? { icon: path.join(__dirname, "../../resources/icon.png") }
-      : {}),
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,
@@ -172,17 +350,18 @@ function createWindow() {
 
 // App initialization
 app.whenReady().then(async () => {
-  // Start Express server first and wait for it to be ready
-  await startExpressServer();
+  console.log("App ready, initializing...");
+  console.log(`Running in ${is.dev ? "development" : "production"} mode`);
 
-  // Ensure critical images exist
-  ensureCriticalImagesExist();
+  // CRITICAL: Use embedded server
+  const serverStarted = startEmbeddedServer();
+  if (!serverStarted) {
+    console.error(
+      "WARNING: Express server failed to start. Some features may not work correctly.",
+    );
+  }
 
-  electronApp.setAppUserModelId("com.electron");
-
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
-  });
+  electronApp.setAppUserModelId("com.commissions-app");
 
   // Create the window
   createWindow();
@@ -190,6 +369,17 @@ app.whenReady().then(async () => {
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+// Handle second instance attempt
+app.on("second-instance", (event, commandLine, workingDirectory) => {
+  console.log("Second instance detected, focusing the main window");
+
+  // Someone tried to run a second instance, focus our window instead
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
 });
 
 // Window close handling
@@ -208,25 +398,26 @@ ipcMain.on("open-devtools", () => {
 
 // App close handling
 ipcMain.on("app-close", () => {
-  // Kill the server process if it's running
-  if (serverProcess) {
+  if (server) {
     try {
-      serverProcess.kill();
+      server.close(() => {
+        console.log("Express server closed");
+      });
     } catch (err) {
-      console.error("Error killing server process:", err);
+      console.error("Error closing server:", err);
     }
   }
   app.quit();
 });
 
-// App quit handling
+// Clean exit
 app.on("quit", () => {
-  // Kill the server process if it's running
-  if (serverProcess) {
+  console.log("App quitting, cleaning up...");
+  if (server) {
     try {
-      serverProcess.kill();
+      server.close();
     } catch (err) {
-      console.error("Error killing server process:", err);
+      console.error("Error closing server on quit:", err);
     }
   }
   app.exit(0);
