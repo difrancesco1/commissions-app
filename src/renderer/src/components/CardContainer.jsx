@@ -79,10 +79,11 @@ const CardContainer = ({
         ))
       ) : (
         <div>
-                  <img className={styles.noneFound}
-                    src={notfound}
-                    alt="searchnotfound"
-                  />
+          <img
+            className={styles.noneFound}
+            src={notfound}
+            alt="searchnotfound"
+          />
         </div> // If there are no results when typing or in general
       )}
     </div>
