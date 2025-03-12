@@ -11,18 +11,15 @@ import dog from "../../../assets/dog.gif";
 const { ipcRenderer } = window.require("electron");
 
 const FooterBtn = ({ setSearchQuery }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshResult, setLastRefreshResult] = useState(null);
   const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const [placeholder, setPlaceholder] = useState("-.⊹˖ᯓ★. ݁₊");
 
   const handleChange = (e) => {
     setQuery(e.target.value);
     setSearchQuery(e.target.value);
-  };
-
-  const getResultMessage = (emailResponse, imageResponse) => {
-    return "-.⊹˖ᯓ★. ݁₊";
   };
 
   const checkImagesLoaded = async () => {
@@ -193,13 +190,8 @@ const FooterBtn = ({ setSearchQuery }) => {
     try {
       setIsRefreshing(true);
       var btn = document.getElementById("refreshBtn");
-      var searchBar = document.getElementById("refreshresult");
       document.body.style.cursor = "wait";
       btn.src = loading;
-
-      // Store the original placeholder
-      const originalPlaceholder = searchBar.placeholder;
-      searchBar.placeholder = "Reprocessing images...";
 
       console.log("🟡 Starting image reprocessing...");
 
@@ -230,8 +222,6 @@ const FooterBtn = ({ setSearchQuery }) => {
 
       if (result.success) {
         console.log(`Images reprocessed in: ${result.imagesDir}`);
-        searchBar.placeholder =
-          result.message || "Images reprocessed successfully";
 
         // Check if images are now properly loading
         const imageCheckResults = await checkImagesLoaded();
@@ -248,7 +238,6 @@ const FooterBtn = ({ setSearchQuery }) => {
       } else {
         console.error("Failed to reprocess images:", result.error);
         btn.src = imagefailed;
-        searchBar.placeholder = result.error || "Failed to reprocess images";
       }
 
       // Reset state after a delay
@@ -256,10 +245,7 @@ const FooterBtn = ({ setSearchQuery }) => {
         document.body.style.cursor = "default";
         setIsRefreshing(false);
 
-        // Restore original placeholder after 5 seconds
-        setTimeout(() => {
-          searchBar.placeholder = originalPlaceholder;
-        }, 5000);
+        setTimeout(() => {}, 5000);
       }, 1000);
     } catch (error) {
       console.error("Error during reprocessing:", error);
@@ -267,18 +253,6 @@ const FooterBtn = ({ setSearchQuery }) => {
       btn.src = imagefailed;
       document.body.style.cursor = "default";
       setIsRefreshing(false);
-
-      // Show error in search bar
-      var searchBar = document.getElementById("refreshresult");
-      if (searchBar) {
-        const originalPlaceholder = searchBar.placeholder;
-        searchBar.placeholder = `Error: ${error.message}`;
-
-        // Restore original placeholder after 5 seconds
-        setTimeout(() => {
-          searchBar.placeholder = originalPlaceholder;
-        }, 5000);
-      }
     }
   };
 
@@ -288,13 +262,8 @@ const FooterBtn = ({ setSearchQuery }) => {
     try {
       setIsRefreshing(true);
       var btn = document.getElementById("refreshBtn");
-      var searchBar = document.getElementById("refreshresult");
       document.body.style.cursor = "wait";
       btn.src = loading;
-
-      // Store the original placeholder
-      const originalPlaceholder = searchBar.placeholder;
-      searchBar.placeholder = `Fixing ${imageName}...`;
 
       console.log(`🔧 Attempting to fix specific image: ${imageName}`);
 
@@ -321,84 +290,6 @@ const FooterBtn = ({ setSearchQuery }) => {
     } catch (error) {}
   };
 
-  // Also fix the diagnoseFetchImageIssue function
-  window.diagnoseFetchImageIssue = async () => {
-    try {
-      console.log("Running image fetch diagnostics...");
-
-      // 1-3. Network requests remain the same...
-
-      // 4. Try to fix a test image
-      let fixResult;
-      try {
-        fixResult = await ipcRenderer.invoke("fix-specific-image", "test.png");
-      } catch (err) {
-        fixResult = { error: `Fix operation failed: ${err.message}` };
-      }
-
-      console.log("Fix test result:", fixResult);
-
-      return {
-        timestamp: new Date().toISOString(),
-        pathInfo,
-        imageLoadResults,
-        authTest,
-        fixResult,
-      };
-    } catch (error) {
-      console.error("Diagnostic error:", error);
-      return { error: error.message };
-    }
-  };
-
-  // diagnostic function
-  window.diagnoseFetchImageIssue = async () => {
-    try {
-      console.log("Running image fetch diagnostics...");
-
-      // 1. Check if images directory is accessible
-      const pathInfo = await fetch(
-        "http://localhost:5000/api/debug-image-paths",
-      )
-        .then((res) => res.json())
-        .catch((err) => ({ error: `Server request failed: ${err.message}` }));
-
-      console.log("Path info:", pathInfo);
-
-      // 2. Test image loading
-      const imageLoadResults = await checkImagesLoaded();
-      console.log("Image loading results:", imageLoadResults);
-
-      // 3. Test Gmail authentication
-      const authTest = await fetch("http://localhost:5000/api/test-gmail-auth")
-        .then((res) => res.json())
-        .catch((err) => ({ error: `Auth test failed: ${err.message}` }));
-
-      console.log("Auth test result:", authTest);
-
-      // 4. Try to fix a test image
-      let fixResult;
-      try {
-        fixResult = await ipcRenderer.invoke("fix-specific-image", "test.png");
-      } catch (err) {
-        fixResult = { error: `Fix operation failed: ${err.message}` };
-      }
-
-      console.log("Fix test result:", fixResult);
-
-      return {
-        timestamp: new Date().toISOString(),
-        pathInfo,
-        imageLoadResults,
-        authTest,
-        fixResult,
-      };
-    } catch (error) {
-      console.error("Diagnostic error:", error);
-      return { error: error.message };
-    }
-  };
-
   // Function for button click and refresh images with better error handling
   const handleRefreshClick = async () => {
     if (isRefreshing) return; // Prevent multiple clicks
@@ -406,12 +297,8 @@ const FooterBtn = ({ setSearchQuery }) => {
     try {
       setIsRefreshing(true);
       var btn = document.getElementById("refreshBtn");
-      var searchBar = document.getElementById("refreshresult");
       document.body.style.cursor = "wait";
       btn.src = loading;
-
-      // Store the original placeholder
-      const originalPlaceholder = searchBar.placeholder;
 
       console.log("🟡 Starting API calls...");
 
@@ -555,10 +442,6 @@ const FooterBtn = ({ setSearchQuery }) => {
           // All success
           btn.src = done;
         }
-
-        // Always restore the original placeholder to maintain visual consistency
-        searchBar.placeholder = originalPlaceholder;
-
         // Make sure UI is properly updated
         document.body.style.cursor = "default";
         setIsRefreshing(false);
@@ -566,11 +449,7 @@ const FooterBtn = ({ setSearchQuery }) => {
     } catch (error) {
       console.error("Error during refresh:", error);
       var btn = document.getElementById("refreshBtn");
-      var searchBar = document.getElementById("refreshresult");
       btn.src = allfailed;
-
-      searchBar.placeholder = "-.⊹˖ᯓ★. ݁₊";
-
       document.body.style.cursor = "default";
       setIsRefreshing(false);
     }
@@ -618,27 +497,6 @@ const FooterBtn = ({ setSearchQuery }) => {
     }
   };
 
-  const handleManualReauthorize = () => {
-    try {
-      // Open the reauthorization URL directly
-      const authWindow = window.open(
-        "http://localhost:5000/api/reauthorize-direct",
-        "_blank",
-      );
-
-      if (!authWindow) {
-        alert("Please allow popups for this site to complete authorization");
-      } else {
-        alert(
-          "Please follow the instructions in the opened browser window to reauthorize Gmail access.",
-        );
-      }
-    } catch (error) {
-      console.error("Error opening reauthorization window:", error);
-      alert("Failed to open reauthorization window: " + error.message);
-    }
-  };
-
   return (
     <div className={styles.footerContainer}>
       <div
@@ -662,7 +520,7 @@ const FooterBtn = ({ setSearchQuery }) => {
       <input
         id="refreshresult"
         type="text"
-        placeholder="-.⊹˖ᯓ★. ݁₊"
+        placeholder="-*･ﾟ★･ﾟ*-"
         className={styles.searchBar}
         value={query}
         onChange={handleChange}

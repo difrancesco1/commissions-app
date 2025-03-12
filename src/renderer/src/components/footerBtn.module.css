@@ -65,6 +65,12 @@
   margin-right: 2px;
 }
 
+.searchBar::placeholder {
+  color: rgb(59, 59, 59);
+  font-style: normal !important;
+  font-size: 9px;
+}
+
 .boxButton:active , .rectangleButton:active {
   border-top-color: var(--borderbtm);
   border-left-color: var(--borderbtm);
