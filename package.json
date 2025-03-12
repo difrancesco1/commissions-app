@@ -36,7 +36,13 @@
       "target": [
         "nsis"
       ],
-      "icon": "src/assets/favicon.ico"
+      "icon": "src/assets/favicon.ico",
+      "certificateFile": null,
+      "certificatePassword": null,
+      "publisherName": null,
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false,
+      "signDlls": false
     },
     "mac": {
       "target": [

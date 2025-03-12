@@ -4,7 +4,25 @@ const { electronApp, optimizer, is } = require("@electron-toolkit/utils");
 const path = require("path");
 const fs = require("fs");
 const { google } = require("googleapis");
-const imageUtils = require("../../src/API/imageUtils");
+let imageUtils;
+try {
+  const imageUtilsPath = findFilePath("src/API/imageUtils.js", [
+    path.join(process.resourcesPath || "", "src/API/imageUtils.js"),
+    path.join(__dirname, "../../src/API/imageUtils.js"),
+    path.join(__dirname, "../src/API/imageUtils.js"),
+    path.join(__dirname, "src/API/imageUtils.js"),
+  ]);
+
+  if (imageUtilsPath) {
+    imageUtils = require(imageUtilsPath);
+  } else {
+    console.error("Could not find imageUtils.js");
+    imageUtils = {}; // Empty object as fallback
+  }
+} catch (err) {
+  console.error("Error loading imageUtils:", err);
+  imageUtils = {}; // Empty object as fallback
+}
 
 // CRITICAL: Force single instance of the app
 const gotTheLock = app.requestSingleInstanceLock();
