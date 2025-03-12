@@ -2,6 +2,7 @@ const { app, shell, BrowserWindow, ipcMain } = require("electron");
 const { join } = require("path");
 const { electronApp, optimizer, is } = require("@electron-toolkit/utils");
 const path = require("path");
+const appRoot = path.join(__dirname, "../..");
 const fs = require("fs");
 const { google } = require("googleapis");
 let imageUtils;
@@ -1732,6 +1733,7 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
+    icon: path.join(appRoot, "src/assets/favicon.ico"),
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,

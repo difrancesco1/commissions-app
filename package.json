@@ -36,7 +36,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "src/assets/favicon.ico",
+      "icon": "./src/assets/favicon.ico",
       "certificateFile": null,
       "certificatePassword": null,
       "publisherName": null,
@@ -48,7 +48,7 @@
       "target": [
         "dmg"
       ],
-      "icon": "src/assets/favicon.icns"
+      "icon": "src/assets/favicon.ico"
     },
     "nsis": {
       "oneClick": false,
