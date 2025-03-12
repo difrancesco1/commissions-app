@@ -1,0 +1,46 @@
+.container {
+  max-height: 255px;
+  min-height: 255px;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  overflow-y: auto;
+  margin-left: 5px;
+  margin-right: 15px;
+  align-items: flex-start;
+  height: 255px;
+}
+
+.container > div {
+  width: 100%; /* Make each item take up the full width of the container */
+  box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bordertop);
+  border-radius: 9px;
+  opacity: 0.7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--borderbtm);
+  border: 3px solid transparent;
+  border-radius: 9px;
+  background-clip: content-box;
+}
+
+.noneFound {
+  width: 280px;
+  opacity: 25%;
+  margin-left: 8px;
+}
+.disabled {
+  opacity: 0.5; /* Make it look faded */
+  pointer-events: none; /* Prevent clicking */
+  cursor: not-allowed; /* Show disabled cursor */
+}

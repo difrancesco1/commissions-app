@@ -1,0 +1,128 @@
+.cardContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.cardContainer:hover{
+  background: rgba(255, 255, 255, 0.349);
+  border-radius: 10px;
+}
+
+.card{
+    width: 38px;
+    height: 35px;
+
+    border: 3.5px solid;
+
+    border-top-color: var(--bordertop);
+    border-left-color: var(--bordertop);
+
+    border-bottom-color: var(--borderbtm);
+    border-right-color: var(--borderbtm);
+
+    position: relative;
+
+    margin: 4px;
+
+    overflow: hidden;
+}
+
+.card:hover .image{
+  object-fit:cover;
+    width: 100px;
+    height: 100px;
+    margin-left: -25px;
+    transform: translate3d(0,0,1px); 
+    backface-visibility: hidden;
+}
+
+.image {
+  transition: .25s ease;
+  object-fit:cover;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transform: translate3d(0,0,1px); 
+  backface-visibility: hidden;
+}
+
+.card:active {
+    border-top-color: var(--borderbtm);
+    border-left-color: var(--borderbtm);
+
+    border-bottom-color: var(--bordertop);
+    border-right-color: var(--bordertop);
+}
+
+.cardText{
+    font-size: 29px;
+    cursor: pointer;
+}
+
+
+.wrapper{
+    z-index: 1;
+    width: 15px;
+    /* display: none; */
+}
+
+.item{
+  list-style: none;
+    color: var(--bordertop);
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    height: 17px;
+    width: 15px;
+    justify-content: center;
+    margin-left: -2px;
+    font-size: small;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.item:hover{
+  color: var(--accent);
+  background: white;
+}
+
+  .textNotPaid{
+    color: var(--bordertop);
+  }
+
+  .textArchive{
+    opacity: 50%;
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }
+
+  .cardArchive{
+    -webkit-filter: grayscale();
+    filter: grayscale();
+  }
+
+  .loadingStyle{
+    height: 100%;
+    width: 100%;
+    opacity: 70%;
+  }
+
+  .loadingCardStyle{
+    width: 38px;
+    height: 35px;
+
+    border: 3.5px solid;
+
+    border-top-color: var(--bordertop);
+    border-left-color: var(--bordertop);
+
+    border-bottom-color: var(--borderbtm);
+    border-right-color: var(--borderbtm);
+
+    position: relative;
+
+    margin: 4px;
+
+    overflow: hidden;
+  }

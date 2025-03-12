@@ -1,0 +1,18 @@
+/* .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    overflow-y: auto;
+    margin-left: 3px;
+} */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* justify-content: flex-start;
+    position: relative;
+    overflow-y: auto;
+    margin-left: 3px; */
+}

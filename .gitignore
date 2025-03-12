@@ -1,0 +1,15 @@
+node_modules
+dist
+out
+.DS_Store
+*.log*
+credentials.json
+token.json
+commissions-app-c6e2c-firebase-adminsdk-fbsvc-473cacb7d7.json
+firebaseConfig.js
+imageSave.js
+images
+rosieuna-win32-x64
+rosieuna
+rosieuna-win32-x64.zip
+dist.zip

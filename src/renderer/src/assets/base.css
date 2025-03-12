@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+
+:root {
+  /* pink */
+  /* --bg: #FEE8EB;
+  --bordertop: #ff78a181;
+  --borderbtm: #45314a81;
+  --accent: #FF78A0; */
+
+  --red: #FFBDB9;
+  --orange: #F6DBBE;
+  --yellow: #FFFEDA;
+  --green: #D4F2A8;
+  --blue: #A2F5F9;
+  --purple: #DBC5F6;
+
+  /* yellow */
+  --bg: #FEF0C1;
+  --bordertop: #F7CB40;
+  --borderbtm: #7A6B50;
+  --accent: #FFE87E;
+
+  /* retro dark mode */
+  /* --bg: #000000;
+  --bordertop: #8A8A8A;
+  --borderbtm: rgb(224, 224, 224);
+  --accent: #FF78A0; */
+
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Tiny5", serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+input {
+  font-family: inherit;
+  border-bottom-color: var(--borderbtm);
+
+}
+
+body{
+  font-family: "Tiny5", serif;
+  color: var(--borderbtm);
+
+  border: 3px solid;
+  border-right: 5px solid;
+  border-bottom: 5px solid !important; 
+
+  border-top-color: var(--bg);
+  border-left-color: var(--bg);
+
+  border-bottom-color: var(--borderbtm);
+  border-right-color: var(--borderbtm);
+
+  max-height: 100vh;
+}
+
+/* ::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--accent);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--borderbtm);
+  border-radius: 5px;
+} */
+
+ul {
+  list-style: none;
+}
+
+.app-container {
+  position: relative;
+  min-height: 97vh; 
+  background-color: var(--bg); 
+  overflow: hidden; 
+  display: flex;
+  align-items: left;
+  flex-direction: column;
+}

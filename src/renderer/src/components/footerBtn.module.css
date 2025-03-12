@@ -1,0 +1,87 @@
+  .footerContainer {
+    width: 100%;
+    height: 45px;
+
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    /* justify-content: space-between; */
+    /* user-select: none; */
+
+    background-color: var(--bg);
+
+    margin-left: 2px;
+    margin-top: 2px;
+}
+
+.boxButton{
+  width: 30px;
+  height: 30px;
+
+  background-color: var(--bordertop);
+  text-align: center;
+  vertical-align: middle;
+  line-height: 24px;
+  font-size: larger;
+  font-weight: bold;
+
+  border: 3px solid;
+
+  border-top-color: var(--bg);
+  border-left-color: var(--bg);
+
+  border-bottom-color: var(--borderbtm);
+  border-right-color: var(--borderbtm);
+
+  -webkit-filter: grayscale();
+  filter: grayscale();
+
+  margin-left: 2px;
+  margin-right: 2px;
+
+  opacity: .7;
+
+  user-select: none;
+  cursor: pointer;
+}
+
+.searchBar{
+  width: 232px;
+  height: 30px;
+  background-color: var(--bordertop);
+  text-align: center;
+  vertical-align: middle;
+  line-height: 24px;
+  font-size: small;
+  border-top-color: var(--borderbtm);
+  border-left-color: var(--borderbtm);
+  border-bottom-color: var(--bg);
+  border-right-color: var(--bg);
+  -webkit-filter: grayscale();
+  filter: grayscale();
+  margin-left: 4px;
+  margin-top: 2px;
+  font-style: italic;
+  margin-right: 2px;
+}
+
+.boxButton:active , .rectangleButton:active {
+  border-top-color: var(--borderbtm);
+  border-left-color: var(--borderbtm);
+
+  border-bottom-color: var(--bg);
+  border-right-color: var(--bg);
+  margin-top: 2.5px;
+}
+
+.boxButton:hover , .rectangleButton:hover {
+  filter: brightness(0) invert(1) var(--bg);
+  -webkit-filter: brightness(0) invert(1) var(--bg);
+}
+
+.buttonText {
+  height: 15px;
+    width: 15px;
+    margin-top: 5.5px;
+    opacity: 75%;
+}

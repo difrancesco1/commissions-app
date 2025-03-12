@@ -1,0 +1,97 @@
+{
+  "name": "rosieuna",
+  "version": "1.0.2",
+  "description": "pulls commission data from new emails",
+  "main": "./out/main/index.js",
+  "author": "rosie+josh",
+  "homepage": "https://electron-vite.org",
+  "build": {
+    "appId": "com.commissions-app",
+    "productName": "Commissions App",
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src/API",
+        "to": "src/API",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "resources",
+        "to": "resources"
+      }
+    ],
+    "asar": false,
+    "directories": {
+      "buildResources": "resources"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/assets/favicon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "src/assets/favicon.icns"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev",
+    "prebuild": "node scripts/prepare-build.js",
+    "build": "electron-vite build",
+    "postbuild": "node scripts/copy-api.js",
+    "package": "npm run build && electron-builder",
+    "package:dir": "npm run build && electron-builder --dir",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@google-cloud/local-auth": "^2.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "firebase": "^11.3.1",
+    "firebase-admin": "^13.1.0",
+    "googleapis": "^105.0.0",
+    "open": "^10.1.0",
+    "terminate": "^2.8.0",
+    "tree-kill": "^1.2.2",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@electron-toolkit/eslint-config": "^1.0.2",
+    "@electron-toolkit/eslint-config-prettier": "^2.0.0",
+    "@electron/packager": "^18.3.6",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.0.2",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.3",
+    "find-process": "^1.4.10",
+    "prettier": "^3.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.3.1"
+  }
+}
