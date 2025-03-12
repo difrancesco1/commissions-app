@@ -11,27 +11,22 @@ import dog from "../../../assets/dog.gif";
 const { ipcRenderer } = window.require("electron");
 
 const FooterBtn = ({ setSearchQuery }) => {
-  const [query, setQuery] = useState(""); // Local state for the search query
+  const [query, setQuery] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshResult, setLastRefreshResult] = useState(null);
   const [isAuthorizing, setIsAuthorizing] = useState(false);
 
-  // Handle input change and update the parent component
   const handleChange = (e) => {
-    setQuery(e.target.value); // Update local state
-    setSearchQuery(e.target.value); // Pass the query to the parent component
+    setQuery(e.target.value);
+    setSearchQuery(e.target.value);
   };
 
-  // Helper to get a detailed result message
   const getResultMessage = (emailResponse, imageResponse) => {
-    // Return the standard placeholder to maintain visual consistency
     return "-.⊹˖ᯓ★. ݁₊";
   };
 
-  // Function to check if images were loaded correctly
   const checkImagesLoaded = async () => {
     try {
-      // Check a comprehensive set of known images
       const imageNames = [
         "A03Muraminalol.png",
         "A03minabananas.png",
@@ -43,8 +38,6 @@ const FooterBtn = ({ setSearchQuery }) => {
         return new Promise((resolve) => {
           const img = new Image();
           img.onload = () => {
-            // Check if image is actually valid by comparing dimensions
-            // A 1x1 pixel might indicate a broken/placeholder image
             if (img.width > 10 && img.height > 10) {
               resolve({
                 name,
@@ -65,11 +58,9 @@ const FooterBtn = ({ setSearchQuery }) => {
           img.onerror = () =>
             resolve({ name, loaded: false, reason: "Error loading" });
 
-          // Try both URL formats with cache buster
           const timestamp = Date.now();
           img.src = `http://localhost:5000/API/images/${name}?t=${timestamp}`;
 
-          // Set a timeout to handle cases where the image might hang
           setTimeout(() => {
             if (!img.complete) {
               resolve({ name, loaded: false, reason: "Timeout" });
@@ -87,7 +78,6 @@ const FooterBtn = ({ setSearchQuery }) => {
     }
   };
 
-  // Improved image debugging
   const debugImagePaths = async () => {
     try {
       const response = await fetch(
@@ -104,10 +94,8 @@ const FooterBtn = ({ setSearchQuery }) => {
     return null;
   };
 
-  // Function to create placeholder images for missing images
   const createPlaceholderImages = async () => {
     try {
-      // List of expected images that should be available
       const expectedImages = [
         "A03Muraminalol.png",
         "A03minabananas.png",
@@ -123,7 +111,6 @@ const FooterBtn = ({ setSearchQuery }) => {
         "A03ywuria.png",
       ];
 
-      // Create placeholders for all missing images
       const createPromises = expectedImages.map(async (imageName) => {
         try {
           const response = await fetch(
@@ -163,14 +150,12 @@ const FooterBtn = ({ setSearchQuery }) => {
     return null;
   };
 
-  // Replace the handleReauthorizeClick function with this version
   const handleReauthorizeClick = async () => {
     if (isAuthorizing) return; // Prevent multiple clicks
 
     try {
       setIsAuthorizing(true);
 
-      // Open a direct URL to the reauthorization page instead of using fetch
       const authWindow = window.open(
         "http://localhost:5000/api/reauthorize-direct",
         "_blank",
@@ -197,9 +182,7 @@ const FooterBtn = ({ setSearchQuery }) => {
     if (e) e.preventDefault(); // Prevent default right-click menu
     if (isRefreshing) return; // Prevent multiple clicks
 
-    // Check if Shift key is pressed while right-clicking
     if (e && e.shiftKey) {
-      // Ask for image name with A03laeriedust.png as default
       const imageName = prompt("Enter image name to fix:", "A03laeriedust.png");
       if (imageName) {
         await fixSpecificImage(imageName);
@@ -223,8 +206,6 @@ const FooterBtn = ({ setSearchQuery }) => {
       // Call the main process to handle reprocessing with timeout
       let result;
       try {
-        // IMPORTANT FIX: Make sure ipcRenderer is correctly accessed based on how it was imported
-        // The import should be: const { ipcRenderer } = window.require("electron");
         const reprocessPromise = ipcRenderer.invoke("reprocess-images");
 
         const timeoutPromise = new Promise((_, reject) =>
@@ -301,7 +282,6 @@ const FooterBtn = ({ setSearchQuery }) => {
     }
   };
 
-  // Similarly, fix the fixSpecificImage function
   const fixSpecificImage = async (imageName) => {
     if (isRefreshing) return; // Prevent multiple operations
 
@@ -318,7 +298,6 @@ const FooterBtn = ({ setSearchQuery }) => {
 
       console.log(`🔧 Attempting to fix specific image: ${imageName}`);
 
-      // Call the main process with timeout
       let result;
       try {
         const fixPromise = ipcRenderer.invoke("fix-specific-image", imageName);
@@ -339,13 +318,7 @@ const FooterBtn = ({ setSearchQuery }) => {
       }
 
       console.log("Fix result:", result);
-
-      // Rest of the function remains the same...
-
-      // Rest of the function...
-    } catch (error) {
-      // Error handling...
-    }
+    } catch (error) {}
   };
 
   // Also fix the diagnoseFetchImageIssue function
@@ -358,7 +331,6 @@ const FooterBtn = ({ setSearchQuery }) => {
       // 4. Try to fix a test image
       let fixResult;
       try {
-        // IMPORTANT FIX: Use the imported ipcRenderer directly
         fixResult = await ipcRenderer.invoke("fix-specific-image", "test.png");
       } catch (err) {
         fixResult = { error: `Fix operation failed: ${err.message}` };
@@ -379,7 +351,7 @@ const FooterBtn = ({ setSearchQuery }) => {
     }
   };
 
-  // Add a diagnostic function that can be called from the console
+  // diagnostic function
   window.diagnoseFetchImageIssue = async () => {
     try {
       console.log("Running image fetch diagnostics...");
@@ -597,7 +569,6 @@ const FooterBtn = ({ setSearchQuery }) => {
       var searchBar = document.getElementById("refreshresult");
       btn.src = allfailed;
 
-      // Keep the original placeholder
       searchBar.placeholder = "-.⊹˖ᯓ★. ݁₊";
 
       document.body.style.cursor = "default";

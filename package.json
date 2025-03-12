@@ -36,6 +36,7 @@
       "target": [
         "nsis"
       ],
+<<<<<<< HEAD
       "icon": "src/assets/favicon.ico",
       "certificateFile": null,
       "certificatePassword": null,
@@ -43,12 +44,19 @@
       "verifyUpdateCodeSignature": false,
       "signAndEditExecutable": false,
       "signDlls": false
+=======
+      "icon": "resources/icon.ico"
+>>>>>>> 4bb0f5e4338af324122687cd85e1cbfc02701927
     },
     "mac": {
       "target": [
         "dmg"
       ],
+<<<<<<< HEAD
       "icon": "src/assets/favicon.icns"
+=======
+      "icon": "resources/icon.icns"
+>>>>>>> 4bb0f5e4338af324122687cd85e1cbfc02701927
     },
     "nsis": {
       "oneClick": false,
