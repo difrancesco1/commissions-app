@@ -6,7 +6,8 @@
   "author": "rosie+josh",
   "homepage": "https://electron-vite.org",
   "build": {
-    "appId": "rosieuna",
+    "appId": "com.commissions-app",
+    "productName": "Commissions App",
     "files": [
       "out/**/*"
     ],
@@ -14,34 +15,60 @@
       {
         "from": "src/API",
         "to": "src/API",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
-        "from": "node_modules",
-        "to": "node_modules",
-        "filter": ["express/**", "cors/**", "firebase-admin/**", "googleapis/**", "@google-cloud/**"]
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "resources",
+        "to": "resources"
       }
     ],
+    "asar": false,
     "directories": {
       "buildResources": "resources"
     },
-    "asar": false
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/assets/favicon.ico",
+      "certificateFile": null,
+      "certificatePassword": null,
+      "publisherName": null,
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false,
+      "signDlls": false
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "src/assets/favicon.icns"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
   },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "node copy-index.js && node copy-server-deps.js && electron-vite build && node copy-index.js",
-    "dist": "electron-builder",
-    "postinstall": "electron-builder install-app-deps",
-    "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux",
-    "preinstall": "",
-    "install": "",
-    "test": "make test"
+    "prebuild": "node scripts/prepare-build.js",
+    "build": "electron-vite build",
+    "postbuild": "node scripts/copy-api.js",
+    "package": "npm run build && electron-builder",
+    "package:dir": "npm run build && electron-builder --dir",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -52,6 +79,7 @@
     "firebase": "^11.3.1",
     "firebase-admin": "^13.1.0",
     "googleapis": "^105.0.0",
+    "open": "^10.1.0",
     "terminate": "^2.8.0",
     "tree-kill": "^1.2.2",
     "yarn": "^1.22.22"
