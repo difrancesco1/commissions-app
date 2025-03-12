@@ -11,8 +11,6 @@ import {
   updateDoc,
   where,
   deleteDoc,
-  setDoc,
-  getDoc,
 } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 import EmailButtonContainer from "./EmailButtonContainer";
@@ -24,6 +22,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   const [disabledButtons, setDisabledButtons] = useState({});
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedButtonId, setSelectedButtonId] = useState(null);
+  const [pastCommissionersData, setPastCommissionersData] = useState({});
 
   // Detailed button configuration
   const buttonConfig = {
@@ -105,6 +104,19 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       where("ARCHIVE", "==", true),
     );
 
+    const pastCommissionersQuery = query(collection(db, "pastCommissioners"));
+
+    const unsubscribePastCommissioners = onSnapshot(
+      pastCommissionersQuery,
+      (snapshot) => {
+        const pastCommData = {};
+        snapshot.docs.forEach((doc) => {
+          pastCommData[doc.id] = doc.data().count;
+        });
+        setPastCommissionersData(pastCommData);
+      },
+    );
+
     const unsubscribeArchivedUsers = onSnapshot(
       archivedUsersQuery,
       (snapshot) => {
@@ -130,6 +142,13 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       commissionIndex ? user.id === commissionIndex : index === 0,
     );
   }, [userData, commissionIndex]);
+
+  // Selected commission logic for Archived database
+  const selectedUserCommissionCount = useMemo(() => {
+    if (!selectedCommission || !selectedCommission.TWITTER) return 1;
+
+    return pastCommissionersData[selectedCommission.TWITTER] || 0;
+  }, [selectedCommission, pastCommissionersData]);
 
   // Get disabled buttons based on the commission data
   const getDisabledButtonsState = (commission) => {
@@ -253,37 +272,21 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     for (const id in userData) {
       const user = userData[id];
 
-      // dont touch blacklisted items
-      if (user.NOTES.includes("AVOID:")) {
-        continue;
-      }
-
       // today's date + commission due date
       const todayDate = new Date();
       const commDue = new Date(user.PAYDUE.toDate());
 
-      // if data is in archive, delete entry if commission is past paydate.
+      // if data is in archive AND not complete AND isn't blacklisted, delete entry if commission is past paydate.
       // if deleted entry, no need to copy into carrd info
-      if (user.ARCHIVE) {
+      if (user.ARCHIVE && !user.EMAIL_COMP && !user.NOTES.includes("AVOID:")) {
         if (todayDate > commDue) {
-          // if completed, add twitter to pastCommissioners database
-          const docRef = doc(db, "pastCommissioners", user.TWITTER);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const newCount = parseInt(docSnap.data()["count"]) + 1;
-            await updateDoc(docRef, {
-              count: newCount,
-            });
-          } else {
-            await setDoc(docRef, {
-              count: 1,
-            });
-          }
-          // delete commission
           await deleteDoc(doc(db, "commissions", user.ID));
         }
-      } // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
-      else if (!user.PAID) {
+        continue;
+      }
+
+      // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
+      if (!user.PAID) {
         // PAYDATE HAS BEEN PASSED
         if (todayDate > commDue) {
           const documentRef = doc(db, "commissions", user.id);
@@ -293,36 +296,36 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           console.log(
             "archived " + user.id + " due to payment not being made in 30 days",
           );
-          continue;
-        } // put into carrd array to be copied 
-      } else { 
-        // clean twitter name to not have any symbols
-        const twitter = user.TWITTER;
-        const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
-
-        // add due date if there is a due date
-        // format information for website
-        try {
-          const commmDue = new Date(user.DUE.toDate());
-          const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
-
-          carrdArr.push(
-            `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
-          );
-          carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-          carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
-          carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
-          carrdArr.push(`\n`);
-        } catch {
-          carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
-          carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-          carrdArr.push(
-            `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
-          );
-          carrdArr.push(`\n`);
         }
       }
+
+      // clean twitter name to not have any symbols
+      const twitter = user.TWITTER;
+      const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
+
+      // add due date if there is a due date
+      // format information for website
+      try {
+        const commmDue = new Date(user.DUE.toDate());
+        const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
+
+        carrdArr.push(
+          `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+        );
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+        carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
+        carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
+        carrdArr.push(`\n`);
+      } catch {
+        carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
+        carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+        carrdArr.push(
+          `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
+        );
+        carrdArr.push(`\n`);
+      }
     }
+    // console.log(carrdArr.join(""));
     // copy website information to clipboard
     navigator.clipboard.writeText(carrdArr.join(""));
   };
@@ -330,7 +333,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
   return (
     <div className={styles.commissionInfo}>
       <div className={styles.clientInfo}>
-        {selectedCommission && (
+        {selectedCommission && selectedUserCommissionCount && (
           <>
             <CommissionInfoImg
               commissionIndex={commissionIndex}
@@ -339,6 +342,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
             <CommissionInfoText
               commissionIndex={commissionIndex}
               user={selectedCommission}
+              count={selectedUserCommissionCount}
             />
           </>
         )}

@@ -6,7 +6,7 @@ import { doc, updateDoc } from "firebase/firestore";
 
 const updateData = async (id, newNotes) => {
   try {
-    const docRef = doc(db, "commissions", id); // Ensure the collection name is correct
+    const docRef = doc(db, "commissions", id);
     await updateDoc(docRef, { NOTES: newNotes });
     console.log("Document updated successfully!");
   } catch (e) {
@@ -17,8 +17,10 @@ const updateData = async (id, newNotes) => {
 function CommissionInfoText({ user }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
   const [dueDate, setDueDate] = useState([]);
+
   // Ensure state updates when `user.NOTES` changes
-  useEffect(() => {src/renderer/src/components/CommissionInfo.jsx
+  useEffect(() => {
+    src / renderer / src / components / CommissionInfo.jsx;
     setNotes(user.NOTES || ""); // Update state if Firestore data changes
   }, [user.NOTES]);
 

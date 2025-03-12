@@ -2,10 +2,10 @@
 
 :root {
   /* pink */
-  --bg: #FEE8EB;
+  /* --bg: #FEE8EB;
   --bordertop: #ff78a181;
   --borderbtm: #45314a81;
-  --accent: #FF78A0;
+  --accent: #FF78A0; */
 
   --red: #FFBDB9;
   --orange: #F6DBBE;
@@ -15,10 +15,10 @@
   --purple: #DBC5F6;
 
   /* yellow */
-  /* --bg: #FEF0C1;
+  --bg: #FEF0C1;
   --bordertop: #F7CB40;
   --borderbtm: #7A6B50;
-  --accent: #FFE87E; */
+  --accent: #FFE87E;
 
   /* retro dark mode */
   /* --bg: #000000;

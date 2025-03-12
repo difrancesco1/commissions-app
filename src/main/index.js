@@ -1733,7 +1733,7 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true,
     fullscreenable: false,
-    icon: path.join(appRoot, "src/assets/favicon.ico"),
+    icon: path.join(appRoot, "src/assets/icon.ico"),
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,
