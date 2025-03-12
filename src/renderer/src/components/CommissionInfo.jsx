@@ -145,9 +145,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
 
   // Selected commission logic for Archived database
   const selectedUserCommissionCount = useMemo(() => {
-    if (!selectedCommission || !selectedCommission.TWITTER) return 1;
+    //   if (!selectedCommission || !selectedCommission.TWITTER) return 1;
 
-    return pastCommissionersData[selectedCommission.TWITTER] || 0;
+    //   return pastCommissionersData[selectedCommission.TWITTER] || 0;
+    // }, [selectedCommission, pastCommissionersData]);
+
+    return userData.find((user, index) =>
+      commissionIndex ? user.id === commissionIndex : index === 0,
+    );
   }, [selectedCommission, pastCommissionersData]);
 
   // Get disabled buttons based on the commission data

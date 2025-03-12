@@ -14,13 +14,12 @@ const updateData = async (id, newNotes) => {
   }
 };
 
-function CommissionInfoText({ user }) {
+function CommissionInfoText({ user, count }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
   const [dueDate, setDueDate] = useState([]);
 
   // Ensure state updates when `user.NOTES` changes
   useEffect(() => {
-    src / renderer / src / components / CommissionInfo.jsx;
     setNotes(user.NOTES || ""); // Update state if Firestore data changes
   }, [user.NOTES]);
 
@@ -95,6 +94,7 @@ function CommissionInfoText({ user }) {
       <div className={styles.dueInfo}>
         <p className={styles.subText}>{dueDate}</p>
         <p className={styles.subText}>{user.COMM_TYPE}</p>
+        <p className={styles.subText}>2</p>
       </div>
     </>
   );
