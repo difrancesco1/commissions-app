@@ -256,9 +256,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       const commDue = new Date(user.PAYDUE.toDate());
       // commission due date + 7 days
       const weekFromPayDue = new Date(user.PAYDUE.toDate());
-      weekFromPayDue.setDate(weekFromPayDue.getDate() + 14);
+      weekFromPayDue.setDate(weekFromPayDue.getDate() + 7);
 
-      // if data is in archive,
+      // if data is in archive, delete entry if commission is past paydate 
       if (user.ARCHIVE) {
         // if today is 14 days past paydue, delete entry. if deleted entry, continue.
         if (todayDate > weekFromPayDue) {
