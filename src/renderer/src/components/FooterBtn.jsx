@@ -17,6 +17,28 @@ const FooterBtn = ({ setSearchQuery }) => {
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [placeholder, setPlaceholder] = useState("-.⊹˖ᯓ★. ݁₊");
 
+  // Add this to your imports
+  useEffect(() => {
+    // Function to handle download progress events
+    const handleDownloadProgress = (event, data) => {
+      if (data.status === "starting") {
+        console.log(`🔄 Starting download: ${data.docId} to ${data.targetDir}`);
+      } else if (data.status === "complete") {
+        console.log(`Downloaded successfully: ${data.docId} to ${data.path}`);
+      } else if (data.status === "failed") {
+        console.log(`Download failed: ${data.docId} - ${data.error}`);
+      }
+    };
+
+    // Register the event listener
+    ipcRenderer.on("download-progress", handleDownloadProgress);
+
+    // Cleanup when component unmounts
+    return () => {
+      ipcRenderer.removeListener("download-progress", handleDownloadProgress);
+    };
+  }, []);
+
   const handleChange = (e) => {
     setQuery(e.target.value);
     setSearchQuery(e.target.value);

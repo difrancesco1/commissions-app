@@ -40,6 +40,31 @@ let gmailData = null;
 let serverApp = null;
 let imagesDir = null;
 
+// Add this near the beginning of main.js after imports
+app.whenReady().then(() => {
+  if (process.env.NODE_ENV === "development" || !app.isPackaged) {
+    // If this is a development environment, set imagesDir to the development path
+    const devPaths = [
+      path.join(app.getAppPath(), "src", "API", "images"),
+      path.join(process.cwd(), "src", "API", "images"),
+      path.join(__dirname, "..", "..", "src", "API", "images"),
+      path.join(__dirname, "..", "src", "API", "images"),
+    ];
+
+    for (const testPath of devPaths) {
+      try {
+        const parentDir = path.dirname(testPath);
+        if (fs.existsSync(parentDir)) {
+          imagesDir = testPath;
+          console.log(`DEVELOPMENT MODE: Using images directory: ${imagesDir}`);
+          break;
+        }
+      } catch (err) {
+        // Skip invalid paths
+      }
+    }
+  }
+});
 // Utility functions for path resolution
 function findFilePath(fileName, additionalPaths = []) {
   console.log(`Looking for file: ${fileName}`);
@@ -238,12 +263,12 @@ async function storeCommissionData(db, emailData) {
     const commissionsRef = db.collection("commissions");
 
     // Check if document already exists
-    const existingDoc = await commissionsRef.doc(docId).get();
+    // const existingDoc = await commissionsRef.doc(docId).get();
 
-    if (existingDoc.exists) {
-      console.log(`Document ${docId} already exists in database, skipping...`);
-      return true; // Return true to indicate success, but we didn't modify anything
-    }
+    // if (existingDoc.exists) {
+    //   console.log(`Document ${docId} already exists in database, skipping...`);
+    //   return true;
+    // }
 
     // Document doesn't exist, create it
     console.log(`Creating new document for ${docId}`);
@@ -587,11 +612,79 @@ ipcMain.handle("fix-specific-image", async (event, imageName) => {
   }
 });
 
-// Add this IPC handler to main.js
 ipcMain.handle("reprocess-images", async (event) => {
-  return await reprocessImages();
+  console.log("Development detection:", {
+    NODE_ENV: process.env.NODE_ENV,
+    isPackaged: app.isPackaged,
+    isDev: process.env.NODE_ENV === "development" || !app.isPackaged,
+    cwd: process.cwd(),
+  });
+  // Start the reprocessing
+  console.log("Starting image reprocessing in background...");
+
+  // Get reference to sender for communication
+  const sender = event.sender;
+
+  // Wrap the downloadAttachment function to send progress to frontend
+  const originalDownloadAttachment = downloadAttachment;
+  downloadAttachment = async function (...args) {
+    const docId = args[3] + args[4]; // mcomm_type + mtwitter
+    const targetDir = args[5];
+
+    // Send starting info to frontend
+    sender.send("download-progress", {
+      status: "starting",
+      docId: docId,
+      targetDir: targetDir,
+    });
+
+    try {
+      const result = await originalDownloadAttachment(...args);
+
+      // Send success info to frontend
+      sender.send("download-progress", {
+        status: "complete",
+        docId: docId,
+        path: result,
+      });
+
+      return result;
+    } catch (error) {
+      // Send error info to frontend
+      sender.send("download-progress", {
+        status: "failed",
+        docId: docId,
+        error: error.message,
+      });
+
+      throw error;
+    }
+  };
+
+  // Start the process
+  reprocessImages()
+    .then((result) => {
+      console.log(
+        "✅ Background reprocessing completed:",
+        `${result.results?.successful || 0} images processed successfully to ${imagesDir}`,
+      );
+      // Restore original function
+      downloadAttachment = originalDownloadAttachment;
+    })
+    .catch((err) => {
+      console.error("❌ Background reprocessing error:", err);
+      // Restore original function
+      downloadAttachment = originalDownloadAttachment;
+    });
+
+  // Return immediately with a success message
+  return {
+    success: true,
+    message: "Image reprocessing started in background",
+    imagesDir: imagesDir,
+  };
 });
-// Improved download function with enhanced retries and error handling
+
 async function downloadAttachment(
   gmailClient,
   messageId,
@@ -601,13 +694,57 @@ async function downloadAttachment(
   targetDir,
 ) {
   const docId = mcomm_type + mtwitter;
-  console.log(`Downloading real attachment for ${docId}...`);
+  console.log(`DOWNLOADING IMAGE: ${docId}`);
+  console.log(`TARGET DIRECTORY: ${targetDir}`);
 
+  const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+
+  let imagesDir;
+  if (targetDir) {
+    // If explicitly provided, use that
+    imagesDir = targetDir;
+  } else if (isDev) {
+    // In development, try multiple potential image directories
+    const devPaths = [
+      path.join(app.getAppPath(), "src", "API", "images"),
+      path.join(process.cwd(), "src", "API", "images"),
+      path.join(__dirname, "..", "..", "src", "API", "images"),
+      path.join(__dirname, "..", "src", "API", "images"),
+    ];
+
+    let devDir = null;
+    for (const testPath of devPaths) {
+      try {
+        // Check if parent directory exists
+        const parentDir = path.dirname(testPath);
+        if (fs.existsSync(parentDir)) {
+          devDir = testPath;
+          console.log(`Found valid development path: ${testPath}`);
+          break;
+        }
+      } catch (err) {
+        // Skip paths that cause errors
+      }
+    }
+
+    if (devDir) {
+      imagesDir = devDir;
+      console.log(`Using DEV image directory: ${imagesDir}`);
+    } else {
+      // Fall back to userData if no dev path works
+      imagesDir = path.join(app.getPath("userData"), "images");
+      console.log(`No valid DEV paths found, using: ${imagesDir}`);
+    }
+  } else {
+    // In production, use user data directory
+    imagesDir = path.join(app.getPath("userData"), "images");
+    console.log(`Using PROD image directory: ${imagesDir}`);
+  }
+
+  console.log(`📁 TARGET DIRECTORY: ${imagesDir}`);
   // Maximum number of retries for robustness
   const MAX_RETRIES = 5;
 
-  // Make sure we have a valid directory to store the image
-  const imagesDir = targetDir || path.join(app.getPath("userData"), "images");
   if (!fs.existsSync(imagesDir)) {
     fs.mkdirSync(imagesDir, { recursive: true });
   }
@@ -719,7 +856,6 @@ async function downloadAttachment(
 
   throw new Error(`Failed to download after ${MAX_RETRIES} attempts`);
 }
-
 async function reprocessImages() {
   console.log("Starting image reprocessing with focus on real images...");
 
@@ -853,10 +989,51 @@ function startEmbeddedServer() {
     // Set up middleware
     serverApp.use(cors());
 
-    const userImagesDir = path.join(app.getPath("userData"), "images");
+    // Determine appropriate images directory
+    // Check if we're in development mode
+    const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+    console.log(`Development mode: ${isDev}`);
+
+    let userImagesDir;
+    if (isDev) {
+      // Try development paths
+      const devPaths = [
+        path.join(app.getAppPath(), "src", "API", "images"),
+        path.join(process.cwd(), "src", "API", "images"),
+        path.join(__dirname, "..", "..", "src", "API", "images"),
+        path.join(__dirname, "..", "src", "API", "images"),
+      ];
+
+      for (const testPath of devPaths) {
+        try {
+          const parentDir = path.dirname(testPath);
+          if (fs.existsSync(parentDir)) {
+            userImagesDir = testPath;
+            console.log(
+              `DEVELOPMENT MODE: Using images directory: ${userImagesDir}`,
+            );
+            break;
+          }
+        } catch (err) {
+          // Skip invalid paths
+        }
+      }
+
+      // Fall back to user data dir if no dev path found
+      if (!userImagesDir) {
+        userImagesDir = path.join(app.getPath("userData"), "images");
+        console.log(`No valid dev paths found, using: ${userImagesDir}`);
+      }
+    } else {
+      // Production mode - use user data directory
+      userImagesDir = path.join(app.getPath("userData"), "images");
+      console.log(`PRODUCTION MODE: Using images directory: ${userImagesDir}`);
+    }
+
     if (!fs.existsSync(userImagesDir)) {
       fs.mkdirSync(userImagesDir, { recursive: true });
     }
+
     imagesDir = userImagesDir;
 
     console.log(`Using images directory: ${imagesDir}`);
