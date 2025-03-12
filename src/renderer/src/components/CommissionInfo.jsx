@@ -254,18 +254,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       // today's date + commission due date
       const todayDate = new Date();
       const commDue = new Date(user.PAYDUE.toDate());
-      // commission due date + 7 days
-      const weekFromPayDue = new Date(user.PAYDUE.toDate());
-      weekFromPayDue.setDate(weekFromPayDue.getDate() + 7);
 
-      // if data is in archive, delete entry if commission is past paydate UNLESS theres "AVOID:" in the notes. if deleted entry, no need to copy into carrd info
-      if (user.ARCHIVE) {
-        if (!user.NOTES.includes("AVOID:")) {
-          if (todayDate > weekFromPayDue) {
-            await deleteDoc(doc(db, "commissions", user.ID));
-          }
-          continue;
+      // if data is in archive AND not complete AND isn't blacklisted, delete entry if commission is past paydate.
+      // if deleted entry, no need to copy into carrd info
+      if (user.ARCHIVE && !user.EMAIL_COMP && !user.NOTES.includes("AVOID:")) {
+        if (todayDate > commDue) {
+          await deleteDoc(doc(db, "commissions", user.ID));
         }
+        continue;
       }
 
       // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
