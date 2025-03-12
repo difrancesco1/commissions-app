@@ -1062,22 +1062,7 @@ function startEmbeddedServer() {
       }
     }
 
-    const criticalImages = [
-      "test.png",
-      "A03Muraminalol.png",
-      "A03minabananas.png",
-      "A03marikoepVT.png",
-      "A03nenmie_.png",
-      "A03plzwork.png",
-      "A03rainmeww.png",
-      "A03ropumimi.png",
-      "A03s4kivt.png",
-      "A03softvoicena.png",
-      "A03yuumemiruu.png",
-      "A03ywunmin.png",
-      "A03ywuria.png",
-      "A03laeriedust.png",
-    ];
+    const criticalImages = [];
 
     for (const imageName of criticalImages) {
       const imagePath = path.join(imagesDir, imageName);
