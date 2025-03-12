@@ -258,13 +258,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       const weekFromPayDue = new Date(user.PAYDUE.toDate());
       weekFromPayDue.setDate(weekFromPayDue.getDate() + 7);
 
-      // if data is in archive, delete entry if commission is past paydate 
+      // if data is in archive, delete entry if commission is past paydate UNLESS theres "AVOID:" in the notes. if deleted entry, no need to copy into carrd info
       if (user.ARCHIVE) {
-        // if today is 14 days past paydue, delete entry. if deleted entry, continue.
-        if (todayDate > weekFromPayDue) {
-          await deleteDoc(doc(db, "commissions", user.ID));
+        if (!user.NOTES.includes("AVOID:")) {
+          if (todayDate > weekFromPayDue) {
+            await deleteDoc(doc(db, "commissions", user.ID));
+          }
+          continue;
         }
-        continue;
       }
 
       // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
