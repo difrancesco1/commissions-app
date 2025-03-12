@@ -300,8 +300,11 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           // delete commission
           await deleteDoc(doc(db, "commissions", user.ID));
         }
-      } // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
-      else if (!user.PAID) {
+        continue;
+      } 
+
+      // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
+      if (!user.PAID) {
         // PAYDATE HAS BEEN PASSED
         if (todayDate > commDue) {
           const documentRef = doc(db, "commissions", user.id);
@@ -312,8 +315,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
             "archived " + user.id + " due to payment not being made in 30 days",
           );
           continue;
-        } // put into carrd array to be copied
-      } else if (!user.COMPLETE){
+        } 
+      }
+      // put into carrd array to be copied
+      if (!user.COMPLETE){
         // clean twitter name to not have any symbols
         const twitter = user.TWITTER;
         const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
