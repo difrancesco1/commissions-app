@@ -18,7 +18,7 @@ function CommissionInfoText({ user }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
   const [dueDate, setDueDate] = useState([]);
   // Ensure state updates when `user.NOTES` changes
-  useEffect(() => {
+  useEffect(() => {src/renderer/src/components/CommissionInfo.jsx
     setNotes(user.NOTES || ""); // Update state if Firestore data changes
   }, [user.NOTES]);
 
