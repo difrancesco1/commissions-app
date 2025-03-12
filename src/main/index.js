@@ -24,7 +24,6 @@ try {
   imageUtils = {}; // Empty object as fallback
 }
 
-// CRITICAL: Force single instance of the app
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   console.log("Another instance is already running - quitting this one");
@@ -668,35 +667,29 @@ async function downloadAttachment(
         );
       }
 
-      // Proper decoding of base64 data
       const base64Data = attachmentData.data.data
         .replace(/-/g, "+")
         .replace(/_/g, "/");
 
-      // Convert to binary buffer
       const imageBuffer = Buffer.from(base64Data, "base64");
       console.log(
         `Downloaded image data for ${docId}, size: ${imageBuffer.length} bytes, took ${Date.now() - startTime}ms`,
       );
 
-      // Sanity check on the size
       if (imageBuffer.length < 100) {
         throw new Error(
           `Downloaded image is suspiciously small: ${imageBuffer.length} bytes`,
         );
       }
 
-      // Make sure the directory exists (could have been deleted)
       const dir = path.dirname(imagePath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
 
-      // Write the file in one atomic operation
       fs.writeFileSync(imagePath, imageBuffer);
       console.log(`Successfully saved image for ${docId} to ${imagePath}`);
 
-      // Now validate that the file exists and has content
       const stats = fs.statSync(imagePath);
       if (stats.size !== imageBuffer.length) {
         throw new Error(
@@ -727,7 +720,6 @@ async function downloadAttachment(
   throw new Error(`Failed to download after ${MAX_RETRIES} attempts`);
 }
 
-// Use this function to fix the reprocessImages function to prioritize real images
 async function reprocessImages() {
   console.log("Starting image reprocessing with focus on real images...");
 
@@ -861,12 +853,10 @@ function startEmbeddedServer() {
     // Set up middleware
     serverApp.use(cors());
 
-    // Set up images directory in user data path (more reliable)
     const userImagesDir = path.join(app.getPath("userData"), "images");
     if (!fs.existsSync(userImagesDir)) {
       fs.mkdirSync(userImagesDir, { recursive: true });
     }
-    // Use global imagesDir - DO NOT redeclare with "let"
     imagesDir = userImagesDir;
 
     console.log(`Using images directory: ${imagesDir}`);
@@ -876,13 +866,11 @@ function startEmbeddedServer() {
       try {
         console.log(`Creating placeholder image at: ${imagePath}`);
 
-        // Create directory if it doesn't exist
         const dir = path.dirname(imagePath);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
 
-        // Simple blue square placeholder
         const placeholderData = Buffer.from(
           "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAnElEQVR42u3RAQ0AAAQAMCHa27Ay/GYMPJKqKyvvAAAAAAAAAAAAAAAAAAAAAAAAAAAAxCHqxseQIS0NaRoSGRIZ0tLQpiGRIZEhLQ1pGhIZEhnS0pCmIZEhkSEtDWkaEhkSGdLSkKYhkSGRIS0NaRoSGRIZ0tLQpiGRIZEhLQ1pGhIZEhnS0pCmIZEhkSEtDWkaEhkSGdLSkKYh+WzID/fgBFrDYFnyAAAAAElFTkSuQmCC",
           "base64",
@@ -897,7 +885,6 @@ function startEmbeddedServer() {
       }
     }
 
-    // Create critical placeholder images
     const criticalImages = [
       "test.png",
       "A03Muraminalol.png",
@@ -912,7 +899,7 @@ function startEmbeddedServer() {
       "A03yuumemiruu.png",
       "A03ywunmin.png",
       "A03ywuria.png",
-      "A03laeriedust.png", // Added this to critical images
+      "A03laeriedust.png",
     ];
 
     for (const imageName of criticalImages) {
@@ -945,7 +932,6 @@ function startEmbeddedServer() {
     // API ENDPOINTS
     // ---------------------------------------
 
-    // Replace the existing special endpoint for A03laeriedust.png with this more dynamic one
     serverApp.get(
       ["/API/images/:filename", "/api/images/:filename"],
       async (req, res) => {
