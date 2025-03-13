@@ -295,17 +295,19 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       if (user.ARCHIVE) {
         if (todayDate > commDue) {
           // if completed, add twitter to pastCommissioners database
-          const docRef = doc(db, "pastCommissioners", user.TWITTER);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const newCount = parseInt(docSnap.data()["count"]) + 1;
-            await updateDoc(docRef, {
-              count: newCount,
-            });
-          } else {
-            await setDoc(docRef, {
-              count: 1,
-            });
+          if (user.COMPLETE) {
+            const docRef = doc(db, "pastCommissioners", user.TWITTER);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              const newCount = parseInt(docSnap.data()["count"]) + 1;
+              await updateDoc(docRef, {
+                count: newCount,
+              });
+            } else {
+              await setDoc(docRef, {
+                count: 1,
+              });
+            }
           }
           // delete commission
           await deleteDoc(doc(db, "commissions", user.ID));
