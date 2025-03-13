@@ -133,6 +133,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
       unsubscribeCommissions();
       unsubscribePaidUsers();
       unsubscribeArchivedUsers();
+      unsubscribePastCommissioners();
     };
   }, []);
 
