@@ -90,7 +90,7 @@ function CommissionInfoText({ user, count }) {
           {user.PAYPAL}
         </p>
         <p className={`${styles.noteText} ${styles.formatTextSize}`}>
-        ⨯˚{x > 1 ? "ʚᗢ" : ""}
+          ⨯˚{x > 1 ? "ʚᗢ" : ""}
           {x > 2 ? "₍^.ˬ.^₎ " : ""}
           {x > 3 ? "₍ᐢ.ˬ.ᐢ₎ " : ""}
           {x > 4 ? "♡.°" : ""}
