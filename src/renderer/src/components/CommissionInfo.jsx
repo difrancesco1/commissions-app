@@ -107,13 +107,15 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
     const pastCommissionersQuery = query(collection(db, "pastCommissioners"));
 
     const unsubscribePastCommissioners = onSnapshot(
+      // sets up a listener to watch for changes to the collection
       pastCommissionersQuery,
       (snapshot) => {
-        const pastCommData = {};
+        const pastCommData = {}; // Holds the processed data
         snapshot.docs.forEach((doc) => {
-          pastCommData[doc.id] = doc.data().count;
+          // iterates through each document in the 'snapshot'
+          pastCommData[doc.id] = parseInt(doc.data().count) || 1; // twitter as the id, takes the count and converts the count to an int. Default to 1 if none
         });
-        setPastCommissionersData(pastCommData);
+        setPastCommissionersData(pastCommData); // updates components state (count -> commissioninfotext.jsx) triggering a re-render for the data
       },
     );
 
@@ -146,8 +148,15 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
 
   // Selected commission logic for Archived database
   const selectedUserCommissionCount = useMemo(() => {
-    if (!selectedCommission || !selectedCommission.TWITTER) return 1;
-    return pastCommissionersData[selectedCommission.TWITTER] || commissionIndex;
+    // will only recalculate when selectedCommission or pastCommissionersData changes
+
+    if (!selectedCommission || !selectedCommission.TWITTER) return 1; // for first render if the selectedCommission is undefined (will return 1 for the count)
+
+    const twitterHandle = selectedCommission.TWITTER; // Extracts the twitter handle from the selected commission (from the commissions database)
+
+    const pastCount = pastCommissionersData[twitterHandle]; // looks up the count in pastCommisionersData with the Twitter as a key
+
+    return typeof pastCount === `number` ? Math.max(1, pastCount) : 1; // checks if pastColunt is a number, ensures it is at least 1, if not a number returns 1 as default
   }, [selectedCommission, pastCommissionersData]);
 
   // Get disabled buttons based on the commission data
@@ -302,7 +311,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           await deleteDoc(doc(db, "commissions", user.ID));
         }
         continue;
-      } 
+      }
 
       // if user didn't pay, check that user didn't miss the pay date. if they missed pay date, move to archive
       if (!user.PAID) {
@@ -316,10 +325,10 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
             "archived " + user.id + " due to payment not being made in 30 days",
           );
           continue;
-        } 
+        }
       }
       // put into carrd array to be copied
-      if (!user.COMPLETE){
+      if (!user.COMPLETE) {
         // clean twitter name to not have any symbols
         const twitter = user.TWITTER;
         const noUnderscoreTwitter = twitter.replace(/[^a-zA-Z0-9\s]/g, "");
