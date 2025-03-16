@@ -307,7 +307,9 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
               await setDoc(docRef, {
                 count: 1,
               });
+              console.log("added " + user.TWITTER + " to pastCommissioners.");
             }
+            console.log("deleted " + user.TWITTER + " from database.");
           }
           // delete commission
           await deleteDoc(doc(db, "commissions", user.ID));
