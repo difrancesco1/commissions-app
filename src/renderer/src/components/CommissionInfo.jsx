@@ -346,7 +346,7 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           const dueDate = `${commmDue.getMonth() + 1}.${commmDue.getDate()}`;
 
           carrdArr.push(
-            `💗${dueDate}♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}==`,
+            `✿${dueDate}➮ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}==`,
           );
           carrdArr.push(`${user.EMAIL_WIP ? " ✎art done.ೃ࿔:･" : ".ೃ࿔:･"}`);
           carrdArr.push(`\n`);
