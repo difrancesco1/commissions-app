@@ -343,17 +343,16 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
         // format information for website
         try {
           const commmDue = new Date(user.DUE.toDate());
-          const dueDate = `${commmDue.getMonth() + 1}/${commmDue.getDate()}`;
+          const dueDate = `${commmDue.getMonth() + 1}.${commmDue.getDate()}`;
 
           carrdArr.push(
-            `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
+            `💗${dueDate}♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}==`,
           );
-          carrdArr.push(`${user.PAID ? " 💵✔" : " pending ~"}`);
-          carrdArr.push(`${user.EMAIL_WIP ? " ✎art done.ೃ࿔*:･" : ""}`);
+          carrdArr.push(`${user.EMAIL_WIP ? " ✎art done.ೃ࿔:･" : ".ೃ࿔:･"}`);
           carrdArr.push(`\n`);
         } catch {
           carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
-          carrdArr.push(`${user.PAID ? " 💵✔" : " pending ~"}`);
+          carrdArr.push(`${user.PAID ? "💰" : " pending ~"}`);
           carrdArr.push(
             `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " 💌" : ""}^`,
           );
