@@ -11,6 +11,8 @@ import {
   updateDoc,
   where,
   deleteDoc,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import CommissionInfoText from "./CommissionInfoText";
 import EmailButtonContainer from "./EmailButtonContainer";
@@ -346,15 +348,14 @@ const CommissionInfo = ({ commissionIndex, searchQuery, listCount }) => {
           carrdArr.push(
             `♡ ${dueDate} ♡ ==${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter}== `,
           );
-          carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
-          carrdArr.push(`${id < 7 ? " ✎working⋆.ೃ࿔*:･" : ""}`);
-          carrdArr.push(`${user.COMPLETE ? " ✉!!!" : ""}`);
+          carrdArr.push(`${user.PAID ? " 💵✔" : " pending ~"}`);
+          carrdArr.push(`${user.EMAIL_WIP ? " ✎art done.ೃ࿔*:･" : ""}`);
           carrdArr.push(`\n`);
         } catch {
           carrdArr.push(`^${user.COMPLEX ? "★" : ""}${noUnderscoreTwitter} `);
-          carrdArr.push(`${user.PAID ? " paid✔" : " pending ~"}`);
+          carrdArr.push(`${user.PAID ? " 💵✔" : " pending ~"}`);
           carrdArr.push(
-            `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " ✉" : ""}^`,
+            `${user.EMAIL_PAY || user.EMAIL_COMP || user.EMAIL_COMPPAY ? " 💌" : ""}^`,
           );
           carrdArr.push(`\n`);
         }
