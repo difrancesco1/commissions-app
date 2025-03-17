@@ -85,7 +85,7 @@ const Card = ({ user, setCommissionIndex }) => {
       if (payStatus) {
         // get due date
         const docSnap = await getDoc(
-          doc(db, "commissionDueDate", user.COMM_TYPE),
+          doc(db, "commissionDueDate", user.COMM_TYPE.slice(0, 3)),
         );
 
         // set due date as incremented date (server and user)
@@ -97,7 +97,7 @@ const Card = ({ user, setCommissionIndex }) => {
           const updateCommissionDueDate = doc(
             db,
             "commissionDueDate",
-            user.COMM_TYPE,
+            user.COMM_TYPE.slice(0, 3),
           );
           await updateDoc(updateCommissionDueDate, {
             COMM_START_DATE: dueDate,

@@ -251,6 +251,18 @@ async function storeEmailInFirebase(emailData) {
     let payDue = new Date(); // Now
     payDue.setDate(payDue.getDate() + 30);
 
+    // set commission type + char "x" if extra value is set to true
+    var commtype;
+    // has extra letter
+    if (
+      emailData["mcomm_type"].length > 3 &&
+      emailData["mcomm_type"].charAt(3) == "t"
+    ) {
+      commtype = emailData["mcomm_type"].slice(0, 2) + "x";
+    } else {
+      commtype = emailData["mcomm_type"].slice(0, 2);
+    }
+
     // Try setting the data
     await docRef.set({
       ID: emailData["mcomm_type"] + emailData["mtwitter"],
@@ -259,7 +271,7 @@ async function storeEmailInFirebase(emailData) {
       PAYDUE: payDue, // when the payment is due -> move to archive after 30 days
       DUE: "", // set after someone pays - logic is +1 whoever is in queue , first person is +7 of comm_start_date
       TWITTER: emailData["mtwitter"],
-      COMM_TYPE: emailData["mcomm_type"], // commission type (A02) -> alerts from febuary
+      COMM_TYPE: commtype, // commission type (A02) -> alerts from febuary
       COMM_NAME: emailData["mcomm_name"], // full name of commission
       EMAIL: emailData["memail"], // email to send commission
       PAYPAL: emailData["mpaypal"], // paypal email

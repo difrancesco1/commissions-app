@@ -257,8 +257,20 @@ async function storeCommissionData(db, emailData) {
 
     console.log(`Storing commission data for ${emailData.mtwitter}`);
 
+    // set commission type + char "x" if extra value is set to true
+    var commtype;
+    // has extra letter
+    if (
+      emailData.mcomm_type.length > 3 &&
+      emailData.mcomm_type.charAt(3) == "t"
+    ) {
+      commtype = emailData.mcomm_type.slice(0, 3) + "x";
+    } else {
+      commtype = emailData.mcomm_type.slice(0, 3);
+    }
+
     // Create document ID
-    const docId = emailData.mcomm_type + emailData.mtwitter;
+    const docId = emailData.mcomm_type.slice(0, 3) + emailData.mtwitter;
 
     // Get references
     const commissionsRef = db.collection("commissions");
@@ -288,7 +300,7 @@ async function storeCommissionData(db, emailData) {
       PAYDUE: payDue,
       DUE: "", // set after someone pays
       TWITTER: emailData.mtwitter,
-      COMM_TYPE: emailData.mcomm_type,
+      COMM_TYPE: commtype,
       COMM_NAME: emailData.mcomm_name,
       EMAIL: emailData.memail,
       PAYPAL: emailData.mpaypal,
@@ -310,15 +322,17 @@ async function storeCommissionData(db, emailData) {
 
     // Check if commission type already exists in commissionDueDate
     const commTypeDoc = await commissionDueDateRef
-      .doc(emailData.mcomm_type)
+      .doc(emailData.mcomm_type.slice(0, 3))
       .get();
 
     if (!commTypeDoc.exists) {
       // If not exists, create it
-      await commissionDueDateRef.doc(emailData.mcomm_type).set({
+      await commissionDueDateRef.doc(emailData.mcomm_type.slice(0, 3)).set({
         COMM_START_DATE: emailData.mdate,
       });
-      console.log(`Created new commission type entry: ${emailData.mcomm_type}`);
+      console.log(
+        `Created new commission type entry: ${emailData.mcomm_type.slice(0, 3)}`,
+      );
     }
 
     console.log(`Successfully stored commission data for ${docId}`);

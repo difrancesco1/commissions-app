@@ -41,7 +41,7 @@ function CommissionInfoText({ user, count }) {
     }
   };
 
-  const x = parseInt(count);
+  const x = parseInt(count) - 1;
 
   return (
     <>
@@ -90,11 +90,7 @@ function CommissionInfoText({ user, count }) {
           {user.PAYPAL}
         </p>
         <p className={`${styles.noteText} ${styles.formatTextSize}`}>
-          ⨯˚{x > 1 ? "ʚᗢ" : ""}
-          {x > 2 ? "₍^.ˬ.^₎ " : ""}
-          {x > 3 ? "₍ᐢ.ˬ.ᐢ₎ " : ""}
-          {x > 4 ? "♡.°" : ""}
-          {x > 5 ? "₊ˎˊ˗" : ""}
+          {x}⨯˚ʚᗢ₍^.ˬ.^₎₍ᐢ.ˬ.ᐢ₎♡.°₊ˎˊ˗
         </p>
       </div>
       <div className={styles.dueInfo}>
