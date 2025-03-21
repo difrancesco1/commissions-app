@@ -32,6 +32,12 @@
     user-select: none;
 }
 
+.subsubText{
+    font-size: 11px;
+    user-select: none;
+    opacity: 75;
+}
+
 .subText:active{
     color: var(--bordertop);
 }

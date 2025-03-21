@@ -288,8 +288,8 @@ async function storeCommissionData(db, emailData) {
 
     const commissionDueDateRef = db.collection("commissionDueDate");
 
-    // Calculate pay due date (30 days from start date)
-    const payDue = new Date(emailData.mdate);
+    // Calculate pay due date (30 days from day recieved date)
+    const payDue = new Date();
     payDue.setDate(payDue.getDate() + 30);
 
     // Prepare data

@@ -17,6 +17,7 @@ const updateData = async (id, newNotes) => {
 function CommissionInfoText({ user, count }) {
   const [notes, setNotes] = useState(user.NOTES || ""); // Set initial value
   const [dueDate, setDueDate] = useState([]);
+  const [recieveDate, setRecieveDate] = useState([]);
 
   // Ensure state updates when `user.NOTES` changes
   useEffect(() => {
@@ -32,7 +33,15 @@ function CommissionInfoText({ user, count }) {
       console.log("no due date set yet for user " + user.ID);
       setDueDate("");
     }
-  }, [user.DUE]);
+    try {
+      const databsePayDue = new Date(user.PAYDUE.toDate());
+      databsePayDue.setDate(databsePayDue.getDate() - 30);
+      const recieveDate = `${databsePayDue.getMonth() + 1}/${databsePayDue.getDate()}`;
+      setRecieveDate(recieveDate);
+    } catch {
+      console.log("couldn't calculate email recieved date for user " + user.ID);
+    }
+  }, [user.DUE, user.PAYDUE]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -94,6 +103,7 @@ function CommissionInfoText({ user, count }) {
         </p>
       </div>
       <div className={styles.dueInfo}>
+        <p className={styles.subsubText}>{recieveDate}↴</p>
         <p className={styles.subText}>{dueDate}</p>
         <p className={styles.subText}>{user.COMM_TYPE}</p>
       </div>
