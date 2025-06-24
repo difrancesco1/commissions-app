@@ -83,7 +83,7 @@ function CommissionInfoText({ user, count }) {
           {user.TWITTER}
         </p>
         <p
-          className={styles.subText}
+          className={styles.subsubText}
           onClick={() => {
             navigator.clipboard.writeText(user.EMAIL);
           }}
@@ -91,7 +91,7 @@ function CommissionInfoText({ user, count }) {
           {user.EMAIL}
         </p>
         <p
-          className={styles.subText}
+          className={styles.subsubText}
           onClick={() => {
             navigator.clipboard.writeText(user.PAYPAL);
           }}

@@ -84,9 +84,7 @@ const Card = ({ user, setCommissionIndex }) => {
       // if user paid, update due date
       if (payStatus) {
         // get due date
-        const docSnap = await getDoc(
-          doc(db, "commissionDueDate", user.COMM_TYPE.slice(0, 3)),
-        );
+        const docSnap = await getDoc(doc(db, "commissionDueDate", "due"));
 
         // set due date as incremented date (server and user)
         if (docSnap.exists()) {
@@ -94,13 +92,9 @@ const Card = ({ user, setCommissionIndex }) => {
           dueDate.setDate(dueDate.getDate() + 1);
 
           // update database with incremented due date
-          const updateCommissionDueDate = doc(
-            db,
-            "commissionDueDate",
-            user.COMM_TYPE.slice(0, 3),
-          );
+          const updateCommissionDueDate = doc(db, "commissionDueDate", "due");
           await updateDoc(updateCommissionDueDate, {
-            COMM_START_DATE: dueDate,
+            duedate: dueDate,
           });
 
           // update user due date with integer of due date
@@ -167,7 +161,7 @@ const Card = ({ user, setCommissionIndex }) => {
         onClick={() => handleClick(user.id)}
       >
         {user.EMAIL_WIP === true ? "»" : null}
-        {user.TWITTER}
+        {user.NAME}
         {user.COMPLEX === true ? "⋆" : null}
       </h1>
     </div>

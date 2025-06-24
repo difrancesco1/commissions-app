@@ -293,16 +293,6 @@ async function storeEmailInFirebase(emailData) {
       .doc(emailData["mcomm_type"])
       .get();
 
-    if (!commTypeDoc.exists) {
-      // If the COMM_TYPE does not exist, create a new document
-      await commissionDueDateRef.doc(emailData["mcomm_type"]).set({
-        COMM_START_DATE: emailData["mdate"],
-      });
-
-      console.log(
-        `New commission type ${emailData["mcomm_type"]} added to commissionDueDate.`,
-      );
-    }
     console.log(
       `Email for ${emailId} ${emailData["mcomm_type"]}${emailData["mtwitter"]} stored in Firebase.`,
     );

@@ -42,6 +42,10 @@
     color: var(--bordertop);
 }
 
+.subsubText:active{
+    color: var(--bordertop);
+}
+
 .imgStyle{
     min-width: 94px;
     min-height: 94px;
